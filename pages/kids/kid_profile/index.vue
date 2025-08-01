@@ -32,7 +32,7 @@ const Histories = [
         date: "10/7/25 10:26 am",
     },
     {
-        id:7,
+        id: 7,
         place: "School",
         date: "10/7/25 10:26 am",
     },
@@ -76,9 +76,8 @@ const Histories = [
                             <p>12345</p>
                         </div>
 
-                        <div class="flex justify-center items-center bg-red-500 rounded-full w-6 h-6">
-                            <Icon name="uil:trash" style="color: white" />
-                        </div>
+                        <img src="/icons/trash.png" alt="delete" class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full">
+
                     </div>
 
                     <div class="flex flex-col">
@@ -100,23 +99,27 @@ const Histories = [
         </div>
 
         <div class="flex justify-between w-full px-8 gap-4 mb-10 font-bold">
-            <button type="submit"
-                class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                Back
-            </button>
+            <NuxtLink to="/users/user_profile" class="w-full">
+                <button type="submit"
+                    class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                    Back
+                </button>
+            </NuxtLink>
 
-            <button type="submit"
-                class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                Edit
-            </button>
+            <NuxtLink to="/kids/kid_edit_profile" class="w-full">
+                <button type="submit"
+                    class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                    Edit
+                </button>
+            </NuxtLink>
         </div>
 
     </div>
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>

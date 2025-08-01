@@ -65,7 +65,7 @@ function selectPlace(place) {
     const location = place.geometry.location
     result.value = place.name
     showPlace.value = true
-    
+
     map.value.panTo(location)
 
     if (marker.value) {
@@ -243,7 +243,11 @@ watch(searchQuery, (val) => {
                         <div class="flex justify-between">
                             <p>📍 {{ place.name }}</p>
 
-                            <img src="/icons/plus.png" alt="add place" class="w-5 h-5 p-1 bg-blue-100 rounded-full">
+                            <NuxtLink to="/places/add_place">
+                                <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
+                                    <img src="/icons/plus.png" alt="plus" class="w-4 h-4" />
+                                </button>
+                            </NuxtLink>
                         </div>
                     </li>
                 </ul>
@@ -267,16 +271,19 @@ watch(searchQuery, (val) => {
         </div>
 
         <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="!showResults && !showPlace" class="absolute bottom-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
+        <div v-if="!showResults && !showPlace"
+            class="absolute bottom-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
             <p class="font-bold mb-2 text-[#035CB2] text-3xl">Pin place</p>
             <div class="flex items-center justify-between">
                 <div class="">
                     <p class="font-semibold">Kisra</p>
                     <p class="text-gray-500 truncate max-w-[220px]">1845/5-8 Phaholyothin Road, Laty...</p>
                 </div>
-                <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
-                    <img src="/icons/plus.png" alt="plus" class="w-4 h-4" />
-                </button>
+                <NuxtLink to="/places/add_place">
+                    <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
+                        <img src="/icons/plus.png" alt="plus" class="w-4 h-4" />
+                    </button>
+                </NuxtLink>
             </div>
 
             <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
@@ -305,7 +312,7 @@ watch(searchQuery, (val) => {
                 <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm">Work</div>
             </div>
 
-             <div class="mt-2">
+            <div class="mt-2">
                 <p class="font-bold">Remark</p>
 
                 <P>Kisra</P>

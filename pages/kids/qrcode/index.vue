@@ -27,17 +27,19 @@
         </div>
 
         <div class="w-full px-7">
-            <button type="submit"
-                class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl  text-lg hover:bg-[#0198FF] hover:text-white transition">
-                Cancel
-            </button>
+            <NuxtLink to="/kids/kid_create_profile">
+                <button type="submit"
+                    class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl  text-lg hover:bg-[#0198FF] hover:text-white transition">
+                    Cancel
+                </button>
+            </NuxtLink>
         </div>
     </div>
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>

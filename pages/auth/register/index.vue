@@ -13,32 +13,33 @@ const form = reactive({
 })
 
 async function handleRegister() {
-    try {
-        const res = await fetch(`${config.apiDomain}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(form),
-        })
+    router.push(`/users/user_profile`)
+    // try {
+    //     const res = await fetch(`${config.apiDomain}/register`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(form),
+    //     })
 
-        const data = await res.json()
-        console.log('Registered user id:', data.id)
+    //     const data = await res.json()
+    //     console.log('Registered user id:', data.id)
 
-        if (res.ok) {
-            router.push(`/users/user_profile/${data.id}`)
-        } else {
-            alert(data.error || 'Registration failed')
-        }
+    //     if (res.ok) {
+    //         router.push(`/users/user_profile/${data.id}`)
+    //     } else {
+    //         alert(data.error || 'Registration failed')
+    //     }
 
-        // เคลียร์ฟอร์ม
-        form.firstName = ''
-        form.lastName = ''
-        form.email = ''
-        form.phone = ''
-    } catch (err) {
-        alert('เกิดข้อผิดพลาด: ' + err.message)
-    }
+    //     // เคลียร์ฟอร์ม
+    //     form.firstName = ''
+    //     form.lastName = ''
+    //     form.email = ''
+    //     form.phone = ''
+    // } catch (err) {
+    //     alert('เกิดข้อผิดพลาด: ' + err.message)
+    // }
 }
 </script>
 

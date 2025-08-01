@@ -1,4 +1,5 @@
 <script setup>
+import { NuxtLink } from '#components';
 import { reactive } from 'vue'
 
 const form = reactive({
@@ -69,15 +70,19 @@ function handleRegister() {
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold">
-                    <button type="submit"
-                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
-                        Cancel
-                    </button>
+                    <NuxtLink to="/users/user_profile">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
+                            Cancel
+                        </button>
+                    </NuxtLink>
 
-                    <button type="submit"
-                        class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-md text-lg hover:bg-[#0198FF] transition">
-                        Save
-                    </button>
+                    <NuxtLink to="/users/user_profile">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-md text-lg hover:bg-[#0198FF] transition">
+                            Save
+                        </button>
+                    </NuxtLink>
                 </div>
             </form>
 
@@ -86,8 +91,8 @@ function handleRegister() {
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>

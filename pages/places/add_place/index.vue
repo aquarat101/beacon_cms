@@ -51,7 +51,8 @@ function handleRegister() {
 
                     <div>
                         <label class="block my-3 text-gray-700">Address</label>
-                        <input v-model="form.lastName" type="text" placeholder="1845/5-8 Phaholyothin Road, Latyao, Chatuchak Bangkok 10900" disabled
+                        <input v-model="form.lastName" type="text"
+                            placeholder="1845/5-8 Phaholyothin Road, Latyao, Chatuchak Bangkok 10900" disabled
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
                 </div>
@@ -80,15 +81,19 @@ function handleRegister() {
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold">
-                    <button type="submit"
-                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                        Back
-                    </button>
+                    <NuxtLink to="/places/map" class="w-full">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                            Back
+                        </button>
+                    </NuxtLink>
 
-                    <button type="submit"
-                        class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                        Save
-                    </button>
+                    <NuxtLink to="/places/map" class="w-full">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                            Save
+                        </button>
+                    </NuxtLink>
                 </div>
             </form>
         </div>

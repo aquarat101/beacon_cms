@@ -52,9 +52,14 @@ function handleRegister() {
                         <label class="block my-3 text-gray-700">Beacon ID</label>
                         <div class="flex gap-4">
                             <input v-model="form.lastName" type="text" placeholder="beacon id"
-                            class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                                class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
 
-                            <img src="/icons/qrcode.png" alt="qrcode" class="w-11 h-11 p-2 border-2 border-[#0198FF] rounded-md">
+                            <NuxtLink to="/kids/qrcode">
+                                <button type="submit">
+                                    <img src="/icons/qrcode.png" alt="qrcode"
+                                        class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
+                                </button>
+                            </NuxtLink>
                         </div>
                     </div>
 
@@ -67,15 +72,19 @@ function handleRegister() {
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold">
-                    <button type="submit"
-                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                        Cancel
-                    </button>
+                    <NuxtLink to="/users/user_profile" class="w-full">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                            Cancel
+                        </button>
+                    </NuxtLink>
 
-                    <button type="submit"
-                        class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                        Save
-                    </button>
+                    <NuxtLink to="/users/user_profile" class="w-full">
+                        <button type="submit"
+                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                            Save
+                        </button>
+                    </NuxtLink>
                 </div>
             </form>
 
@@ -84,8 +93,8 @@ function handleRegister() {
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>

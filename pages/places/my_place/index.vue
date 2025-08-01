@@ -43,9 +43,12 @@ const places = [
             <div class="absolute inset-0 flex flex-col justify-center z-10 gap-5 px-10 mb-5">
                 <div class="flex justify-between mb-4">
                     <h2 class="text-3xl font-bold text-outline-blue">My Places</h2>
-                    <button class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-end justify-center">
-                        +
-                    </button>
+                    <NuxtLink to="/places/map">
+                        <button
+                            class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-end justify-center">
+                            +
+                        </button>
+                    </NuxtLink>
                 </div>
             </div>
         </div>
@@ -64,8 +67,8 @@ const places = [
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>
