@@ -48,30 +48,30 @@ async function handleRegister() {
             class="w-full min-w-md max-h-100 object-cover z-0" />
 
         <!-- ฟอร์ม -->
-        <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
-            <form @submit.prevent="handleRegister" class="space-y-20 font-bold">
+        <div class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+            <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
                 <div>
                     <div class="">
                         <label class="block my-3 text-gray-700">First Name</label>
-                        <input v-model="form.firstName" type="text" placeholder="first name"
+                        <input v-model="form.firstName" type="text" placeholder="First Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Last Name</label>
-                        <input v-model="form.lastName" type="text" placeholder="last name"
+                        <input v-model="form.lastName" type="text" placeholder="Last Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">E-mail</label>
-                        <input v-model="form.email" type="email" placeholder="email"
+                        <input v-model="form.email" type="email" placeholder="Email"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Phone Number</label>
-                        <input v-model="form.phone" type="tel" placeholder="phone number"
+                        <input v-model="form.phone" type="tel" placeholder="Phone number"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
                 </div>
