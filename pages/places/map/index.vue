@@ -1,0 +1,259 @@
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import { useRuntimeConfig } from '#app'
+
+const searchQuery = ref('')
+const showResults = ref(false)
+const searchResults = ref([])
+const marker = ref(null)
+const mapRef = ref(null)
+const map = ref(null)
+const circle = ref(null)
+// เพิ่ม ref สำหรับตำแหน่งที่เลือก
+const selectedPosition = ref(null)
+
+function onMapClick(event) {
+    const latLng = event.latLng
+
+    // เก็บตำแหน่งที่กดปัก
+    selectedPosition.value = {
+        lat: latLng.lat(),
+        lng: latLng.lng()
+    }
+
+    // ลบ marker เก่า ถ้ามี
+    if (marker.value) {
+        marker.value.setMap(null)
+    }
+
+    // สร้าง marker ใหม่ที่ตำแหน่งคลิก
+    marker.value = new google.maps.Marker({
+        position: latLng,
+        map: map.value,
+        title: 'Selected Location',
+    })
+
+}
+
+function loadGoogleMaps(apiKey) {
+    return new Promise((resolve, reject) => {
+        if (window.google && window.google.maps) {
+            resolve(window.google.maps)
+            return
+        }
+        const script = document.createElement('script')
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+        script.async = true
+        script.onload = () => resolve(window.google.maps)
+        script.onerror = () => reject('Failed to load Google Maps API')
+        document.head.appendChild(script)
+    })
+}
+
+function selectPlace(place) {
+    const location = place.geometry.location
+    map.value.panTo(location)
+
+    if (marker.value) {
+        marker.value.setMap(null)
+    }
+
+    marker.value = new google.maps.Marker({
+        position: location,
+        map: map.value,
+        title: place.name,
+    })
+
+    showResults.value = false
+    console.log('selectPlace called, showResults set to', showResults.value)
+
+    searchQuery.value = place.name
+}
+
+async function goToCurrentLocation() {
+    if (!map.value) return
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                }
+
+                map.value.panTo(userLocation)
+                map.value.setZoom(14)
+
+                if (marker.value) marker.value.setMap(null)
+                marker.value = new google.maps.Marker({
+                    position: userLocation,
+                    map: map.value,
+                    title: 'Current Location',
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4285F4',
+                        fillOpacity: 0.8,
+                        strokeColor: 'white',
+                        strokeWeight: 2,
+                    },
+                })
+
+                if (circle.value) circle.value.setMap(null)
+                circle.value = new google.maps.Circle({
+                    strokeColor: '#4285F4',
+                    strokeOpacity: 0.6,
+                    strokeWeight: 2,
+                    fillColor: '#4285F4',
+                    fillOpacity: 0.2,
+                    map: map.value,
+                    center: userLocation,
+                    radius: 500,
+                })
+            },
+            (error) => {
+                console.warn('Geolocation error:', error.message)
+            }
+        )
+    }
+}
+
+// ฟังก์ชันสำหรับกด enter ในช่อง search ให้แผนที่ไปตำแหน่งนั้น
+function handleEnterKey(event) {
+    if (event.key === 'Enter' && searchQuery.value.trim()) {
+        const service = new google.maps.places.PlacesService(map.value)
+        const request = {
+            query: searchQuery.value,
+            fields: ['name', 'geometry', 'place_id'],
+        }
+        service.textSearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                selectPlace(results[0])
+                showResults.value = false;
+            }
+        })
+    }
+}
+
+onMounted(async () => {
+    const config = useRuntimeConfig()
+    try {
+        const googleMaps = await loadGoogleMaps(config.public.googleMapsApiKey)
+
+        const initialCenter = { lat: 13.7563, lng: 100.5018 }
+
+        map.value = new googleMaps.Map(mapRef.value, {
+            center: initialCenter,
+            zoom: 14,
+            zoomControl: false,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            rotateControl: false,
+            scaleControl: false,
+            scrollwheel: false,
+            draggable: true,
+            keyboardShortcuts: false,
+            styles: [
+                {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }]
+                }
+            ]
+        })
+
+        map.value.addListener('click', onMapClick)
+
+        goToCurrentLocation() // เรียกให้เลื่อนไปตำแหน่งปัจจุบันถ้ามีสิทธิ์
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+watch(searchQuery, (val) => {
+    if (!val.trim()) {
+        showResults.value = false
+        return
+    }
+
+    const service = new google.maps.places.PlacesService(map.value)
+    const request = {
+        query: val,
+        fields: ['name', 'geometry', 'place_id'],
+    }
+
+    service.textSearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            searchResults.value = results.slice(0, 5)
+            showResults.value = true
+        }
+    })
+    showResults.value = false;
+})
+</script>
+
+<template>
+    <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
+        <!-- Header -->
+        <div class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
+            <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
+
+            <!-- Search Input -->
+            <div class="mt-3 mb-4 mx-4  relative">
+                <input v-model="searchQuery" @keydown="handleEnterKey" type="text" placeholder="Search location"
+                    class="w-full rounded-full px-4 pl-10 py-2 text-sm shadow-sm bg-white border border-white placeholder-gray-400" />
+                <span class="absolute left-4 top-2 text-gray-400">
+                    <img src="/icons/search.png" alt="search" class="w-4 h-5" />
+                </span>
+            </div>
+
+            <!-- Search Results -->
+            <div v-if="showResults" class="absolute top-35 mt-3 mx-4 text-left bg-white rounded-xl p-4 shadow z-50">
+                <p class="font-bold text-sm mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
+                <ul class="space-y-2 text-sm text-gray-800">
+                    <li v-for="place in searchResults" :key="place.place_id" @click="selectPlace(place)"
+                        class="cursor-pointer hover:underline">
+                        📍 {{ place.name }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="relative flex-1">
+            <div ref="mapRef" style="width: 100%; height: 62vh;"></div>
+
+            <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
+            <button @click="goToCurrentLocation"
+                class="absolute bottom-18 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
+                📍
+            </button>
+        </div>
+
+        <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
+        <div v-if="!showResults" class="absolute bottom-0 w-full bg-white rounded-t-3xl p-6 shadow-lg">
+            <p class="font-bold text-lg mb-2">Pin place</p>
+            <div class="flex items-center justify-between">
+                <div class="text-sm">
+                    <p class="font-semibold">Kisra</p>
+                    <p class="text-gray-500 truncate max-w-[220px]">1845/5-8 Phaholyothin Road, Laty...</p>
+                </div>
+                <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
+                    <img src="/icons/plus.png" alt="plus" class="w-3 h-3" />
+                </button>
+            </div>
+
+            <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
+                Back to My Places
+            </button>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
+</style>
