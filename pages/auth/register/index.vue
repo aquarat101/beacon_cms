@@ -1,23 +1,51 @@
 <script setup>
-    import { reactive } from 'vue'
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
-    const form = reactive({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-    })
+const router = useRouter()
 
-    function handleRegister() {
-        console.log('Form submitted:', form)
-        // คุณสามารถ fetch ไป backend ได้ที่นี่
+const form = reactive({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+})
+
+async function handleRegister() {
+    try {
+        const res = await fetch('http://localhost:3001/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        })
+
+        const data = await res.json()
+        console.log('Registered user id:', data.id)
+
+        if (res.ok) {
+            router.push(`/users/user_profile/${data.id}`)
+        } else {
+            alert(data.error || 'Registration failed')
+        }
+
+        // เคลียร์ฟอร์ม
+        form.firstName = ''
+        form.lastName = ''
+        form.email = ''
+        form.phone = ''
+    } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message)
     }
+}
 </script>
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center">
         <!-- ส่วนบน: รูป header -->
-        <img src="/images/header_register.png" alt="Register Header" class="w-full min-w-md max-h-100 object-cover z-0" />
+        <img src="/images/header_register.png" alt="Register Header"
+            class="w-full min-w-md max-h-100 object-cover z-0" />
 
         <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
@@ -58,8 +86,8 @@
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>
