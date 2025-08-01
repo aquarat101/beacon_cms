@@ -3,14 +3,17 @@ import KidCard from '~/components/KidCard.vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const { public: config } = useRuntimeConfig()
+
 const id = route.params.id
 
 const profile = ref(null)
 const kids = ref([])
-console.log(id)
+
+
 async function fetchProfile() {
     try {
-        const res = await fetch(`http://localhost:3001/users/${id}`)
+        const res = await fetch(`${config.apiDomain}/users/${id}`)
         // if (!res.ok) throw new Error('Failed to fetch profile')
         const data = await res.json()
         console.log("data:", data)
@@ -23,7 +26,7 @@ async function fetchProfile() {
 
 // async function fetchKids() {
 //     try {
-//         const res = await fetch('http://localhost:3001/kids')
+//         const res = await fetch(`${config.apiDomain}/kids`)
 //         if (!res.ok) throw new Error('Failed to fetch kids')
 //         const data = await res.json()
 //         kids.value = data

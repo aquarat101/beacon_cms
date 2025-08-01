@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const { public: config } = useRuntimeConfig()
 
 const form = reactive({
     firstName: '',
@@ -13,7 +14,7 @@ const form = reactive({
 
 async function handleRegister() {
     try {
-        const res = await fetch('http://localhost:3001/register', {
+        const res = await fetch(`${config.apiDomain}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
