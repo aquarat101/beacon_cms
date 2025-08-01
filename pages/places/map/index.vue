@@ -9,6 +9,7 @@ const marker = ref(null)
 const mapRef = ref(null)
 const map = ref(null)
 const circle = ref(null)
+
 // เพิ่ม ref สำหรับตำแหน่งที่เลือก
 const selectedPosition = ref(null)
 
@@ -33,6 +34,14 @@ function onMapClick(event) {
         title: 'Selected Location',
     })
 
+}
+
+function clearPin() {
+    if (marker.value) {
+        marker.value.setMap(null)
+        marker.value = null
+    }
+    selectedPosition.value = null
 }
 
 function loadGoogleMaps(apiKey) {
@@ -134,6 +143,11 @@ function handleEnterKey(event) {
     }
 }
 
+function clearSearch() {
+    if (searchQuery.value) searchQuery.value = ''
+    showResults.value = false
+}
+
 onMounted(async () => {
     const config = useRuntimeConfig()
     try {
@@ -200,16 +214,22 @@ watch(searchQuery, (val) => {
             <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
 
             <!-- Search Input -->
-            <div class="mt-3 mb-4 mx-4  relative">
+            <div class="mt-3 mb-4 mx-4 relative">
                 <input v-model="searchQuery" @keydown="handleEnterKey" type="text" placeholder="Search location"
-                    class="w-full rounded-full px-4 pl-10 py-2 text-sm shadow-sm bg-white border border-white placeholder-gray-400" />
-                <span class="absolute left-4 top-2 text-gray-400">
-                    <img src="/icons/search.png" alt="search" class="w-4 h-5" />
+                    class="w-full rounded-full px-4 pl-10 py-2 text-lg shadow-sm bg-white border border-white placeholder-gray-400" />
+                <span class="absolute left-4 top-3 text-gray-400">
+                    <img src="/icons/search.png" alt="search" class="w-4 h-5"/>
                 </span>
+
+                <button @click="clearSearch" class="absolute top-2 right-4 text-sm text-red-500 underline mt-2">
+                    <img src="/icons/x.png" alt="clear search" class="w-3 h-3">
+                </button>
+
             </div>
 
             <!-- Search Results -->
-            <div v-if="showResults" class="absolute top-35 mt-3 mx-4 text-left bg-white rounded-xl p-4 shadow z-50">
+            <div v-if="showResults"
+                class="absolute top-35 -left-4 w-full mt-3 mx-4 text-left bg-white rounded-xl p-4 shadow z-50">
                 <p class="font-bold text-sm mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
                 <ul class="space-y-2 text-sm text-gray-800">
                     <li v-for="place in searchResults" :key="place.place_id" @click="selectPlace(place)"
@@ -222,12 +242,16 @@ watch(searchQuery, (val) => {
 
         <!-- Map Section -->
         <div class="relative flex-1">
-            <div ref="mapRef" style="width: 100%; height: 62vh;"></div>
+            <div ref="mapRef" style="width: 100%; height: 84vh;"></div>
 
             <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
             <button @click="goToCurrentLocation"
-                class="absolute bottom-18 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
+                class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
                 📍
+            </button>
+
+            <button @click="clearPin" class="absolute top-15 right-2.5 bg-white p-3 rounded-full text-sm text-red-500 underline mt-2">
+                <img src="/icons/x.png" alt="clear pin" class="w-4 h-4">
             </button>
         </div>
 
