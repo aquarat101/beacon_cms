@@ -19,12 +19,12 @@ const open3 = ref(false)
             </div>
         </div>
 
-        <div class="bg-white rounded-t-3xl mt-35 px-6 py-6 flex-1 absolute max-h-200 overflow-y-auto w-full z-10 space-y-4">
+        <div class="-mt-6 bg-white rounded-t-3xl px-6 py-6 flex-1 max-h-200 overflow-y-auto w-full z-10 space-y-4">
             <div class="bg-white rounded-xl shadow p-4">
                 <div class="flex justify-between items-center cursor-pointer" @click="open1 = !open1">
                     <div class="flex items-center gap-2">
-                        <img src="/icons/faq.png" class="w-6 h-6" />
-                        <span class="font-semibold">FAQ us</span>
+                        <img src="/image-icons/faq.png" class="w-6 h-6" />
+                        <span class="font-semibold">FAQ</span>
                     </div>
                     <span>{{ open1 ? '▲' : '▼' }}</span>
                 </div>
@@ -44,7 +44,7 @@ const open3 = ref(false)
             <div class="bg-white rounded-xl shadow p-4">
                 <div class="flex justify-between items-center cursor-pointer" @click="open2 = !open2">
                     <div class="flex items-center gap-2">
-                        <img src="/icons/policy.png" class="w-6 h-6" />
+                        <img src="/image-icons/policy.png" class="w-6 h-6" />
                         <span class="font-semibold">Privacy Policy</span>
                     </div>
                     <span>{{ open2 ? '▲' : '▼' }}</span>
@@ -65,7 +65,7 @@ const open3 = ref(false)
             <div class="bg-white rounded-xl shadow p-4">
                 <div class="flex justify-between items-center cursor-pointer" @click="open3 = !open3">
                     <div class="flex items-center gap-2">
-                        <img src="/icons/about.png" class="w-6 h-6" />
+                        <img src="/image-icons/about.png" class="w-6 h-6" />
                         <span class="font-semibold">About us</span>
                     </div>
                     <span>{{ open3 ? '▲' : '▼' }}</span>
@@ -84,7 +84,9 @@ const open3 = ref(false)
             </div>
         </div>
 
-        <img src="/images/footer.png" alt="footer" class="absolute bottom-0 z-10">
+        <div class="relative w-full">
+          <img src="/images/footer.png" alt="footer" class="z-10 object-cover w-full">
+        </div>
     </div>
 
 </template>

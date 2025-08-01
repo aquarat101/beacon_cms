@@ -104,9 +104,10 @@ onMounted(() => {
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold text-blue-800">All Kids</h2>
                 <NuxtLink to="/kids/kid_create_profile">
-                    <button class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-end justify-center">
-                        +
-                    </button>
+                  <button
+                      class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center leading-5.5">
+                    <div class="h-full w-full">+</div>
+                  </button>
                 </NuxtLink>
             </div>
 

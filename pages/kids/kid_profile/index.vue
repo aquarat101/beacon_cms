@@ -42,7 +42,7 @@ const Histories = [
 
 <template>
     <div class="min-h-screen bg-white flex flex-col justify-between items-center">
-        <div>
+        <div class="w-full">
             <!-- กล่องรวม: ต้อง relative -->
             <div class="relative w-full h-72 text-[#035CB2]">
                 <!-- รูป background อยู่ข้างล่าง -->
@@ -76,7 +76,7 @@ const Histories = [
                             <p>12345</p>
                         </div>
 
-                        <img src="/icons/trash.png" alt="delete" class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full">
+                        <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full">
 
                     </div>
 

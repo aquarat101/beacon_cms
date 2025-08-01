@@ -57,8 +57,8 @@ function handleRegister() {
 
                             <NuxtLink to="/kids/qrcode">
                                 <button type="submit">
-                                    <img src="/icons/qrcode.png" alt="qrcode"
-                                        class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
+                                    <img src="/image-icons/qrcode.png" alt="qrcode"
+                                         class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
                                 </button>       
                             </NuxtLink>
                         </div>

@@ -13,8 +13,7 @@ const kids = ref([])
 
 async function fetchProfile() {
     try {
-        const res = await fetch(`http//localhost:3001/users/${id}`)
-        // const res = await fetch(`${config.apiDomain}/users/${id}`)
+        const res = await fetch(`${config.apiDomain}/users/${id}`)
         // if (!res.ok) throw new Error('Failed to fetch profile')
         const data = await res.json()
         console.log("data:", data)

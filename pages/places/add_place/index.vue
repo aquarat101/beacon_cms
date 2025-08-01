@@ -4,10 +4,10 @@ import { reactive } from 'vue'
 const selectedType = ref('')
 
 const types = [
-    { label: 'Home', value: 'Home', icon: '/icons/home.png' },
-    { label: 'School', value: 'School', icon: '/icons/school.png' },
-    { label: 'Work', value: 'Work', icon: '/icons/work.png' },
-    { label: 'Other', value: 'Other', icon: '/icons/other.png' },
+    { label: 'Home', value: 'Home', icon: '/image-icons/home.png' },
+    { label: 'School', value: 'School', icon: '/image-icons/school.png' },
+    { label: 'Work', value: 'Work', icon: '/image-icons/work.png' },
+    { label: 'Other', value: 'Other', icon: '/image-icons/other.png' },
 ]
 
 
