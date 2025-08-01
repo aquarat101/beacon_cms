@@ -1,65 +1,41 @@
 <script setup>
-    import KidCard from '~/components/KidCard.vue'
+import KidCard from '~/components/KidCard.vue'
+import { useRoute } from 'vue-router'
 
-    const kids = [
-        {
-            id: 1,
-            name: 'Kid 1',
-            status: 'online',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 2',
-            status: 'offline',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 3',
-            status: 'offline',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 4',
-            status: 'online',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 5',
-            status: 'online',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 6',
-            status: 'offline',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 7',
-            status: 'offline',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Kid 8',
-            status: 'offline',
-            updated: '10 mins ago',
-            avatar: '/images/profile.png',
-        },
+const route = useRoute()
+const id = route.params.id
 
-    ]
+const profile = ref(null)
+const kids = ref([])
+console.log(id)
+async function fetchProfile() {
+    try {
+        const res = await fetch(`http://localhost:3001/users/${id}`)
+        // if (!res.ok) throw new Error('Failed to fetch profile')
+        const data = await res.json()
+        console.log("data:", data)
+        profile.value = data
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+
+// async function fetchKids() {
+//     try {
+//         const res = await fetch('http://localhost:3001/kids')
+//         if (!res.ok) throw new Error('Failed to fetch kids')
+//         const data = await res.json()
+//         kids.value = data
+//     } catch (error) {
+//         console.error(error)
+//     }
+// }
+
+onMounted(() => {
+    fetchProfile()
+    // fetchKids()
+})
 </script>
 
 <template>
@@ -82,9 +58,10 @@
                     <img src="/images/profile.png" alt="" class="w-20 h-20 bg-white rounded-full">
 
                     <div class="">
-                        <p class="font-bold text-lg">Jane Doe</p>
-                        <p class="text-sm">janedoe@mail.com</p>
-                        <p class="text-sm">0801234567</p>
+                        <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
+                        <p class="text-sm">{{ profile?.email }}</p>
+                        <p class="text-sm">{{ profile?.phone }}</p>
+
                     </div>
                 </div>
             </div>
@@ -111,8 +88,8 @@
 </template>
 
 <style>
-    .text-outline-blue {
-        color: white;
-        -webkit-text-stroke: 1.6px #035CB2;
-    }
+.text-outline-blue {
+    color: white;
+    -webkit-text-stroke: 1.6px #035CB2;
+}
 </style>
