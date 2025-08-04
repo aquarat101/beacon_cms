@@ -24,9 +24,6 @@ const createKidProfile = async () => {
             body: JSON.stringify(form),
         })
 
-        console.log(res)
-
-        // ✅ พอสำเร็จ เปลี่ยนหน้า
         router.push(`/users/user_profile/${id}`)
     } catch (err) {
         console.error('Failed to submit:', err)

@@ -23,44 +23,21 @@ async function fetchProfile() {
     }
 }
 
-// async function fetchKids() {
-//     try {
-//         const res = await fetch(`${config.apiDomain}/kids`)
-//         if (!res.ok) throw new Error('Failed to fetch kids')
-//         const data = await res.json()
-//         kids.value = data
-//     } catch (error) {
-//         console.error(error)
-//     }
-// }
+async function fetchKids() {
+    try {
+        const res = await fetch(`${config.apiDomain}/kids/getKidsByUserId/${id}`)
+        if (!res.ok) throw new Error('Failed to fetch kids')
+        const data = await res.json()
+        kids.value = data.kids
+        console.log("kids : ", kids.value)
+    } catch (error) {
+        console.error(error)
+    }
+}
 
 onMounted(() => {
     fetchProfile()
-    // fetchKids()
-
-    kids.value = [
-        {
-            id: 1,
-            name: 'Focus',
-            status: 'online',
-            updated: '10 minutes ago',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 2,
-            name: 'Meena',
-            status: 'offline',
-            updated: 'Yesterday',
-            avatar: '/images/profile.png',
-        },
-        {
-            id: 3,
-            name: 'Focus',
-            status: 'online',
-            updated: '10 minutes ago',
-            avatar: '/images/profile.png',
-        },
-    ]
+    fetchKids()
 })
 </script>
 
@@ -110,7 +87,7 @@ onMounted(() => {
             </div>
 
             <!-- ทำแนวตั้งด้วย flex + scroll -->
-            <div class="max-h-154 overflow-y-auto space-y-4 space-x-1.5">
+            <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
                 <KidCard v-for="kid in kids" :key="kid.id" :name="kid.name" :status="kid.status" :updated="kid.updated"
                     :avatar="kid.avatar" class="min-w-[200px] shrink-0" />
             </div>

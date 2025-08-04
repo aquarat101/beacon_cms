@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-    id: [String, Number],
+    id: String,
     name: String,
     status: {
         type: String,
