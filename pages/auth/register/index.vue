@@ -70,30 +70,30 @@ async function handleRegister() {
 
         <div class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
             <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
-                <div>
+                <div class="flex flex-col gap-4">
                     <div>
-                        <label class="block my-3 text-gray-700">First Name</label>
+                        <label class="block mb-2 text-gray-700">First Name</label>
                         <input v-model="form.firstName" type="text" placeholder="First Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                         <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>
                     </div>
 
                     <div>
-                        <label class="block my-3 text-gray-700">Last Name</label>
+                        <label class="block mb-2 text-gray-700">Last Name</label>
                         <input v-model="form.lastName" type="text" placeholder="Last Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                         <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>
                     </div>
 
                     <div>
-                        <label class="block my-3 text-gray-700">E-mail</label>
+                        <label class="block mb-2 text-gray-700">E-mail</label>
                         <input v-model="form.email" type="email" placeholder="Email"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                         <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
                     </div>
 
                     <div>
-                        <label class="block my-3 text-gray-700">Phone Number</label>
+                        <label class="block mb-2 text-gray-700">Phone Number</label>
                         <input v-model="form.phone" type="tel" placeholder="Phone number"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                         <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>

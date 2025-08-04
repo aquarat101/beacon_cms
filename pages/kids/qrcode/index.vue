@@ -23,7 +23,7 @@
         </div>
 
         <div class="flex justify-center w-full">
-            <img src="/icons/qrcode.png" alt="qrcode" class="w-11 h-11 p-2 border-2 border-[#0198FF] rounded-md">
+            <img src="/image-icons/qrcode.png" alt="qrcode" class="w-11 h-11 p-2 border-2 border-[#0198FF] rounded-md">
         </div>
 
         <div class="w-full px-7">
