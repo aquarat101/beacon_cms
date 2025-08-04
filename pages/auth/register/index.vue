@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -12,7 +12,20 @@ const form = reactive({
     phone: '',
 })
 
+const errors = reactive({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+})
+
 async function handleRegister() {
+    // เคลียร์ error เดิมก่อน
+    errors.firstName = ''
+    errors.lastName = ''
+    errors.email = ''
+    errors.phone = ''
+
     try {
         const res = await fetch(`${config.apiDomain}/register`, {
             method: 'POST',
@@ -22,21 +35,28 @@ async function handleRegister() {
             body: JSON.stringify(form),
         })
 
-        console.log("res", res)
         const data = await res.json()
-        console.log('Registered user id:', data.id)
+        console.log("res", res)
 
         if (res.ok) {
             router.push(`/users/user_profile/${data.id}`)
         } else {
-            alert(data.error || 'Registration failed')
+            // สมมุติ API ส่ง error กลับมาแบบนี้:
+            // { error: { email: "Email already exists", phone: "Invalid format" } }
+            if (data.error && typeof data.error === 'object') {
+                Object.assign(errors, data.error)
+            } else {
+                alert(data.error || 'Registration failed')
+            }
         }
 
-        // เคลียร์ฟอร์ม
-        form.firstName = ''
-        form.lastName = ''
-        form.email = ''
-        form.phone = ''
+        // เคลียร์ฟอร์มถ้าสำเร็จ
+        if (res.ok) {
+            form.firstName = ''
+            form.lastName = ''
+            form.email = ''
+            form.phone = ''
+        }
     } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message)
     }
@@ -45,36 +65,38 @@ async function handleRegister() {
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center">
-        <!-- ส่วนบน: รูป header -->
         <img src="/images/header_register.png" alt="Register Header"
             class="w-full min-w-md max-h-100 object-cover z-0" />
 
-        <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
             <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
                 <div>
-                    <div class="">
+                    <div>
                         <label class="block my-3 text-gray-700">First Name</label>
                         <input v-model="form.firstName" type="text" placeholder="First Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Last Name</label>
                         <input v-model="form.lastName" type="text" placeholder="Last Name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">E-mail</label>
                         <input v-model="form.email" type="email" placeholder="Email"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Phone Number</label>
                         <input v-model="form.phone" type="tel" placeholder="Phone number"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>
                     </div>
                 </div>
 
@@ -86,10 +108,3 @@ async function handleRegister() {
         </div>
     </div>
 </template>
-
-<style>
-.text-outline-blue {
-    color: white;
-    -webkit-text-stroke: 1.6px #035CB2;
-}
-</style>

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -7,7 +7,7 @@ const router = useRouter()
 const id = route.params.id
 const { public: config } = useRuntimeConfig()
 
-let data = reactive({
+const data = reactive({
     firstName: '',
     lastName: '',
     email: '',
@@ -21,31 +21,52 @@ const form = reactive({
     phone: '',
 })
 
-async function fetchUserProfile() {
-    try {
-        const res = await fetch(`${config.apiDomain}/users/get/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch profile')
-        data = await res.json()
-        console.log("data:", data)
-    } catch (error) {
-        console.error(error)
+const errors = reactive({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+})
+
+function validateForm() {
+    let isValid = true
+    errors.firstName = form.firstName ? '' : 'First name is required'
+    errors.lastName = form.lastName ? '' : 'Last name is required'
+    errors.email = /^\S+@\S+\.\S+$/.test(form.email) ? '' : 'Email is invalid'
+    errors.phone = /^[0-9]{9,}$/.test(form.phone) ? '' : 'Phone must be at least 9 digits'
+
+    if (errors.firstName || errors.lastName || errors.email || errors.phone) {
+        isValid = false
     }
+
+    return isValid
 }
 
 const updateUserProfile = async () => {
+    if (!validateForm()) return
+
     try {
         await fetch(`${config.apiDomain}/users/update/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(form),
         })
-        // alert('Profile updated successfully!')
         router.push(`/users/user_profile/${id}`)
     } catch (err) {
         console.error(err)
         alert('Failed to update profile.')
+    }
+}
+
+async function fetchUserProfile() {
+    try {
+        const res = await fetch(`${config.apiDomain}/users/get/${id}`)
+        if (!res.ok) throw new Error('Failed to fetch profile')
+        const json = await res.json()
+        Object.assign(data, json)
+        Object.assign(form, json)
+    } catch (error) {
+        console.error(error)
     }
 }
 
@@ -87,25 +108,33 @@ onMounted(async () => {
                     <div class="">
                         <label class="block my-3 text-gray-700">First Name</label>
                         <input v-model="form.firstName" type="text" placeholder="first name"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
+                            :class="{ 'border-red-500': errors.firstName }" />
+                        <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>/>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Last Name</label>
                         <input v-model="form.lastName" type="text" placeholder="last name"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
+                            :class="{ 'border-red-500': errors.lastName }" />
+                        <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>/>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">E-mail</label>
                         <input v-model="form.email" type="email" placeholder="email"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
+                            :class="{ 'border-red-500': errors.email }" />
+                        <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>/>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Phone Number</label>
                         <input v-model="form.phone" type="tel" placeholder="phone number"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
+                            :class="{ 'border-red-500': errors.phone }" />
+                        <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>/>
                     </div>
 
                     <div class="flex justify-between gap-4 mt-10 font-bold">

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -15,7 +15,41 @@ const form = reactive({
     remark: '',
 })
 
+const errors = reactive({
+    profileName: '',
+    beaconId: '',
+    remark: '',
+})
+
+const validateForm = () => {
+    let valid = true
+
+    // Clear all errors first
+    errors.profileName = ''
+    errors.beaconId = ''
+    errors.remark = ''
+
+    if (!form.profileName.trim()) {
+        errors.profileName = 'กรุณากรอกชื่อโปรไฟล์'
+        valid = false
+    }
+
+    if (!form.beaconId.trim()) {
+        errors.beaconId = 'กรุณากรอก Beacon ID'
+        valid = false
+    }
+
+    if (!form.remark.trim()) {
+        errors.remark = 'กรุณากรอกหมายเหตุ'
+        valid = false
+    }
+
+    return valid
+}
+
 const updateKidProfile = async () => {
+    if (!validateForm()) return
+
     try {
         await fetch(`${config.apiDomain}/kids/update/${userId}/${kidId}`, {
             method: 'PATCH',
@@ -24,16 +58,14 @@ const updateKidProfile = async () => {
             },
             body: JSON.stringify(form),
         })
-        // alert('Profile updated successfully!')
         router.push(`/kids/kid_profile/${userId}/${kidId}`)
     } catch (err) {
         console.error(err)
-        alert('Failed to update profile.')
+        alert('เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์')
     }
 }
-
-
 </script>
+
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center text-[#035CB2]">
@@ -67,6 +99,8 @@ const updateKidProfile = async () => {
                         <label class="block my-3 text-gray-700">Profile name</label>
                         <input v-model="form.profileName" type="text" placeholder="profile name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.profileName" class="text-red-500 text-sm mt-1">{{ errors.profileName }}</p>
+
                     </div>
 
                     <div>
@@ -74,6 +108,7 @@ const updateKidProfile = async () => {
                         <div class="flex gap-4">
                             <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            <p v-if="errors.beaconId" class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
 
                             <NuxtLink to="/kids/qrcode">
                                 <button type="submit">
@@ -88,6 +123,7 @@ const updateKidProfile = async () => {
                         <label class="block my-3 text-gray-700">Remark</label>
                         <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.remark" class="text-red-500 text-sm mt-1">{{ errors.remark }}</p>
                     </div>
 
                 </div>

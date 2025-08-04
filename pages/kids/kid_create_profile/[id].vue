@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -13,22 +13,55 @@ const form = reactive({
     remark: '',
 })
 
+const errors = reactive({
+    profileName: '',
+    beaconId: '',
+    remark: ''
+})
+
+const validateForm = () => {
+    let isValid = true
+    errors.profileName = ''
+    errors.beaconId = ''
+    errors.remark = ''
+
+    if (!form.profileName.trim()) {
+        errors.profileName = 'Profile name is required.'
+        isValid = false
+    }
+
+    if (!form.beaconId.trim()) {
+        errors.beaconId = 'Beacon ID is required.'
+        isValid = false
+    }
+
+    // remark เป็น optional กรณีนี้ไม่ validate
+
+    return isValid
+}
+
 const createKidProfile = async () => {
-    console.log(id)
+    if (!validateForm()) return
+
     try {
-        const res =await fetch(`${config.apiDomain}/kids/create/${id}`, {
+        const res = await fetch(`${config.apiDomain}/kids/create/${id}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(form),
         })
+
+        if (!res.ok) {
+            throw new Error('Failed to submit')
+        }
 
         router.push(`/users/user_profile/${id}`)
     } catch (err) {
         console.error('Failed to submit:', err)
     }
 }
+
 
 </script>
 
@@ -61,9 +94,12 @@ const createKidProfile = async () => {
             <form @submit.prevent="createKidProfile" class="space-y-20 font-bold">
                 <div>
                     <div class="">
-                        <label class="block my-3 text-gray-700">Profile name</label>
-                        <input v-model="form.profileName" type="text" placeholder="profile name"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <div>
+                            <label class="block my-3 text-gray-700">Profile name</label>
+                            <input v-model="form.profileName" type="text" placeholder="profile name"
+                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            <p class="text-red-500 text-sm mt-1">{{ errors.profileName }}</p>
+                        </div>
                     </div>
 
                     <div>
@@ -71,7 +107,6 @@ const createKidProfile = async () => {
                         <div class="flex gap-4">
                             <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
-
                             <NuxtLink to="/kids/qrcode">
                                 <button type="submit">
                                     <img src="/icons/qrcode.png" alt="qrcode"
@@ -79,6 +114,7 @@ const createKidProfile = async () => {
                                 </button>
                             </NuxtLink>
                         </div>
+                        <p class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
                     </div>
 
                     <div>
