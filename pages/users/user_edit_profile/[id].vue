@@ -21,7 +21,7 @@ const form = reactive({
     phone: '',
 })
 
-async function fetchProfile() {
+async function fetchUserProfile() {
     try {
         const res = await fetch(`${config.apiDomain}/users/get/${id}`)
         if (!res.ok) throw new Error('Failed to fetch profile')
@@ -32,7 +32,7 @@ async function fetchProfile() {
     }
 }
 
-const updateProfile = async () => {
+const updateUserProfile = async () => {
     try {
         await fetch(`${config.apiDomain}/users/update/${id}`, {
             method: 'PUT',
@@ -50,7 +50,7 @@ const updateProfile = async () => {
 }
 
 onMounted(async () => {
-    fetchProfile()
+    fetchUserProfile()
     Object.assign(form, data)
 })
 </script>
@@ -82,7 +82,7 @@ onMounted(async () => {
 
         <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
-            <form @submit.prevent="updateProfile" class="space-y-20 font-bold">
+            <form @submit.prevent="updateUserProfile" class="space-y-20 font-bold">
                 <div>
                     <div class="">
                         <label class="block my-3 text-gray-700">First Name</label>

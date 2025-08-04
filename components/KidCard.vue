@@ -1,5 +1,6 @@
 <script setup>
 defineProps({
+    userId: String,
     id: String,
     name: String,
     status: {
@@ -15,7 +16,7 @@ defineProps({
 </script>
 
 <template>
-    <NuxtLink :to="`/kids/kid_profile/${id}`">
+    <NuxtLink :to="`/kids/kid_profile/${userId}/${id}`">
         <div class="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3">
             <img :src="avatar" class="w-12 h-12 rounded-full mr-3" />
             <div class="flex-1">

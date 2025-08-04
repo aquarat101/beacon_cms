@@ -11,7 +11,7 @@ const { public: config } = useRuntimeConfig()
 const profile = ref(null)
 const kids = ref([])
 
-async function fetchProfile() {
+async function fetchUserProfile() {
     try {
         const res = await fetch(`${config.apiDomain}/users/get/${id}`)
         if (!res.ok) throw new Error('Failed to fetch profile')
@@ -25,7 +25,7 @@ async function fetchProfile() {
 
 async function fetchKids() {
     try {
-        const res = await fetch(`${config.apiDomain}/kids/getKidsByUserId/${id}`)
+        const res = await fetch(`${config.apiDomain}/kids/getUserKids/${id}`)
         if (!res.ok) throw new Error('Failed to fetch kids')
         const data = await res.json()
         kids.value = data.kids
@@ -36,7 +36,7 @@ async function fetchKids() {
 }
 
 onMounted(() => {
-    fetchProfile()
+    fetchUserProfile()
     fetchKids()
 })
 </script>
@@ -88,7 +88,7 @@ onMounted(() => {
 
             <!-- ทำแนวตั้งด้วย flex + scroll -->
             <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
-                <KidCard v-for="kid in kids" :key="kid.id" :name="kid.name" :status="kid.status" :updated="kid.updated"
+                <KidCard v-for="kid in kids" :key="kid.id" :userId="id" :id="kid.id" :name="kid.name" :status="kid.status" :updated="kid.updated"
                     :avatar="kid.avatar" class="min-w-[200px] shrink-0" />
             </div>
         </div>
