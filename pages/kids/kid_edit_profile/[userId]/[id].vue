@@ -1,5 +1,13 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+const userId = route.params.userId
+const kidId = route.params.id
+const { public: config } = useRuntimeConfig()
 
 const form = reactive({
     profileName: '',
@@ -7,12 +15,57 @@ const form = reactive({
     remark: '',
 })
 
-function handleRegister() {
-    console.log('Form submitted:', form)
-    // คุณสามารถ fetch ไป backend ได้ที่นี่
+const errors = reactive({
+    profileName: '',
+    beaconId: '',
+    remark: '',
+})
+
+const validateForm = () => {
+    let valid = true
+
+    // Clear all errors first
+    errors.profileName = ''
+    errors.beaconId = ''
+    errors.remark = ''
+
+    if (!form.profileName.trim()) {
+        errors.profileName = 'กรุณากรอกชื่อโปรไฟล์'
+        valid = false
+    }
+
+    if (!form.beaconId.trim()) {
+        errors.beaconId = 'กรุณากรอก Beacon ID'
+        valid = false
+    }
+
+    if (!form.remark.trim()) {
+        errors.remark = 'กรุณากรอกหมายเหตุ'
+        valid = false
+    }
+
+    return valid
 }
 
+const updateKidProfile = async () => {
+    if (!validateForm()) return
+
+    try {
+        await fetch(`${config.apiDomain}/kids/update/${userId}/${kidId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(form),
+        })
+        router.push(`/kids/kid_profile/${userId}/${kidId}`)
+    } catch (err) {
+        console.error(err)
+        alert('เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์')
+    }
+}
 </script>
+
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center text-[#035CB2]">
@@ -24,7 +77,7 @@ function handleRegister() {
 
             <!-- กล่องเนื้อหาซ้อนทับ -->
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 gap-5">
-                <h1 class="text-3xl font-bold text-outline-blue">Create Kid Profile</h1>
+                <h1 class="text-2xl font-bold drop-shadow-md">Edit Kid Profile</h1>
 
                 <button class="absolute top-45 right-42 bg-white text-sm text-black rounded-full p-2.5 pb-3 pl-3">
                     ✏️
@@ -40,51 +93,53 @@ function handleRegister() {
 
         <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
-            <form @submit.prevent="handleRegister" class="space-y-20 font-bold">
-                <div>
+            <form @submit.prevent="updateKidProfile" class="space-y-20 font-bold">
+                <div class="">
                     <div class="">
                         <label class="block my-3 text-gray-700">Profile name</label>
-                        <input v-model="form.firstName" type="text" placeholder="profile name"
+                        <input v-model="form.profileName" type="text" placeholder="profile name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.profileName" class="text-red-500 text-sm mt-1">{{ errors.profileName }}</p>
+
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Beacon ID</label>
                         <div class="flex gap-4">
-                            <input v-model="form.lastName" type="text" placeholder="beacon id"
+                            <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                            <p v-if="errors.beaconId" class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
 
                             <NuxtLink to="/kids/qrcode">
                                 <button type="submit">
                                     <img src="/image-icons/qrcode.png" alt="qrcode"
                                          class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
-                                </button>
+                                </button>       
                             </NuxtLink>
                         </div>
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Remark</label>
-                        <input v-model="form.email" type="email" placeholder="remark"
+                        <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                        <p v-if="errors.remark" class="text-red-500 text-sm mt-1">{{ errors.remark }}</p>
                     </div>
 
                 </div>
 
-                <div class="flex justify-between gap-4 font-bold">
-                    <NuxtLink to="/users/user_profile" class="w-full">
-                        <button type="submit"
-                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                <div class="flex justify-between gap-4 font-bold w-full">
+                    <div class="flex justify-between w-full gap-4 mb-10 font-bold">
+                        <button type="button" @click="router.push(`/users/user_profile/${userId}`)"
+                            class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
                             Cancel
                         </button>
-                    </NuxtLink>
 
-                    <NuxtLink to="/users/user_profile" class="w-full">
                         <button type="submit"
-                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                            class="w-full bg-[#0198FF] text-white py-3 rounded-md text-lg hover:bg-[#0177cc] transition">
                             Save
                         </button>
-                    </NuxtLink>
+                    </div>
                 </div>
             </form>
 
