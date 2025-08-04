@@ -1,6 +1,18 @@
 <script setup>
-import { NuxtLink } from '#components';
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+const id = route.params.id
+const { public: config } = useRuntimeConfig()
+
+let data = reactive({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+})
 
 const form = reactive({
     firstName: '',
@@ -9,12 +21,40 @@ const form = reactive({
     phone: '',
 })
 
-function handleRegister() {
-    console.log('Form submitted:', form)
-    // คุณสามารถ fetch ไป backend ได้ที่นี่
+async function fetchProfile() {
+    try {
+        const res = await fetch(`${config.apiDomain}/users/get/${id}`)
+        if (!res.ok) throw new Error('Failed to fetch profile')
+        data = await res.json()
+        console.log("data:", data)
+    } catch (error) {
+        console.error(error)
+    }
 }
 
+const updateProfile = async () => {
+    try {
+        await fetch(`${config.apiDomain}/users/update/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(form),
+        })
+        // alert('Profile updated successfully!')
+        router.push(`/users/user_profile/${id}`)
+    } catch (err) {
+        console.error(err)
+        alert('Failed to update profile.')
+    }
+}
+
+onMounted(async () => {
+    fetchProfile()
+    Object.assign(form, data)
+})
 </script>
+
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center text-[#035CB2]">
@@ -42,7 +82,7 @@ function handleRegister() {
 
         <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
-            <form @submit.prevent="handleRegister" class="space-y-20 font-bold">
+            <form @submit.prevent="updateProfile" class="space-y-20 font-bold">
                 <div>
                     <div class="">
                         <label class="block my-3 text-gray-700">First Name</label>
@@ -67,23 +107,23 @@ function handleRegister() {
                         <input v-model="form.phone" type="tel" placeholder="phone number"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
+
+                    <div class="flex justify-between gap-4 mt-10 font-bold">
+                        <div class="flex justify-between gap-4 mt-10 font-bold w-full">
+                            <button type="button" @click="router.push(`/users/user_profile/${id}`)"
+                                class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
+                                Cancel
+                            </button>
+
+                            <button type="submit"
+                                class="w-full bg-[#0198FF] text-white py-3 rounded-md text-lg hover:bg-[#0177cc] transition">
+                                Save
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
 
-                <div class="flex justify-between gap-4 font-bold">
-                    <NuxtLink to="/users/user_profile">
-                        <button type="submit"
-                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
-                            Cancel
-                        </button>
-                    </NuxtLink>
-
-                    <NuxtLink to="/users/user_profile">
-                        <button type="submit"
-                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-md text-lg hover:bg-[#0198FF] transition">
-                            Save
-                        </button>
-                    </NuxtLink>
-                </div>
             </form>
 
         </div>

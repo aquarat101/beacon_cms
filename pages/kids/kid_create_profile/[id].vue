@@ -1,16 +1,16 @@
 <script setup>
 import { reactive } from 'vue'
+import { useRoute } from 'vue-router';
+
+const route = useRoute()
+
+const id = route.params.id
 
 const form = reactive({
     profileName: '',
     beaconId: '',
     remark: '',
 })
-
-function handleRegister() {
-    console.log('Form submitted:', form)
-    // คุณสามารถ fetch ไป backend ได้ที่นี่
-}
 
 </script>
 
@@ -40,7 +40,7 @@ function handleRegister() {
 
         <!-- ฟอร์ม -->
         <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
-            <form @submit.prevent="handleRegister" class="space-y-20 font-bold">
+            <form @submit.prevent="createKidProfile" class="space-y-20 font-bold">
                 <div>
                     <div class="">
                         <label class="block my-3 text-gray-700">Profile name</label>
@@ -72,7 +72,7 @@ function handleRegister() {
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold">
-                    <NuxtLink to="/users/user_profile" class="w-full">
+                <NuxtLink :to="`/users/user_profile/${id}`" class="w-full">
                         <button type="submit"
                             class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                             Cancel
