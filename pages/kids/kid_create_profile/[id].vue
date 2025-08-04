@@ -1,16 +1,37 @@
 <script setup>
 import { reactive } from 'vue'
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-
+const router = useRouter()
 const id = route.params.id
+const { public: config } = useRuntimeConfig()
 
 const form = reactive({
     profileName: '',
     beaconId: '',
     remark: '',
 })
+
+const createKidProfile = async () => {
+    console.log(id)
+    try {
+        const res =await fetch(`${config.apiDomain}/kids/create/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(form),
+        })
+
+        console.log(res)
+
+        // ✅ พอสำเร็จ เปลี่ยนหน้า
+        router.push(`/users/user_profile/${id}`)
+    } catch (err) {
+        console.error('Failed to submit:', err)
+    }
+}
 
 </script>
 
@@ -44,14 +65,14 @@ const form = reactive({
                 <div>
                     <div class="">
                         <label class="block my-3 text-gray-700">Profile name</label>
-                        <input v-model="form.firstName" type="text" placeholder="profile name"
+                        <input v-model="form.profileName" type="text" placeholder="profile name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
 
                     <div>
                         <label class="block my-3 text-gray-700">Beacon ID</label>
                         <div class="flex gap-4">
-                            <input v-model="form.lastName" type="text" placeholder="beacon id"
+                            <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
 
                             <NuxtLink to="/kids/qrcode">
@@ -65,26 +86,26 @@ const form = reactive({
 
                     <div>
                         <label class="block my-3 text-gray-700">Remark</label>
-                        <input v-model="form.email" type="email" placeholder="remark"
+                        <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
 
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold">
-                <NuxtLink :to="`/users/user_profile/${id}`" class="w-full">
-                        <button type="submit"
-                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                            Cancel
-                        </button>
-                    </NuxtLink>
+                    <!-- ปุ่ม Cancel -->
+                    <button type="button"
+                        class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition"
+                        @click="router.push(`/users/user_profile/${id}`)">
+                        Cancel
+                    </button>
 
-                    <NuxtLink to="/users/user_profile" class="w-full">
-                        <button type="submit"
-                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                            Save
-                        </button>
-                    </NuxtLink>
+                    <!-- ปุ่ม Save (submit form) -->
+                    <button type="submit"
+                        class="w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                        Save
+                    </button>
+
                 </div>
             </form>
 

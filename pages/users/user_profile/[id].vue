@@ -11,7 +11,6 @@ const { public: config } = useRuntimeConfig()
 const profile = ref(null)
 const kids = ref([])
 
-
 async function fetchProfile() {
     try {
         const res = await fetch(`${config.apiDomain}/users/get/${id}`)
@@ -23,7 +22,6 @@ async function fetchProfile() {
         console.error(error)
     }
 }
-
 
 // async function fetchKids() {
 //     try {
