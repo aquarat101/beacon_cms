@@ -132,7 +132,7 @@ const updateKidProfile = async () => {
 
                 <div class="flex justify-between gap-4 font-bold w-full">
                     <div class="flex justify-between w-full gap-4 mb-10 font-bold">
-                        <button type="button" @click="router.push(`/users/user_profile/${userId}`)"
+                        <button type="button" @click="router.push(`/kids/kid_profile/${userId}/${kidId}`)"
                             class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
                             Cancel
                         </button>
