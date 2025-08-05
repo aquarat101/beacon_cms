@@ -61,6 +61,24 @@ async function fetchKid() {
     }
 }
 
+async function deleteKid() {
+    const confirmDelete = confirm('Are you sure you want to delete this kid?')
+    if (!confirmDelete) return
+
+    try {
+        const res = await fetch(`${config.apiDomain}/kids/delete/${kidId}`, {
+            method: 'DELETE',
+        })
+        if (!res.ok) throw new Error('Failed to delete kid')
+
+        alert('Kid deleted successfully')
+        router.push(`/users/user_profile/${userId}`)
+    } catch (error) {
+        console.error(error)
+        alert('Error deleting kid')
+    }
+}
+
 onMounted(() => {
     fetchKid()
 })
@@ -102,8 +120,9 @@ onMounted(() => {
                             <p>{{ kid?.beaconId || '-' }}</p>
                         </div>
 
-                        <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full">
-
+                        <img src="/image-icons/trash.png" alt="delete"
+                            class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full cursor-pointer hover:opacity-80"
+                            @click="deleteKid" />
                     </div>
 
                     <div class="flex flex-col">

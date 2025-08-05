@@ -88,8 +88,13 @@ onMounted(() => {
 
             <!-- ทำแนวตั้งด้วย flex + scroll -->
             <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
-                <KidCard v-for="kid in kids" :key="kid.id" :userId="id" :id="kid.id" :name="kid.name" :status="kid.status" :updated="kid.updated"
-                    :avatar="kid.avatar" class="min-w-[200px] shrink-0" />
+                <template v-if="kids.length">
+                    <KidCard v-for="kid in kids" :key="kid.id" :userId="id" :id="kid.id" :name="kid.name"
+                        :status="kid.status" :updated="kid.updated" :avatar="kid.avatar"
+                        class="min-w-[200px] shrink-0" />
+                </template>
+                <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
+
             </div>
         </div>
 
