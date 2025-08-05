@@ -1,4 +1,8 @@
 <script setup>
+import { useRoute } from 'vue-router';
+
+const route = useRoute()
+const id = route.params.id
 
 </script>
 
@@ -27,7 +31,7 @@
         </div>
 
         <div class="w-full px-7">
-            <NuxtLink to="/kids/kid_create_profile">
+            <NuxtLink :to="`/kids/kid_create_profile/${id}`">
                 <button type="submit"
                     class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl  text-lg hover:bg-[#0198FF] hover:text-white transition">
                     Cancel
