@@ -51,7 +51,7 @@ onMounted(() => {
             <!-- กล่องล่าง -->
             <div class="-mt-6 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
                 <!-- ทำแนวตั้งด้วย flex + scroll -->
-                <div class="max-h-120 overflow-y-auto space-y-4 space-x-1.5">
+                <div class="max-h-120 overflow-y-auto space-y-4 pr-2">
                     <PlaceCard v-for="place in places" :key="place.id" :userId="place.userId" :placeId="place.id" :name="place.name"
                         :address="place.address" :type="place.type" :remark="place.remark" :lat="place.lat"
                         :lng="place.lng" :status="`true`" class="min-w-[200px] shrink-0" @click="" />
