@@ -9,6 +9,9 @@ const userId = route.params.userId
 const kidId = route.params.id
 const { public: config } = useRuntimeConfig()
 
+const previewImage = ref(null)
+const fileInputRef = ref(null)
+
 const form = reactive({
     profileName: '',
     beaconId: '',
@@ -57,6 +60,18 @@ const updateKidProfile = async () => {
         alert('An error occurred while updating the profile')
     }
 }
+
+function onFileChange(event) {
+    const file = event.target.files[0]
+    if (file) {
+        previewImage.value = URL.createObjectURL(file)
+    }
+}
+
+function triggerFileInput() {
+    fileInputRef.value?.click()
+}
+
 </script>
 
 <template>
@@ -69,15 +84,21 @@ const updateKidProfile = async () => {
 
             <!-- กล่องเนื้อหาซ้อนทับ -->
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 gap-5">
-                <h1 class="text-2xl font-bold drop-shadow-md">Edit Kid Profile</h1>
+                <h1 class="text-3xl font-bold text-outline-blue">Edit Profile</h1>
 
-                <button class="absolute top-45 right-42 bg-white text-sm text-black rounded-full p-2.5 pb-3 pl-3">
-                    ✏️
-                </button>
+                <div class="relative w-24 h-24">
+                    <!-- รูปโปรไฟล์ -->
+                    <img :src="previewImage || '/images/profile.png'" alt="Profile"
+                        class="w-full h-full bg-white rounded-full object-cover border" />
 
-                <div class="flex flex-row gap-5">
-                    <img src="/images/profile.png" alt="" class="w-24 h-24 bg-white rounded-full">
+                    <!-- ปุ่มดินสอ -->
+                    <button class="absolute bottom-0 right-0 bg-white text-sm text-black rounded-full p-2 shadow z-10"
+                        @click="triggerFileInput">
+                        ✏️
+                    </button>
 
+                    <!-- ซ่อนไว้ และคลิกผ่านปุ่ม -->
+                    <input ref="fileInputRef" type="file" accept="image/*" class="hidden" @change="onFileChange" />
                 </div>
             </div>
         </div>
