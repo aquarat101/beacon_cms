@@ -1,12 +1,27 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useRuntimeConfig } from '#app'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+const { public: config } = useRuntimeConfig()
+const userId = route.params.userId
+const placeId = route.params.placeId
+const name = route.query.name
+const address = route.query.address
+const type = route.query.type
+const remark = route.query.remark
+const showP = route.query.status
+const latitude = route.query.lat
+const longitude = route.query.lng
 
 const searchQuery = ref('')
-const showResults = ref(false)
 const showPlace = ref(false)
+const showResults = ref(false)
 const searchResults = ref([])
 const result = ref('')
+const resultName = ref('')
+const resultAddress = ref('')
 const marker = ref(null)
 const mapRef = ref(null)
 const map = ref(null)
@@ -17,33 +32,47 @@ const selectedPosition = ref(null)
 
 function onMapClick(event) {
     const latLng = event.latLng
-
-    // เก็บตำแหน่งที่กดปัก
-    selectedPosition.value = {
-        lat: latLng.lat(),
-        lng: latLng.lng()
-    }
-
-    // ลบ marker เก่า ถ้ามี
-    if (marker.value) {
-        marker.value.setMap(null)
-    }
-
-    // สร้าง marker ใหม่ที่ตำแหน่งคลิก
-    marker.value = new google.maps.Marker({
-        position: latLng,
-        map: map.value,
-        title: 'Selected Location',
-    })
-
+    setMarker(latLng)
+    console.log(result)
 }
 
 function clearPin() {
-    if (marker.value) {
-        marker.value.setMap(null)
-        marker.value = null
-    }
+    // if (marker.value) {
+    //     marker.value.setMap(null)
+    //     marker.value = null
+    // }
+    console.log("before selectPos: ", selectedPosition.value)
+    console.log("before marker: ", marker.value)
     selectedPosition.value = null
+    marker.value.setMap(null)
+    marker.value = null
+    console.log("after selectPos: ", selectedPosition.value)
+    console.log("after marker: ", marker.value)
+}
+
+function setMarker(position, title = 'Selected Location') {
+    if (selectedPosition.value) return
+
+    // ลบ marker เก่า
+    // if (marker.value) {
+    //     marker.value.setMap(null)
+    //     marker.value = null
+    // }
+
+    // สร้าง marker ใหม่
+    marker.value = new google.maps.Marker({
+        position,
+        map: map.value,
+        title,
+    })
+
+    selectedPosition.value = {
+        lat: position.lat(),
+        lng: position.lng()
+    }
+
+    console.log("set selectPos: ", selectedPosition.value)
+    console.log("set marker: ", marker.value)
 }
 
 function loadGoogleMaps(apiKey) {
@@ -63,21 +92,13 @@ function loadGoogleMaps(apiKey) {
 
 function selectPlace(place) {
     const location = place.geometry.location
-    result.value = place.name
-    showPlace.value = true
+    resultName.value = place.name
+    resultAddress.value = place.formatted_address
+    console.log(place.formatted_address)
 
+    // showPlace.value = true
     map.value.panTo(location)
-
-    if (marker.value) {
-        marker.value.setMap(null)
-    }
-
-    marker.value = new google.maps.Marker({
-        position: location,
-        map: map.value,
-        title: place.name,
-    })
-    console.log('selectPlace called, showResults set to', showResults.value)
+    setMarker(location, place.name)
 
     searchQuery.value = place.name
     showResults.value = false
@@ -140,13 +161,108 @@ function handleEnterKey(event) {
         }
         service.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-                selectPlace(results[0])
-                result.value = results[0].name
-                showResults.value = false;
-                showPlace.value = true;
+                router.push({
+                    path: `/places/add_place/${userId}`,
+                    query: {
+                        address: results[0].formatted_address,
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    }
+                })
             }
         })
     }
+}
+
+function sendData() {
+    if (!selectedPosition.value) {
+        const service = new google.maps.places.PlacesService(map.value)
+        const request = {
+            query: searchQuery.value,
+            fields: ['name', 'geometry', 'place_id'],
+        }
+        service.textSearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                router.push({
+                    path: `/places/add_place/${userId}`,
+                    query: {
+                        address: results[0].formatted_address,
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    }
+                })
+            }
+        })
+    }
+
+    router.push({
+        path: `/places/add_place/${userId}`,
+        query: {
+            address: place.formatted_address,
+            lat: selectedPosition.value.lat,
+            lng: selectedPosition.value.lng
+        }
+    })
+}
+
+async function savePlace() {
+    if (!form.placeName || !form.placeType) {
+        alert('Please fill in place name and type')
+        return
+    }
+
+    try {
+        const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                name: name,
+                address: address,
+                type: type,
+                remark: remark,
+                lat: latitude,
+                lng: longitude
+            })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Something went wrong')
+        }
+
+        alert('✅ Place saved successfully!')
+
+    } catch (error) {
+        console.error('❌ Error:', error)
+        alert('❌ Failed to save place')
+    }
+}
+
+async function deletePlace() {
+    const confirmDelete = confirm('Are you sure you want to delete this place?')
+    if (!confirmDelete) return
+    console.log(placeId)
+    try {
+        const res = await fetch(`${config.apiDomain}/places/delete/${placeId}`, {
+            method: 'DELETE',
+        })
+        if (!res.ok) throw new Error('Failed to delete place')
+
+        alert('Place deleted successfully')
+        router.push(`/places/my_place/${userId}`)
+    } catch (error) {
+        console.error(error)
+        alert('Error deleting place')
+    }
+}
+
+function changeState() {
+    showPlace.value = false;
+    showResults.value = false;
 }
 
 function clearSearch() {
@@ -155,6 +271,11 @@ function clearSearch() {
 }
 
 onMounted(async () => {
+    if (showP) {
+        showPlace.value = true;
+        showResults.value = false;
+    }
+
     const config = useRuntimeConfig()
     try {
         const googleMaps = await loadGoogleMaps(config.public.googleMapsApiKey)
@@ -207,7 +328,7 @@ watch(searchQuery, (val) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             searchResults.value = results.slice(0, 5)
             showResults.value = true
-            showPlace.value = false
+            // showPlace.value = false
         }
     })
 })
@@ -243,11 +364,11 @@ watch(searchQuery, (val) => {
                         <div class="flex justify-between">
                             <p>📍 {{ place.name }}</p>
 
-                            <NuxtLink to="/places/add_place">
-                                <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
-                                    <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
-                                </button>
-                            </NuxtLink>
+                            <button @click="sendData"
+                                class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
+                                <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
+                            </button>
+
                         </div>
                     </li>
                 </ul>
@@ -256,7 +377,7 @@ watch(searchQuery, (val) => {
 
         <!-- Map Section -->
         <div class="relative flex-1">
-            <div ref="mapRef" style="width: 100%; height: 84vh;"></div>
+            <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
 
             <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
             <button @click="goToCurrentLocation"
@@ -279,16 +400,16 @@ watch(searchQuery, (val) => {
                     <p class="font-semibold">Kisra</p>
                     <p class="text-gray-500 truncate max-w-[220px]">1845/5-8 Phaholyothin Road, Laty...</p>
                 </div>
-                <NuxtLink to="/places/add_place">
-                    <button class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
-                        <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
-                    </button>
-                </NuxtLink>
+                <button @click="sendData" class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center">
+                    <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
+                </button>
             </div>
 
-            <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
-                Back to My Places
-            </button>
+            <NuxtLink :to="`/places/my_place/${userId}`">
+                <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
+                    Back to My Places
+                </button>
+            </NuxtLink>
         </div>
 
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
@@ -296,35 +417,39 @@ watch(searchQuery, (val) => {
             <!-- <p class="font-bold mb-2">Result place</p> -->
             <div class="flex items-start justify-between">
                 <div class="">
-                    <p class="font-bold text-xl text-[#035CB2]">{{ result }}</p>
-                    <p class="text-gray-500 truncate max-w-[220px]">1845/5-8 Phaholyothin Road, Laty...</p>
+                    <p class="font-bold text-xl text-[#035CB2]">{{ name }}</p>
+                    <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
                 </div>
 
                 <div class="flex items-start gap-2">
                     <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
-                    <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-9 h-9 p-2 rounded-full">
+                    <button @click="deletePlace">
+                        <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-9 h-9 p-2 rounded-full">
+
+                    </button>
                 </div>
             </div>
+
 
             <div class="mt-2">
                 <p class="font-bold">Place type</p>
 
-                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm">Work</div>
+                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm">{{ type }}</div>
             </div>
 
             <div class="mt-2">
-                <p class="font-bold">Remark</p>
+                <p class="font-bold">{{ remark }}</p>
 
                 <P>Kisra</P>
             </div>
 
             <div class="flex justify-between gap-4 font-bold mt-6">
-                <button type="submit"
+                <button type="button" @click="changeState"
                     class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                     Back
                 </button>
 
-                <button type="submit"
+                <button type="button" @click="savePlace"
                     class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
                     Save
                 </button>

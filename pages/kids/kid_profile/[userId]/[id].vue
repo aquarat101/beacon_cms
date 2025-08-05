@@ -18,32 +18,32 @@ const Histories = [
     {
         id: 2,
         place: "School",
-        date: "10/7/25 10:26 am",
+        date: "10/7/25 14:13 pm",
     },
     {
         id: 3,
         place: "School",
-        date: "10/7/25 10:26 am",
+        date: "11/7/25 15:26 pm",
     },
     {
         id: 4,
-        place: "School",
-        date: "10/7/25 10:26 am",
+        place: "Work",
+        date: "14/7/25 07:26 am",
     },
     {
         id: 5,
-        place: "School",
-        date: "10/7/25 10:26 am",
+        place: "Home",
+        date: "21/7/25 11:53 am",
     },
     {
         id: 6,
         place: "School",
-        date: "10/7/25 10:26 am",
+        date: "23/7/25 08:13 am",
     },
     {
         id: 7,
-        place: "School",
-        date: "10/7/25 10:26 am",
+        place: "Work",
+        date: "02/8/25 12:26 am",
     },
 ]
 
@@ -84,8 +84,6 @@ onMounted(() => {
 })
 
 </script>
-
-
 
 <template>
     <div class="min-h-screen bg-white flex flex-col justify-between items-center">
