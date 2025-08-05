@@ -110,7 +110,7 @@ onMounted(async () => {
                         <input v-model="form.firstName" type="text" placeholder="first name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
                             :class="{ 'border-red-500': errors.firstName }" />
-                        <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>/>
+                        <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>
                     </div>
 
                     <div>
@@ -118,7 +118,7 @@ onMounted(async () => {
                         <input v-model="form.lastName" type="text" placeholder="last name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
                             :class="{ 'border-red-500': errors.lastName }" />
-                        <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>/>
+                        <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>
                     </div>
 
                     <div>
@@ -126,7 +126,7 @@ onMounted(async () => {
                         <input v-model="form.email" type="email" placeholder="email"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
                             :class="{ 'border-red-500': errors.email }" />
-                        <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>/>
+                        <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
                     </div>
 
                     <div>
@@ -134,7 +134,7 @@ onMounted(async () => {
                         <input v-model="form.phone" type="tel" placeholder="phone number"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"
                             :class="{ 'border-red-500': errors.phone }" />
-                        <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>/>
+                        <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>
                     </div>
 
                     <div class="flex justify-between gap-4 mt-10 font-bold">
