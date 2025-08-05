@@ -18,7 +18,6 @@ const form = reactive({
 const errors = reactive({
     profileName: '',
     beaconId: '',
-    remark: '',
 })
 
 const validateForm = () => {
@@ -27,7 +26,6 @@ const validateForm = () => {
     // Clear all errors first
     errors.profileName = ''
     errors.beaconId = ''
-    errors.remark = ''
 
     if (!form.profileName.trim()) {
         errors.profileName = 'Please enter profile name'
@@ -36,11 +34,6 @@ const validateForm = () => {
 
     if (!form.beaconId.trim()) {
         errors.beaconId = 'Please enter Beacon ID'
-        valid = false
-    }
-
-    if (!form.remark.trim()) {
-        errors.remark = 'Please enter remark'
         valid = false
     }
 

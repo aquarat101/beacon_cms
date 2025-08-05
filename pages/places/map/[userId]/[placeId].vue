@@ -206,7 +206,7 @@ function sendData() {
 }
 
 async function savePlace() {
-    if (!form.placeName || !form.placeType) {
+    if (!name || !type) {
         alert('Please fill in place name and type')
         return
     }
@@ -240,6 +240,20 @@ async function savePlace() {
         console.error('❌ Error:', error)
         alert('❌ Failed to save place')
     }
+}
+
+function toAddPlace() {
+    router.push({
+        path: `/places/add_place/${userId}/${placeId}`,
+        query: {
+            name: name,
+            address: address,
+            type: type,
+            remark: remark,
+            lat: lat,
+            lng: lng,
+        }
+    })
 }
 
 async function deletePlace() {
@@ -422,7 +436,10 @@ watch(searchQuery, (val) => {
                 </div>
 
                 <div class="flex items-start gap-2">
-                    <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
+                    <button @click="toAddPlace">
+                        <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
+                    </button>
+
                     <button @click="deletePlace">
                         <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-9 h-9 p-2 rounded-full">
 
@@ -438,9 +455,9 @@ watch(searchQuery, (val) => {
             </div>
 
             <div class="mt-2">
-                <p class="font-bold">{{ remark }}</p>
+                <p class="font-bold">Remark</p>
 
-                <P>Kisra</P>
+                <P>{{ remark }}</P>
             </div>
 
             <div class="flex justify-between gap-4 font-bold mt-6">
