@@ -30,17 +30,17 @@ const validateForm = () => {
     errors.remark = ''
 
     if (!form.profileName.trim()) {
-        errors.profileName = 'กรุณากรอกชื่อโปรไฟล์'
+        errors.profileName = 'Please enter profile name'
         valid = false
     }
 
     if (!form.beaconId.trim()) {
-        errors.beaconId = 'กรุณากรอก Beacon ID'
+        errors.beaconId = 'Please enter Beacon ID'
         valid = false
     }
 
     if (!form.remark.trim()) {
-        errors.remark = 'กรุณากรอกหมายเหตุ'
+        errors.remark = 'Please enter remark'
         valid = false
     }
 
@@ -61,11 +61,10 @@ const updateKidProfile = async () => {
         router.push(`/kids/kid_profile/${userId}/${kidId}`)
     } catch (err) {
         console.error(err)
-        alert('เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์')
+        alert('An error occurred while updating the profile')
     }
 }
 </script>
-
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center text-[#035CB2]">
@@ -113,8 +112,8 @@ const updateKidProfile = async () => {
                             <NuxtLink to="/kids/qrcode">
                                 <button type="submit">
                                     <img src="/image-icons/qrcode.png" alt="qrcode"
-                                         class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
-                                </button>       
+                                        class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
+                                </button>
                             </NuxtLink>
                         </div>
                     </div>
