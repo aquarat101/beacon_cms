@@ -63,7 +63,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-row gap-5">
-                    <img :src="`${profile?.avatarUrl} `" alt="" class="w-20 h-20 bg-white rounded-full">
+                    <img :src="`${profile?.avatarUrl}`" alt="user profile" class="w-20 h-20 bg-white rounded-full">
 
                     <div class="">
                         <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>

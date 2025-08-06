@@ -11,7 +11,7 @@ const { public: config } = useRuntimeConfig()
 
 const previewImage = ref(null)
 const fileInputRef = ref(null)
-const selectedFile = ref(null)  // เก็บไฟล์ภาพจริง
+const selectedFile = ref(null)  
 
 const form = reactive({
     name: '',

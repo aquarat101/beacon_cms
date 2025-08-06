@@ -9,6 +9,7 @@ const { public: config } = useRuntimeConfig()
 
 const previewImage = ref(null)
 const fileInputRef = ref(null)
+const selectedFile = ref(null) 
 
 const form = reactive({
     profileName: '',
@@ -65,6 +66,17 @@ const createKidProfile = async () => {
     }
 }
 
+function onFileChange(event) {
+    const file = event.target.files[0]
+    if (file) {
+        selectedFile.value = file
+        previewImage.value = URL.createObjectURL(file)
+    }
+}
+
+function triggerFileInput() {
+    fileInputRef.value?.click()
+}
 
 </script>
 
