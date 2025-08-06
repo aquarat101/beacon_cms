@@ -1,8 +1,24 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const id = route.params.id
+
+const selectedFile = ref(null)
+const previewImage = ref(null)
+
+function onFileChange(event) {
+    const file = event.target.files[0]
+    if (file) {
+        selectedFile.value = file
+        previewImage.value = URL.createObjectURL(file)
+    }
+}
+
+function triggerFileInput() {
+    document.getElementById('fileInput').click()
+}
 </script>
 
 <template>
@@ -19,19 +35,25 @@ const id = route.params.id
             </div>
         </div>
 
-        <!-- กล้องตรงกลาง -->
+        <!-- กล้องตรงกลาง / preview รูป -->
         <div class="flex justify-center items-center w-full h-full ">
             <div
-                class="w-full h-110 m-10 border-4 border-dashed border-[#0198FF] flex items-center justify-center rounded-lg">
-                <!-- ใส่ไอคอนกล้องหรือ QR -->
-                <img src="/image-icons/qrcode.png" alt="QR Code" class="w-12 h-12 opacity-50" />
+                class="w-full h-110 m-10 border-4 border-dashed border-[#0198FF] flex items-center justify-center rounded-lg relative overflow-hidden">
+                <!-- ถ้าเลือกไฟล์ ให้แสดง preview -->
+                <img v-if="previewImage" :src="previewImage" alt="Selected"
+                    class="object-contain max-h-full max-w-full" />
+                <!-- ถ้ายังไม่เลือกแสดงไอคอน QR -->
+                <img v-else src="/image-icons/qrcode.png" alt="QR Code" class="w-12 h-12 opacity-50" />
             </div>
         </div>
 
         <div class="absolute bottom-32 right-10 z-20">
-            <div class="cursor-pointer bg-white border-2 border-[#0198FF] text-[#0198FF] p-2 rounded-xl text-sm hover:bg-[#0198FF] hover:text-white transition">
-                <img src="/image-icons/gallery.png" alt="gallery" class="w10 h-10">
-                <input type="file" accept="image/*" class="hidden" />
+            <div class="cursor-pointer bg-white border-2 border-[#0198FF] text-[#0198FF] p-2 rounded-xl text-sm hover:bg-[#0198FF] hover:text-white transition flex items-center gap-2"
+                @click="triggerFileInput">
+                <img src="/image-icons/gallery.png" alt="gallery" class="w-10 h-10" />
+
+                <!-- input ซ่อน -->
+                <input id="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
             </div>
         </div>
 

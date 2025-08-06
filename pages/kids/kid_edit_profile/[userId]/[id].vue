@@ -158,8 +158,8 @@ onMounted(() => {
                             <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
 
-                            <NuxtLink to="/kids/qrcode">
-                                <button type="submit">
+                            <NuxtLink :to="`/kids/qrcode/${userId}`">
+                                <button type="button">
                                     <img src="/image-icons/qrcode.png" alt="qrcode"
                                         class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md">
                                 </button>
