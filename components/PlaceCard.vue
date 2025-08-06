@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter()
 
 // ✅ Destructure props ออกมาแบบนี้
-const { userId, placeId, name, address, type, remark, lat, lng, status } = defineProps<{
+const { userId, placeId, name, address, type, remark, lat, lng, status, state } = defineProps<{
     userId: string,
     placeId: string,
     name: string,
@@ -15,6 +15,7 @@ const { userId, placeId, name, address, type, remark, lat, lng, status } = defin
     lat: string,
     lng: string,
     status: string,
+    state: string,
 }>()
 
 const types = [
@@ -35,6 +36,7 @@ function sendData() {
             lat: lat,
             lng: lng,
             status: status,
+            state: state,
         }
     })
 }

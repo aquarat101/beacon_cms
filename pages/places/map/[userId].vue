@@ -5,8 +5,11 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
+
 const userId = route.params.userId
 const placeId = route.params.placeId || null
+const status = route.params.status
+
 const name = route.query.name
 const address = route.query.address
 const type = route.query.type
@@ -14,23 +17,27 @@ const remark = route.query.remark
 const showP = route.query.status
 const latitude = route.query.lat
 const longitude = route.query.lng
+const state = route.query.state || false
 
 const searchQuery = ref('')
 const showPlace = ref(false)
 const showResults = ref(false)
 const searchResults = ref([])
+
 const result = ref('')
 const resultName = ref('')
 const resultAddress = ref('')
+
 const marker = ref(null)
 const currentLocationMarker = ref(null)  // หมุดตำแหน่งปัจจุบันสีน้ำเงิน
 const selectedMarker = ref(null)         // หมุดตำแหน่งที่เลือก สีแดง
+const circle = ref(null)
+
 const mapRef = ref(null)
 const map = ref(null)
-const circle = ref(null)
+
 const isClearing = ref(false)
 
-// เพิ่ม ref สำหรับตำแหน่งที่เลือก
 const selectedPosition = ref(null)
 
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
@@ -318,7 +325,7 @@ async function savePlace() {
 
 function toAddPlacePage() {
     router.push({
-        path: `/places/add_place/${userId}`,
+        path: `/places/add_place/${userId}/${placeId}`,
         query: {
             name: name,
             address: address,
@@ -326,6 +333,7 @@ function toAddPlacePage() {
             remark: remark,
             lat: latitude,
             lng: longitude,
+            status: true,
         }
     })
 }
@@ -359,7 +367,8 @@ function clearSearch() {
 }
 
 onMounted(async () => {
-    if (showP) {
+    if (showP || status) {
+        console.log(status)
         showPlace.value = true;
         showResults.value = false;
     }
@@ -425,7 +434,7 @@ watch(searchQuery, (val) => {
 <template>
     <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
         <!-- Header -->
-        <div class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
+        <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
             <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
 
             <!-- Search Input -->
@@ -511,7 +520,7 @@ watch(searchQuery, (val) => {
                     <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
                 </div>
 
-                <div class="flex items-start gap-2">
+                <div v-if="state" class="flex items-start gap-2">
                     <button @click="toAddPlacePage">
                         <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
                     </button>

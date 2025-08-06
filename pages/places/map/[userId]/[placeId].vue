@@ -5,8 +5,11 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
+
 const userId = route.params.userId
 const placeId = route.params.placeId || null
+const status = route.params.status
+
 const name = route.query.name
 const address = route.query.address
 const type = route.query.type
@@ -19,18 +22,21 @@ const searchQuery = ref('')
 const showPlace = ref(false)
 const showResults = ref(false)
 const searchResults = ref([])
+
 const result = ref('')
 const resultName = ref('')
 const resultAddress = ref('')
+
 const marker = ref(null)
 const currentLocationMarker = ref(null)  // หมุดตำแหน่งปัจจุบันสีน้ำเงิน
 const selectedMarker = ref(null)         // หมุดตำแหน่งที่เลือก สีแดง
+const circle = ref(null)
+
 const mapRef = ref(null)
 const map = ref(null)
-const circle = ref(null)
+
 const isClearing = ref(false)
 
-// เพิ่ม ref สำหรับตำแหน่งที่เลือก
 const selectedPosition = ref(null)
 
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
@@ -326,6 +332,7 @@ function toAddPlacePage() {
             remark: remark,
             lat: latitude,
             lng: longitude,
+            status: true,
         }
     })
 }
@@ -359,7 +366,8 @@ function clearSearch() {
 }
 
 onMounted(async () => {
-    if (showP) {
+    if (showP || status) {
+        console.log(status)
         showPlace.value = true;
         showResults.value = false;
     }
@@ -425,7 +433,7 @@ watch(searchQuery, (val) => {
 <template>
     <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
         <!-- Header -->
-        <div class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
+        <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
             <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
 
             <!-- Search Input -->

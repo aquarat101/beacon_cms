@@ -12,6 +12,8 @@ const placeType = route.query.type
 const remark = route.query.remark
 const lat = route.query.lat
 const lng = route.query.lng
+const status = route.query.status
+
 const selectedType = ref('')
 
 const form = reactive({
@@ -152,7 +154,7 @@ onMounted(() => {
             </form>
 
             <div class="flex justify-between gap-4 font-bold">
-                <NuxtLink :to="`/places/map/${userId}`" class="w-full">
+                <NuxtLink :to="`/places/map/${userId}/${status}`" class="w-full">
                     <button type="button"
                         class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                         Back
