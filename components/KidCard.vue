@@ -8,7 +8,7 @@ defineProps({
         default: 'offline',
     },
     updated: String,
-    avatar: {
+    avatarUrl: {
         type: String,
         default: '/images/profile.png',
     },
@@ -18,7 +18,7 @@ defineProps({
 <template>
     <NuxtLink :to="`/kids/kid_profile/${userId}/${id}`">
         <div class="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3">
-            <img :src="avatar" class="w-12 h-12 rounded-full mr-3" />
+            <img :src="avatarUrl" class="w-12 h-12 rounded-full mr-3" />
             <div class="flex-1">
                 <p class="font-semibold text-gray-800">
                     {{ name }}
