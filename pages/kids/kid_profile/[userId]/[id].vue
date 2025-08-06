@@ -99,18 +99,20 @@ onMounted(() => {
                         <p>Last updated: {{ kid?.updated || '-' }}</p>
                     </div>
 
-                    <img :src="kid?.avatar || '/images/profile.png'" alt="profile"
-                        class="w-26 h-26 bg-white rounded-full border-3 border-green-500" />
+                    <img :src="kid?.avatarUrl || '/images/profile.png'" alt="profile"
+                        class="w-26 h-26 bg-white rounded-full border-4"
+                        :class="kid?.status === 'online' ? 'border-green-500' : 'border-gray-400'" />
 
-                    <div class="absolute top-54 right-48 px-2 rounded-full text-sm bg-green-500 text-white"
-                        v-if="kid?.status === 'online'">
-                        Online
+                    <div class="absolute top-55 px-3 pb-1 rounded-full text-sm text-white"
+                        :class="kid?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'">
+                        {{ kid?.status === 'online' ? 'Online' : 'Offline' }}
                     </div>
+
                 </div>
             </div>
 
             <div
-                class="flex flex-col w-full min-w-md px-8 pt-8 pb-6 -mt-10 font-bold bg-white rounded-t-3xl relative z-10 overflow-hidden">
+                class="flex flex-col w-full min-w-md px-8 pt-8 pb-6 -mt-8 font-bold bg-white rounded-t-3xl relative z-10 overflow-hidden">
                 <div>
                     <div class="flex flex-row justify-between items-center w-full">
                         <div class="flex flex-col">

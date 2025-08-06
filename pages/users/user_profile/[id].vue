@@ -55,14 +55,15 @@ onMounted(() => {
                     <h1 class="text-3xl font-bold text-outline-blue">Your Profile</h1>
 
                     <NuxtLink :to="`/users/user_edit_profile/${id}`">
-                        <button class=" bg-white text-black rounded-full mr-7 mt-1 p-2.5 pb-3 pl-3">
-                            ✏️
+                        <button
+                            class="mr-8 mt-1 bg-[#035CB2] text-sm text-black rounded-full p-2 shadow z-10">
+                            <img src="/image-icons/edit.png" alt="edit" class="w-5 h-5">
                         </button>
                     </NuxtLink>
                 </div>
 
                 <div class="flex flex-row gap-5">
-                    <img src="/images/profile.png" alt="" class="w-20 h-20 bg-white rounded-full">
+                    <img :src="`${profile?.avatarUrl} `" alt="" class="w-20 h-20 bg-white rounded-full">
 
                     <div class="">
                         <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
@@ -76,7 +77,7 @@ onMounted(() => {
 
 
         <!-- กล่องล่าง -->
-        <div class="-mt-10 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
+        <div class="-mt-7 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
                 <NuxtLink :to="`/kids/kid_create_profile/${id}`">

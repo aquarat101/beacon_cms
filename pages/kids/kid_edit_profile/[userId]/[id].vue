@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -11,49 +11,77 @@ const { public: config } = useRuntimeConfig()
 
 const previewImage = ref(null)
 const fileInputRef = ref(null)
+const selectedFile = ref(null)  // เก็บไฟล์ภาพจริง
 
 const form = reactive({
-    profileName: '',
+    name: '',
+    beaconId: '',
+    remark: '',
+})
+
+const data = reactive({
+    name: '',
     beaconId: '',
     remark: '',
 })
 
 const errors = reactive({
-    profileName: '',
+    name: '',
     beaconId: '',
 })
 
 const validateForm = () => {
     let valid = true
-
-    // Clear all errors first
-    errors.profileName = ''
+    errors.name = ''
     errors.beaconId = ''
-
-    if (!form.profileName.trim()) {
-        errors.profileName = 'Please enter profile name'
+    if (!form.name.trim()) {
+        errors.name = 'Please enter profile name'
         valid = false
     }
-
     if (!form.beaconId.trim()) {
         errors.beaconId = 'Please enter Beacon ID'
         valid = false
     }
-
     return valid
+}
+
+async function fetchKid() {
+    try {
+        const res = await fetch(`${config.apiDomain}/kids/getKid/${userId}/${kidId}`)
+        if (!res.ok) throw new Error('Failed to fetch kid')
+        const json = await res.json()
+        console.log(json)
+        Object.assign(data, json)
+        Object.assign(form, json)
+        previewImage.value = json.avatarUrl || null  // สมมุติ backend ส่ง avatarUrl มา
+    } catch (error) {
+        console.error(error)
+    }
 }
 
 const updateKidProfile = async () => {
     if (!validateForm()) return
 
     try {
-        await fetch(`${config.apiDomain}/kids/update/${userId}/${kidId}`, {
+        const formData = new FormData()
+        formData.append('name', form.name)
+        formData.append('beaconId', form.beaconId)
+        formData.append('remark', form.remark)
+
+        if (selectedFile.value) {
+            formData.append('avatar', selectedFile.value)
+        }
+
+        const res = await fetch(`${config.apiDomain}/kids/update/${userId}/${kidId}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(form),
+            body: formData,
+            // **ไม่ต้องกำหนด Content-Type** fetch จะตั้งให้เองถ้าใช้ FormData
         })
+
+        if (!res.ok) {
+            throw new Error('Failed to update kid profile')
+        }
+
         router.push(`/kids/kid_profile/${userId}/${kidId}`)
     } catch (err) {
         console.error(err)
@@ -64,6 +92,7 @@ const updateKidProfile = async () => {
 function onFileChange(event) {
     const file = event.target.files[0]
     if (file) {
+        selectedFile.value = file
         previewImage.value = URL.createObjectURL(file)
     }
 }
@@ -71,6 +100,12 @@ function onFileChange(event) {
 function triggerFileInput() {
     fileInputRef.value?.click()
 }
+
+onMounted(() => {
+    fetchKid()
+    Object.assign(form, data)
+})
+
 
 </script>
 
@@ -84,17 +119,18 @@ function triggerFileInput() {
 
             <!-- กล่องเนื้อหาซ้อนทับ -->
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 gap-5">
-                <h1 class="text-3xl font-bold text-outline-blue">Edit Profile</h1>
+                <h1 class="text-3xl font-bold text-outline-blue">Edit Kid Profile</h1>
 
                 <div class="relative w-24 h-24">
                     <!-- รูปโปรไฟล์ -->
                     <img :src="previewImage || '/images/profile.png'" alt="Profile"
-                        class="w-full h-full bg-white rounded-full object-cover border" />
+                        class="w-full h-full bg-white rounded-full object-cover" />
 
                     <!-- ปุ่มดินสอ -->
-                    <button class="absolute bottom-0 right-0 bg-white text-sm text-black rounded-full p-2 shadow z-10"
+                    <button
+                        class="absolute bottom-0 right-0 bg-[#035CB2] text-sm text-black rounded-full p-2 shadow z-10"
                         @click="triggerFileInput">
-                        ✏️
+                        <img src="/image-icons/edit.png" alt="edit" class="w-5 h-5">
                     </button>
 
                     <!-- ซ่อนไว้ และคลิกผ่านปุ่ม -->
@@ -110,9 +146,9 @@ function triggerFileInput() {
                 <div class="">
                     <div class="">
                         <label class="block my-3 text-gray-700">Profile name</label>
-                        <input v-model="form.profileName" type="text" placeholder="profile name"
+                        <input v-model="form.name" type="text" placeholder="profile name"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
-                        <p v-if="errors.profileName" class="text-red-500 text-sm mt-1">{{ errors.profileName }}</p>
+                        <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
 
                     </div>
 

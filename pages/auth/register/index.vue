@@ -5,11 +5,14 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
 
+const isLoading = ref(false)
+
 const form = reactive({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
+    avatar: '/images/profile.png',
 })
 
 const errors = reactive({
@@ -20,7 +23,8 @@ const errors = reactive({
 })
 
 async function handleRegister() {
-    // เคลียร์ error เดิมก่อน
+    isLoading.value = true
+    
     errors.firstName = ''
     errors.lastName = ''
     errors.email = ''
@@ -36,35 +40,37 @@ async function handleRegister() {
         })
 
         const data = await res.json()
-        console.log("res", res)
 
         if (res.ok) {
             router.push(`/users/user_profile/${data.id}`)
+
+            form.firstName = ''
+            form.lastName = ''
+            form.email = ''
+            form.phone = ''
+
         } else {
-            // สมมุติ API ส่ง error กลับมาแบบนี้:
-            // { error: { email: "Email already exists", phone: "Invalid format" } }
             if (data.error && typeof data.error === 'object') {
                 Object.assign(errors, data.error)
             } else {
                 alert(data.error || 'Registration failed')
             }
         }
-
-        // เคลียร์ฟอร์มถ้าสำเร็จ
-        if (res.ok) {
-            form.firstName = ''
-            form.lastName = ''
-            form.email = ''
-            form.phone = ''
-        }
     } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message)
+    } finally {
+        isLoading.value = false // หยุดโหลดไม่ว่าจะสำเร็จหรือ error
     }
 }
+
 </script>
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center">
+        <div v-if="isLoading" class="fixed inset-0 bg-white bg-opacity-30 flex items-center justify-center z-50">
+            <div class="w-16 h-16 border-4 border-white border-t-[#0198FF] rounded-full animate-spin"></div>
+        </div>
+
         <img src="/images/header_register.png" alt="Register Header"
             class="w-full min-w-md max-h-100 object-cover z-0" />
 
