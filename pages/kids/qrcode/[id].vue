@@ -28,13 +28,11 @@ const id = route.params.id
             </div>
         </div>
 
-        <!-- ปุ่มเลือกรูปลอยด้านล่างซ้าย -->
-        <div class="absolute bottom-35 right-10 z-20">
-            <label
-                class="cursor-pointer bg-white border-2 border-[#0198FF] text-[#0198FF] px-4 py-2 rounded-xl text-sm hover:bg-[#0198FF] hover:text-white transition">
-                📁 Select Photo
+        <div class="absolute bottom-32 right-10 z-20">
+            <div class="cursor-pointer bg-white border-2 border-[#0198FF] text-[#0198FF] p-2 rounded-xl text-sm hover:bg-[#0198FF] hover:text-white transition">
+                <img src="/image-icons/gallery.png" alt="gallery" class="w10 h-10">
                 <input type="file" accept="image/*" class="hidden" />
-            </label>
+            </div>
         </div>
 
         <!-- ปุ่ม Cancel -->
