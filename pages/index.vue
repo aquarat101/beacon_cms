@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+navigateTo('/auth/register')
 </script>
 
 <template>
