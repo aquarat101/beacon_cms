@@ -7,17 +7,17 @@ const router = useRouter()
 const { public: config } = useRuntimeConfig()
 
 const userId = route.params.userId
-const placeId = route.params.placeId || null
+const placeId = route.params.placeId || "placeId"
 const status = route.params.status
 
 const name = route.query.name
 const address = route.query.address
 const type = route.query.type
 const remark = route.query.remark
-const showP = route.query.status
+let showP = route.query.status
 const latitude = route.query.lat
 const longitude = route.query.lng
-const state = route.query.state || false
+const noPin = route.query.state || false
 
 const searchQuery = ref('')
 const showPlace = ref(false)
@@ -28,7 +28,6 @@ const result = ref('')
 const resultName = ref('')
 const resultAddress = ref('')
 
-const marker = ref(null)
 const currentLocationMarker = ref(null)  // หมุดตำแหน่งปัจจุบันสีน้ำเงิน
 const selectedMarker = ref(null)         // หมุดตำแหน่งที่เลือก สีแดง
 const circle = ref(null)
@@ -43,19 +42,12 @@ const selectedPosition = ref(null)
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
 function onMapClick(event) {
     const latLng = event.latLng
-    updateSelectedPosition(latLng)
+    if (noPin) {
+        return
+    } else {
+        updateSelectedPosition(latLng)
+    }
 }
-
-// function clearPin() {
-//     if (selectedMarker.value) {
-//         selectedMarker.value.setMap(null)
-//         selectedMarker.value = null
-//     }
-//     selectedPosition.value = null
-//     // อาจต้องมี flag ป้องกัน watcher ทำงานตอน clear
-//     isClearing.value = true
-//     setTimeout(() => { isClearing.value = false }, 100)
-// }
 
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
@@ -70,7 +62,6 @@ watch(selectedPosition, (val) => {
         }
     }
 })
-
 
 async function setMarker(position, title = 'Selected Location') {
     console.log('Set marker at', position)
@@ -114,27 +105,6 @@ async function updateSelectedPosition(position) {
     }
 }
 
-// async function getPlaceNameFromLatLng(lat, lng) {
-//     return new Promise((resolve, reject) => {
-//         const service = new google.maps.places.PlacesService(map.value)
-//         const location = new google.maps.LatLng(lat, lng)
-
-//         const request = {
-//             location,
-//             radius: 50, // รอบ 50 เมตร
-//             // types: ['point_of_interest'], // ถ้าต้องการจำกัดประเภท
-//         }
-
-//         service.nearbySearch(request, (results, status) => {
-//             if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-//                 resolve(results[0].name) // ชื่อสถานที่ใกล้ที่สุด
-//             } else {
-//                 resolve(null) // ไม่พบชื่อสถานที่
-//             }
-//         })
-//     })
-// }
-
 function loadGoogleMaps(apiKey) {
     return new Promise((resolve, reject) => {
         if (window.google && window.google.maps) {
@@ -148,19 +118,6 @@ function loadGoogleMaps(apiKey) {
         script.onerror = () => reject('Failed to load Google Maps API')
         document.head.appendChild(script)
     })
-}
-
-function selectPlace(place) {
-    console.log("CALL SELECTPLACE")
-    const location = place.geometry.location
-    resultName.value = place.name
-    resultAddress.value = place.formatted_address
-
-    map.value.panTo(location)
-    setMarker(location, place.name)
-
-    searchQuery.value = place.name
-    showResults.value = false
 }
 
 async function goToCurrentLocation() {
@@ -261,7 +218,7 @@ function sendData() {
         service.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
                 router.push({
-                    path: `/places/add_place/${userId}`,
+                    path: `/places/add_place/${userId}/${placeId}`,
                     query: {
                         address: results[0].formatted_address,
                         lat: results[0].geometry.location.lat(),
@@ -273,7 +230,7 @@ function sendData() {
     }
 
     router.push({
-        path: `/places/add_place/${userId}`,
+        path: `/places/add_place/${userId}/${placeId}`,
         query: {
             address: selectedPosition.value.address,
             lat: selectedPosition.value.lat,
@@ -311,7 +268,7 @@ async function savePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        alert('✅ Place saved successfully!')
+        // alert('✅ Place saved successfully!')
 
         router.push({
             path: `/places/my_place/${userId}`
@@ -323,42 +280,8 @@ async function savePlace() {
     }
 }
 
-function toAddPlacePage() {
-    router.push({
-        path: `/places/add_place/${userId}/${placeId}`,
-        query: {
-            name: name,
-            address: address,
-            type: type,
-            remark: remark,
-            lat: latitude,
-            lng: longitude,
-            status: true,
-        }
-    })
-}
-
-async function deletePlace() {
-    const confirmDelete = confirm('Are you sure you want to delete this place?')
-    if (!confirmDelete) return
-    // console.log(placeId)
-    try {
-        const res = await fetch(`${config.apiDomain}/places/delete/${placeId}`, {
-            method: 'DELETE',
-        })
-        if (!res.ok) throw new Error('Failed to delete place')
-
-        alert('Place deleted successfully')
-        router.push(`/places/my_place/${userId}`)
-    } catch (error) {
-        console.error(error)
-        alert('Error deleting place')
-    }
-}
-
 function changeState() {
-    showPlace.value = false;
-    showResults.value = false;
+    router.push(`/places/add_place/${userId}`)
 }
 
 function clearSearch() {
@@ -367,8 +290,9 @@ function clearSearch() {
 }
 
 onMounted(async () => {
+    console.log("INTO [USERID]")
     if (showP || status) {
-        console.log(status)
+        // console.log(status)
         showPlace.value = true;
         showResults.value = false;
     }
@@ -518,17 +442,6 @@ watch(searchQuery, (val) => {
                 <div class="">
                     <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
                     <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
-                </div>
-
-                <div v-if="state" class="flex items-start gap-2">
-                    <button @click="toAddPlacePage">
-                        <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
-                    </button>
-
-                    <button @click="deletePlace">
-                        <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-9 h-9 p-2 rounded-full">
-
-                    </button>
                 </div>
             </div>
 

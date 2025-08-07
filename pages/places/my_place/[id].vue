@@ -38,11 +38,11 @@ onMounted(() => {
                 <div class="absolute inset-0 flex flex-col justify-center z-10 gap-5 px-10 mb-5">
                     <div class="flex justify-between mb-4">
                         <h2 class="text-3xl font-bold text-outline-blue">My Place</h2>
-                        <NuxtLink :to="`/places/map/${userId}`">
+                        <NuxtLink :to="`/places/map/userId/${userId}`">
                             <button
                                 class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center leading-5.5">
                                 <div class="h-full w-full mt-1">+</div>
-                            </button>
+                            </button>   
                         </NuxtLink>
                     </div>
                 </div>
@@ -54,7 +54,7 @@ onMounted(() => {
                 <div class="max-h-120 overflow-y-auto space-y-4 pr-2">
                     <PlaceCard v-for="place in places" :key="place.id" :userId="place.userId" :placeId="place.id" :name="place.name"
                         :address="place.address" :type="place.type" :remark="place.remark" :lat="place.lat"
-                        :lng="place.lng" :status="`true`" :state="true" class="min-w-[200px] shrink-0" @click="" />
+                        :lng="place.lng" :status="`true`" class="min-w-[200px] shrink-0" @click="" />
                 </div>
             </div>
         </div>

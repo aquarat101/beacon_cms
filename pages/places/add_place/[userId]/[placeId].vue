@@ -5,7 +5,10 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
-const userId = route.params.id
+
+const userId = route.params.userId
+const placeId = route.params.placeId
+
 const placeName = route.query.name
 const address = route.query.address
 const placeType = route.query.type
@@ -49,7 +52,8 @@ async function toSavePlace() {
     errors.placeName = ''
     errors.placeType = ''
 
-    const trimmedName = form.placeName.trim()
+    // const trimmedName = form.placeName.trim()
+    const trimmedName = form.placeName
 
     if (!trimmedName) {
         errors.placeName = 'Please enter a valid place name'
@@ -63,18 +67,58 @@ async function toSavePlace() {
     if (errors.placeName || errors.placeType) return
 
     // ดำเนินการต่อ
-    router.push({
-        path: `/places/map/${userId}`,
-        query: {
-            name: trimmedName,
-            address: address,
-            type: form.placeType,
-            remark: form.remark,
-            lat: lat,
-            lng: lng,
-            status: true,
-        }
-    })
+    if (!status) {
+        router.push({
+            path: `/places/map/userId/${userId}`,
+            query: {
+                name: trimmedName,
+                address: address,
+                type: form.placeType,
+                remark: form.remark,
+                lat: lat,
+                lng: lng,
+                status: true,
+                state: true,
+            }
+        })
+    } else {
+        router.push({
+            path: `/places/map/placeId/${userId}/${placeId}`,
+            query: {
+                name: trimmedName,
+                address: address,
+                type: form.placeType,
+                remark: form.remark,
+                lat: lat,
+                lng: lng,
+                status: true,
+                state: true,
+            }
+        })
+    }
+}
+
+function backPage() {
+    // const trimmedName = form.placeName.trim()
+    const trimmedName = form.placeName
+
+    if (!status) {
+        router.push(`/places/map/userId/${userId}`)
+    } else {
+        router.push({
+            path: `/places/map/placeId/${userId}/${placeId}`,
+            query: {
+                name: trimmedName,
+                address: address,
+                type: form.placeType,
+                remark: form.remark,
+                lat: lat,
+                lng: lng,
+                status: true,
+                state: true,
+            }
+        })
+    }
 }
 
 onMounted(() => {
@@ -154,16 +198,14 @@ onMounted(() => {
             </form>
 
             <div class="flex justify-between gap-4 font-bold">
-                <NuxtLink :to="`/places/map/${userId}/${status}`" class="w-full">
-                    <button type="button"
-                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                        Back
-                    </button>
-                </NuxtLink>
+                <button type="button" @click="backPage"
+                    class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                    Back
+                </button>
 
                 <button type="button" @click="toSavePlace"
                     class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                    Save
+                    Next
                 </button>
             </div>
         </div>

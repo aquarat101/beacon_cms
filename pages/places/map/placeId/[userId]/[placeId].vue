@@ -113,27 +113,6 @@ async function updateSelectedPosition(position) {
     }
 }
 
-// async function getPlaceNameFromLatLng(lat, lng) {
-//     return new Promise((resolve, reject) => {
-//         const service = new google.maps.places.PlacesService(map.value)
-//         const location = new google.maps.LatLng(lat, lng)
-
-//         const request = {
-//             location,
-//             radius: 50, // รอบ 50 เมตร
-//             // types: ['point_of_interest'], // ถ้าต้องการจำกัดประเภท
-//         }
-
-//         service.nearbySearch(request, (results, status) => {
-//             if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-//                 resolve(results[0].name) // ชื่อสถานที่ใกล้ที่สุด
-//             } else {
-//                 resolve(null) // ไม่พบชื่อสถานที่
-//             }
-//         })
-//     })
-// }
-
 function loadGoogleMaps(apiKey) {
     return new Promise((resolve, reject) => {
         if (window.google && window.google.maps) {
@@ -281,15 +260,10 @@ function sendData() {
     })
 }
 
-async function savePlace() {
-    if (!name || !type) {
-        alert('Please fill in place name and type')
-        return
-    }
-
+async function updatePlace() {
     try {
-        const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
-            method: 'POST',
+        const response = await fetch(`${config.apiDomain}/places/update/${placeId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -300,7 +274,7 @@ async function savePlace() {
                 type: type,
                 remark: remark,
                 lat: latitude,
-                lng: longitude
+                lng: longitude,
             })
         })
 
@@ -310,15 +284,13 @@ async function savePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        alert('✅ Place saved successfully!')
-
         router.push({
             path: `/places/my_place/${userId}`
         })
 
     } catch (error) {
-        console.error('❌ Error:', error)
-        alert('❌ Failed to save place')
+        console.error('❌ Error updating place:', error)
+        alert('❌ Failed to update place')
     }
 }
 
@@ -347,7 +319,7 @@ async function deletePlace() {
         })
         if (!res.ok) throw new Error('Failed to delete place')
 
-        alert('Place deleted successfully')
+        // alert('Place deleted successfully')
         router.push(`/places/my_place/${userId}`)
     } catch (error) {
         console.error(error)
@@ -356,8 +328,7 @@ async function deletePlace() {
 }
 
 function changeState() {
-    showPlace.value = false;
-    showResults.value = false;
+    router.push(`/places/my_place/${userId}`)
 }
 
 function clearSearch() {
@@ -366,8 +337,9 @@ function clearSearch() {
 }
 
 onMounted(async () => {
+    console.log("INTO [USERID/PLACEID]")
     if (showP || status) {
-        console.log(status)
+        // console.log(status)
         showPlace.value = true;
         showResults.value = false;
     }
@@ -487,29 +459,6 @@ watch(searchQuery, (val) => {
             </button> -->
         </div>
 
-        <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="!showResults && !showPlace"
-            class="absolute bottom-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
-            <p class="font-bold mb-2 text-[#035CB2] text-3xl">Pin place</p>
-            <div class="flex items-center justify-between space-x-4">
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold whitespace-normal break-words">
-                        {{ selectedPosition && selectedPosition.address ? selectedPosition.address : "No place..." }}
-                    </p>
-                </div>
-                <button @click="sendData"
-                    class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center flex-shrink-0">
-                    <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
-                </button>
-            </div>
-
-            <NuxtLink :to="`/places/my_place/${userId}`">
-                <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
-                    Back to My Places
-                </button>
-            </NuxtLink>
-        </div>
-
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
         <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
             <!-- <p class="font-bold mb-2">Result place</p> -->
@@ -550,7 +499,7 @@ watch(searchQuery, (val) => {
                     Back
                 </button>
 
-                <button type="button" @click="savePlace"
+                <button type="button" @click="updatePlace"
                     class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
                     Save
                 </button>
