@@ -9,7 +9,8 @@ liff.init({ liffId: '2007889543-Y63ndk5Q' }).then(async () => {
             console.log(2)
             liff.login()
             console.log(3)
-
+        } else {
+          console.log("test")
         }
         
     } catch (err) {

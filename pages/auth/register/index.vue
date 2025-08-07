@@ -62,7 +62,8 @@ async function handleRegister() {
         
         console.log(profile.userId)
         if (res.ok) {
-            router.push(`/users/user_profile/`)
+            console.log("HERE")
+            router.push(`/users/user_profile/${profile.userId}`)
 
             form.firstName = ''
             form.lastName = ''

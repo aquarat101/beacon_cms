@@ -82,7 +82,7 @@ onMounted(async () => {
         <div class="-mt-7 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
-                <NuxtLink :to="`/kids/kid_create_profile/${test.userId}`">
+                <NuxtLink :to="`/kids/kid_create_profile/${userId}`">
                     <button
                         class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
                         +

@@ -8,6 +8,7 @@ import KidCard from '~/components/KidCard.vue'
 const route = useRoute()
 const getProfile = await liff.getProfile()
 const userId = getProfile.userId
+console.log(userId)
 
 const { public: config } = useRuntimeConfig()
 
@@ -41,7 +42,6 @@ async function fetchKids() {
 onMounted(async () => {
     fetchUserProfile()
     fetchKids()
-
 })
 </script>
 
@@ -58,7 +58,7 @@ onMounted(async () => {
                 <div class="flex justify-between w-full">
                     <h1 class="text-3xl font-bold text-outline-blue">Your Profile</h1>
 
-                    <NuxtLink :to="`/users/user_edit_profile/${id}`">
+                    <NuxtLink :to="`/users/user_edit_profile/${userId}`">
                         <button class="mr-8 mt-1 bg-[#035CB2] text-sm text-black rounded-full p-2 shadow z-10">
                             <img src="/image-icons/edit.png" alt="edit" class="w-5 h-5">
                         </button>
@@ -82,7 +82,7 @@ onMounted(async () => {
         <div class="-mt-7 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
-                <NuxtLink :to="`/kids/kid_create_profile/${test.userId}`">
+                <NuxtLink :to="`/kids/kid_create_profile/${userId}`">
                     <button
                         class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
                         +
