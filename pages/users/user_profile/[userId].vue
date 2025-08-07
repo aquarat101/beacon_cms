@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { onMounted } from 'vue'
-import liff from '@line/liff'
+// import liff from '@line/liff'
 
 import KidCard from '~/components/KidCard.vue'
 
@@ -58,7 +58,7 @@ onMounted(async () => {
                 <div class="flex justify-between w-full">
                     <h1 class="text-3xl font-bold text-outline-blue">Your Profile</h1>
 
-                    <NuxtLink :to="`/users/user_edit_profile/${id}`">
+                    <NuxtLink :to="`/users/user_edit_profile/${userId}`">
                         <button class="mr-8 mt-1 bg-[#035CB2] text-sm text-black rounded-full p-2 shadow z-10">
                             <img src="/image-icons/edit.png" alt="edit" class="w-5 h-5">
                         </button>

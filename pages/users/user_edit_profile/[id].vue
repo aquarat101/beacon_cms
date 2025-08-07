@@ -25,6 +25,18 @@ const data = reactive({
     phone: '',
 })
 
+async function fetchUserProfile() {
+    try {
+        const res = await fetch(`${config.apiDomain}/users/get/${id}`)
+        if (!res.ok) throw new Error('Failed to fetch profile')
+        const json = await res.json()
+        Object.assign(data, json)
+        Object.assign(form, json)
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 async function updateUserProfile() {
     const formData = new FormData()
 
@@ -51,18 +63,6 @@ async function updateUserProfile() {
     } catch (err) {
         console.error(err)
         alert('Failed to update profile.')
-    }
-}
-
-async function fetchUserProfile() {
-    try {
-        const res = await fetch(`${config.apiDomain}/users/get/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch profile')
-        const json = await res.json()
-        Object.assign(data, json)
-        Object.assign(form, json)
-    } catch (error) {
-        console.error(error)
     }
 }
 
