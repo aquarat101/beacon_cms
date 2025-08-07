@@ -10,7 +10,7 @@ liff.init({ liffId: '2007889543-Y63ndk5Q' }).then(async () => {
             liff.login()
             console.log(3)
         } else {
-          console.log("test")
+          console.log("Already logged in !!!")
         }
         
     } catch (err) {

@@ -106,32 +106,6 @@ async function toUserProfile() {
         return false;
     }
 }
-
-onMounted(async () => {
-
-    // liff.init({ liffId: '2007889543-Y63ndk5Q' })
-
-    // try {
-    //     console.log(1)
-
-    //     if (!liff.isLoggedIn()) {
-    //         console.log(2)
-    //         liff.login()
-    //         console.log(3)
-
-    //     } else {
-    //         console.log(4)
-    //         console.log(liff.getAccessToken())
-    //         const profile = await liff.getProfile()
-    //         console.log('User logged in:', profile)
-    //     }
-
-        
-    // } catch (err) {
-    //     console.error('LIFF init or login error:', err)
-    // }
-})
-
 </script>
 
 <template>
