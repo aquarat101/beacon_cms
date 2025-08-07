@@ -1,13 +1,16 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import liff from '@line/liff'
 
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
 
 const isLoading = ref(false)
+let userId = ref('')
 
 const form = reactive({
+    userId: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -24,13 +27,29 @@ const errors = reactive({
 
 async function handleRegister() {
     isLoading.value = true
-    
+
     errors.firstName = ''
     errors.lastName = ''
     errors.email = ''
     errors.phone = ''
 
+
+    if (!liff.isLoggedIn()) {
+        liff.login()
+        // const profile = await liff.getProfile()
+        // router.push(`/users/user_profile/${profile.userId}`)
+        // console.log('ชื่อ:', profile.displayName)
+        // console.log(profile)
+    } else {
+        const profile = await liff.getProfile()
+        console.log('ชื่อ:', profile.displayName)
+        console.log(profile)
+    }
+
     try {
+        const profile = await liff.getProfile()
+        userId = profile.userId
+        form.userId = profile.userId
         const res = await fetch(`${config.apiDomain}/register`, {
             method: 'POST',
             headers: {
@@ -40,9 +59,10 @@ async function handleRegister() {
         })
 
         const data = await res.json()
-
+        
+        console.log(profile.userId)
         if (res.ok) {
-            router.push(`/users/user_profile/${data.id}`)
+            router.push(`/users/user_profile/`)
 
             form.firstName = ''
             form.lastName = ''
@@ -62,6 +82,54 @@ async function handleRegister() {
         isLoading.value = false // หยุดโหลดไม่ว่าจะสำเร็จหรือ error
     }
 }
+
+async function toUserProfile() {
+    const profile = await liff.getProfile()
+    const userId = profile.userId
+
+    try {
+        const res = await fetch(`${config.apiDomain}/findUserByUserId/${userId}`);
+
+        if (res.ok) {
+            const data = await res.json();
+            if (data.exists) {
+                router.push(`/user/user_profile/${userId}`)
+            }
+        } else if (res.status === 404) {
+            return false;
+        } else {
+            throw new Error('Unexpected error');
+        }
+    } catch (err) {
+        console.error('Error checking userId:', err);
+        return false;
+    }
+}
+
+onMounted(async () => {
+
+    // liff.init({ liffId: '2007889543-Y63ndk5Q' })
+
+    // try {
+    //     console.log(1)
+
+    //     if (!liff.isLoggedIn()) {
+    //         console.log(2)
+    //         liff.login()
+    //         console.log(3)
+
+    //     } else {
+    //         console.log(4)
+    //         console.log(liff.getAccessToken())
+    //         const profile = await liff.getProfile()
+    //         console.log('User logged in:', profile)
+    //     }
+
+        
+    // } catch (err) {
+    //     console.error('LIFF init or login error:', err)
+    // }
+})
 
 </script>
 
