@@ -464,41 +464,6 @@ watch(searchQuery, (val) => {
             </NuxtLink>
         </div>
 
-        <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
-            <!-- <p class="font-bold mb-2">Result place</p> -->
-            <div class="flex items-start justify-between">
-                <div class="">
-                    <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
-                    <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
-                </div>
-            </div>
-
-
-            <div class="mt-2">
-                <p class="font-bold">Place type</p>
-
-                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
-            </div>
-
-            <div class="mt-2">
-                <p class="font-bold">Remark</p>
-
-                <p>{{ remark }}</p>
-            </div>
-
-            <div class="flex justify-between gap-4 font-bold mt-6">
-                <button type="button" @click="backToAddPlace"
-                    class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                    Back
-                </button>
-
-                <button type="button" @click="savePlace"
-                    class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                    Save
-                </button>
-            </div>
-        </div>
     </div>
 </template>
 

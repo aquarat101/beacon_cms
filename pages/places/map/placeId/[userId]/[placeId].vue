@@ -46,17 +46,6 @@ function onMapClick(event) {
     updateSelectedPosition(latLng)
 }
 
-// function clearPin() {
-//     if (selectedMarker.value) {
-//         selectedMarker.value.setMap(null)
-//         selectedMarker.value = null
-//     }
-//     selectedPosition.value = null
-//     // อาจต้องมี flag ป้องกัน watcher ทำงานตอน clear
-//     isClearing.value = true
-//     setTimeout(() => { isClearing.value = false }, 100)
-// }
-
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
     if (isClearing.value) return
@@ -70,7 +59,6 @@ watch(selectedPosition, (val) => {
         }
     }
 })
-
 
 async function setMarker(position, title = 'Selected Location') {
     console.log('Set marker at', position)
@@ -494,25 +482,29 @@ watch(searchQuery, (val) => {
         </div>
 
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="showPlace && !showResults" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
-            <!-- <p class="font-bold mb-2">Result place</p> -->
-            <div class="flex items-start justify-between">
-                <div class="">
-                    <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
-                    <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
+        <div v-if="showPlace && !showResults"
+            class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-3xl text-[#035CB2] break-words">
+                        {{ name }}
+                    </p>
+                    <p class="font-semibold break-words">
+                        {{ selectedPosition?.address || "No place..." }}
+                    </p>
                 </div>
 
-                <div class="flex items-start gap-2">
+                <!-- ปุ่ม -->
+                <div class="flex items-start gap-2 flex-shrink-0">
                     <button @click="toAddPlacePage">
                         <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
                     </button>
-
                     <button @click="deletePlace">
                         <img src="/image-icons/trash.png" alt="delete" class="bg-[#E24B4B] w-9 h-9 p-2 rounded-full">
-
                     </button>
                 </div>
             </div>
+
 
 
             <div class="mt-2">
