@@ -38,6 +38,24 @@ async function fetchKids() {
     }
 }
 
+try {
+    const profileLine = await liff.getProfile()
+
+    const res = await fetch(`${config.apiDomain}/findUserByUserId/${profileLine.userId}`);
+
+    if (res.ok) {
+        const data = await res.json();
+        if (data.exists) {
+            router.push(`/user/user_profile/${profileLine.userId}`)
+        }
+    } else {
+        router.push(`/auth/register`)
+    }
+} catch (err) {
+    console.error('Error checking userId:', err);
+    console.log("false")
+}
+
 onMounted(async () => {
     fetchUserProfile()
     fetchKids()
