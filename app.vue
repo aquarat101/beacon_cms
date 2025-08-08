@@ -1,7 +1,7 @@
 <script>
 import liff from '@line/liff'
 
-liff.init({ liffId: '2007889543-Y63ndk5Q' }).then(async () => {
+liff.init({ liffId: '2007896109-67ZKrZlO' }).then(async () => {
     try {
         console.log(1)
 
