@@ -89,7 +89,7 @@ async function toUserProfile() {
     const userId = profile.userId
 
     try {
-        const res = await fetch(`${config.apiDomain}/findUserByUserId/${userId}`);
+        const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId}`);
 
         if (res.ok) {
             const data = await res.json();
@@ -110,7 +110,7 @@ async function toUserProfile() {
 const profile = await liff.getProfile()
 
 try {
-    const res = await fetch(`${config.apiDomain}/findUserByUserId/${profile.userId}`);
+    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profile.userId}`);
 
     if (res.ok) {
         const data = await res.json();
