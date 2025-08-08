@@ -29,9 +29,11 @@ async function fetchUserProfile() {
     try {
         const res = await fetch(`${config.apiDomain}/users/get/${id}`)
         if (!res.ok) throw new Error('Failed to fetch profile')
-        const json = await res.json()
+        let json = await res.json()
         Object.assign(data, json)
         Object.assign(form, json)
+                previewImage.value = json.avatarUrl || null  // สมมุติ backend ส่ง avatarUrl มา
+
     } catch (error) {
         console.error(error)
     }

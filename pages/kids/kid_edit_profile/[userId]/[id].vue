@@ -50,10 +50,10 @@ async function fetchKid() {
         const res = await fetch(`${config.apiDomain}/kids/getKid/${userId}/${kidId}`)
         if (!res.ok) throw new Error('Failed to fetch kid')
         const json = await res.json()
-        console.log(json)
+        // console.log(json)
         Object.assign(data, json)
         Object.assign(form, json)
-        previewImage.value = json.avatarUrl || null  // สมมุติ backend ส่ง avatarUrl มา
+        previewImage.value = json.avatarUrl || null
     } catch (error) {
         console.error(error)
     }
