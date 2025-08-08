@@ -85,7 +85,7 @@ onMounted(async () => {
                 <NuxtLink :to="`/kids/kid_create_profile/${userId}`">
                     <button
                         class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
-                        +
+                        <img src="/image-icons/plus.png" alt="create kid">
                     </button>
                 </NuxtLink>
             </div>

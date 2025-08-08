@@ -59,7 +59,7 @@ async function handleRegister() {
         })
 
         const data = await res.json()
-        
+
         console.log(profile.userId)
         if (res.ok) {
             console.log("HERE")
@@ -106,6 +106,28 @@ async function toUserProfile() {
         return false;
     }
 }
+
+const profile = await liff.getProfile()
+
+try {
+    const res = await fetch(`${config.apiDomain}/findUserByUserId/${profile.userId}`);
+
+    if (res.ok) {
+        const data = await res.json();
+        if (data.exists) {
+            router.push(`/user/user_profile/${profile.userId}`)
+        }
+    } else if (res.status === 404) {
+        // return false;
+        console.log("false")
+    } else {
+        throw new Error('Unexpected error');
+    }
+} catch (err) {
+    console.error('Error checking userId:', err);
+    console.log("false")
+}
+
 </script>
 
 <template>
