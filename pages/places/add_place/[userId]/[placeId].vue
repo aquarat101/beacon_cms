@@ -109,7 +109,14 @@ function backPage() {
 
     console.log("backPage status : ", status)
     if (status === 'false') {
-        router.push(`/places/map/userId/${userId}`)
+        router.push({
+            path: `/places/map/userId/${userId}`,
+            query: {
+                address: address,
+                lat: lat,
+                lng: lng,
+            }
+        })
     } else {
         console.log("backPage status else : ", status)
         router.push({

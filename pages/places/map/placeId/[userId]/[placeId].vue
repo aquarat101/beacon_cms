@@ -117,19 +117,6 @@ function loadGoogleMaps(apiKey) {
     })
 }
 
-// function selectPlace(place) {
-//     console.log("CALL SELECTPLACE")
-//     const location = place.geometry.location
-//     resultName.value = place.name
-//     resultAddress.value = place.formatted_address
-
-//     map.value.panTo(location)
-//     setMarker(location, place.name)
-
-//     searchQuery.value = place.name
-//     showResults.value = false
-// }
-
 async function goToCurrentLocation() {
     const lat = Number(latitude)
     const lng = Number(longitude)
@@ -490,7 +477,7 @@ watch(searchQuery, (val) => {
                         {{ name }}
                     </p>
                     <p class="font-semibold break-words">
-                        {{ selectedPosition?.address || "No place..." }}
+                        {{ selectedPosition?.address || address }}
                     </p>
                 </div>
 

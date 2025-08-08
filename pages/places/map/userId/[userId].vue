@@ -11,14 +11,13 @@ const placeId = route.params.placeId || "placeId"
 const status = route.params.status
 
 const name = route.query.name
-const address = route.query.address
+const address = route.query.address || "No place..."
 const type = route.query.type
 const remark = route.query.remark
 let showP = route.query.status
 const latitude = route.query.lat
 const longitude = route.query.lng
 const noPin = route.query.state || true
-console.log(latitude, longitude)
 
 const searchQuery = ref('')
 const showPlace = ref(false)
@@ -256,46 +255,46 @@ function sendData() {
     })
 }
 
-async function savePlace() {
-    if (!name || !type) {
-        alert('Please fill in place name and type')
-        return
-    }
+// async function savePlace() {
+//     if (!name || !type) {
+//         alert('Please fill in place name and type')
+//         return
+//     }
 
-    try {
-        const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: userId,
-                name: name,
-                address: address,
-                type: type,
-                remark: remark,
-                lat: latitude,
-                lng: longitude
-            })
-        })
+//     try {
+//         const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 userId: userId,
+//                 name: name,
+//                 address: address,
+//                 type: type,
+//                 remark: remark,
+//                 lat: latitude,
+//                 lng: longitude
+//             })
+//         })
 
-        const data = await response.json()
+//         const data = await response.json()
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Something went wrong')
-        }
+//         if (!response.ok) {
+//             throw new Error(data.message || 'Something went wrong')
+//         }
 
-        // alert('✅ Place saved successfully!')
+//         // alert('✅ Place saved successfully!')
 
-        router.push({
-            path: `/places/my_place/${userId}`
-        })
+//         router.push({
+//             path: `/places/my_place/${userId}`
+//         })
 
-    } catch (error) {
-        console.error('❌ Error:', error)
-        alert('❌ Failed to save place')
-    }
-}
+//     } catch (error) {
+//         console.error('❌ Error:', error)
+//         alert('❌ Failed to save place')
+//     }
+// }
 
 function backToAddPlace() {
     console.log("backToAddPlace : false")
@@ -448,7 +447,7 @@ watch(searchQuery, (val) => {
             <div class="flex items-center justify-between space-x-4">
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold whitespace-normal break-words">
-                        {{ selectedPosition && selectedPosition.address ? selectedPosition.address : "No place..." }}
+                        {{ selectedPosition && selectedPosition.address ? selectedPosition.address : address }}
                     </p>
                 </div>
                 <button @click="sendData"
@@ -462,6 +461,42 @@ watch(searchQuery, (val) => {
                     Back to My Places
                 </button>
             </NuxtLink>
+        </div>
+
+        <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
+        <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
+            <!-- <p class="font-bold mb-2">Result place</p> -->
+            <div class="flex items-start justify-between">
+                <div class="">
+                    <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
+                    <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
+                </div>
+            </div>
+
+
+            <div class="mt-2">
+                <p class="font-bold">Place type</p>
+
+                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
+            </div>
+
+            <div class="mt-2">
+                <p class="font-bold">Remark</p>
+
+                <p>{{ remark }}</p>
+            </div>
+
+            <div class="flex justify-between gap-4 font-bold mt-6">
+                <button type="button" @click="backToAddPlace"
+                    class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                    Back
+                </button>
+
+                <button type="button" @click="savePlace"
+                    class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                    Save
+                </button>
+            </div>
         </div>
 
     </div>

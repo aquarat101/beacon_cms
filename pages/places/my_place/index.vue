@@ -44,8 +44,8 @@ onMounted(() => {
                         <h2 class="text-3xl font-bold text-outline-blue">My Place</h2>
                         <NuxtLink :to="`/places/map/userId/${userId}`">
                             <button
-                                class="bg-[#0198FF] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center leading-5.5">
-                                <div class="h-full w-full mt-1">+</div>
+                                class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
+                                <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
                             </button>
                         </NuxtLink>
                     </div>
@@ -58,7 +58,8 @@ onMounted(() => {
                 <div class="max-h-120 overflow-y-auto space-y-4 pr-2">
                     <PlaceCard v-for="place in places" :key="place.id" :userId="place.userId" :placeId="place.id"
                         :name="place.name" :address="place.address" :type="place.type" :remark="place.remark"
-                        :lat="place.lat" :lng="place.lng" :status="`true`" :state="`true`" class="min-w-[200px] shrink-0" @click="" />
+                        :lat="place.lat" :lng="place.lng" :status="`true`" :state="`true`"
+                        class="min-w-[200px] shrink-0" @click="" />
                 </div>
             </div>
         </div>
