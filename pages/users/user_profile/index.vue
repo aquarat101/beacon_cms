@@ -54,7 +54,7 @@ try {
             router.push(`/user/user_profile/${profileLine.userId}`)
         }
     } else {
-        router.push(`/auth/register/${profileLine.userId}`)
+        router.push(`/auth/register`)
     }
 } catch (err) {
     console.error('Error checking userId:', err);
