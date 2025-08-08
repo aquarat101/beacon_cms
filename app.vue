@@ -1,7 +1,8 @@
-<script>
+<script setup>
 import liff from '@line/liff'
+const { public: config } = useRuntimeConfig()
 
-liff.init({ liffId: '2007896109-67ZKrZlO' }).then(async () => {
+liff.init({ liffId: config.liffId }).then(async () => {
     try {
         console.log(1)
 

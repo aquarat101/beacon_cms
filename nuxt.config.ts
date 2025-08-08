@@ -4,7 +4,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
-      apiDomain: process.env.API_DOMAIN || ''
+      apiDomain: process.env.API_DOMAIN || '',
+      liffId: process.env.LINELIFF_ID
     },
   },
 

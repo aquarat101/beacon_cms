@@ -1,10 +1,11 @@
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import liff from '@line/liff'
 import KidCard from '~/components/KidCard.vue'
 
 const route = useRoute()
+const router = useRouter()
 const getProfile = await liff.getProfile()
 const userId = getProfile.userId
 const { public: config } = useRuntimeConfig()
@@ -40,6 +41,24 @@ async function fetchKids() {
     } finally {
         loadingKids.value = false
     }
+}
+
+try {
+    const profileLine = await liff.getProfile()
+    
+    const res = await fetch(`${config.apiDomain}/findUserByUserId/${profileLine.userId}`);
+
+    if (res.ok) {
+        const data = await res.json();
+        if (data.exists) {
+            router.push(`/user/user_profile/${profileLine.userId}`)
+        }
+    } else {
+        router.push(`/auth/register/${profileLine.userId}`)
+    }
+} catch (err) {
+    console.error('Error checking userId:', err);
+    console.log("false")
 }
 
 onMounted(async () => {
