@@ -243,7 +243,8 @@ function sendData() {
                     query: {
                         address: results[0].formatted_address,
                         lat: results[0].geometry.location.lat(),
-                        lng: results[0].geometry.location.lng()
+                        lng: results[0].geometry.location.lng(),
+                        status: true,
                     }
                 })
             }
@@ -255,7 +256,8 @@ function sendData() {
         query: {
             address: selectedPosition.value.address,
             lat: selectedPosition.value.lat,
-            lng: selectedPosition.value.lng
+            lng: selectedPosition.value.lng,
+            status: true,
         }
     })
 }
@@ -295,6 +297,7 @@ async function updatePlace() {
 }
 
 function toAddPlacePage() {
+    console.log("toAddPlacePage : true")
     router.push({
         path: `/places/add_place/${userId}/${placeId}`,
         query: {
@@ -405,7 +408,7 @@ watch(searchQuery, (val) => {
 <template>
     <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
         <!-- Header -->
-        <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
+        <div class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
             <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
 
             <!-- Search Input -->

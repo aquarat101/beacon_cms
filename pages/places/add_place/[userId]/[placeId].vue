@@ -7,7 +7,7 @@ const router = useRouter()
 const { public: config } = useRuntimeConfig()
 
 const userId = route.params.userId
-const placeId = route.params.placeId
+const placeId = route.params.placeId || 'placeId'
 
 const placeName = route.query.name
 const address = route.query.address
@@ -16,6 +16,7 @@ const remark = route.query.remark
 const lat = route.query.lat
 const lng = route.query.lng
 const status = route.query.status
+console.log("status : ", status, "type of : ", typeof(status))
 
 const selectedType = ref('')
 
@@ -66,8 +67,10 @@ async function toSavePlace() {
     // ถ้ามี error ใด ๆ ให้หยุด
     if (errors.placeName || errors.placeType) return
 
+    console.log("toSavePlace status : ", status)
     // ดำเนินการต่อ
-    if (!status) {
+    if (status === 'false') {   
+        console.log("USER ID")
         router.push({
             path: `/places/map/userId/${userId}`,
             query: {
@@ -77,11 +80,11 @@ async function toSavePlace() {
                 remark: form.remark,
                 lat: lat,
                 lng: lng,
-                status: true,
-                state: true,
+                status: status,
             }
         })
     } else {
+        console.log("PLACE ID")
         router.push({
             path: `/places/map/placeId/${userId}/${placeId}`,
             query: {
@@ -91,7 +94,7 @@ async function toSavePlace() {
                 remark: form.remark,
                 lat: lat,
                 lng: lng,
-                status: true,
+                status: status,
                 state: true,
             }
         })
@@ -102,9 +105,11 @@ function backPage() {
     // const trimmedName = form.placeName.trim()
     const trimmedName = form.placeName
 
-    if (!status) {
+    console.log("backPage status : ", status)
+    if (status === 'false') {
         router.push(`/places/map/userId/${userId}`)
     } else {
+        console.log("backPage status else : ", status)
         router.push({
             path: `/places/map/placeId/${userId}/${placeId}`,
             query: {
@@ -114,8 +119,8 @@ function backPage() {
                 remark: form.remark,
                 lat: lat,
                 lng: lng,
-                status: true,
-                state: true,
+                status: false,
+                state: false,
             }
         })
     }

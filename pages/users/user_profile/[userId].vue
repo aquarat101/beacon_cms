@@ -19,7 +19,7 @@ async function fetchUserProfile() {
         const res = await fetch(`${config.apiDomain}/users/get/${userId}`)
         if (!res.ok) throw new Error('Failed to fetch profile')
         const data = await res.json()
-        console.log("data:", data)
+        console.log("users :", data)
         profile.value = data
     } catch (error) {
         console.error(error)

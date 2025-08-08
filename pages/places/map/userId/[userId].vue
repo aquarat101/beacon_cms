@@ -125,6 +125,18 @@ async function goToCurrentLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                // const userLocation = ({})
+                // if (noPin) {
+                //     userLocation = {
+                //         lat: latitude,
+                //         lng: longitude,
+                //     }
+                // } else {
+                //     userLocation = {
+                //         lat: position.coords.latitude,
+                //         lng: position.coords.longitude,
+                //     }
+                // }
                 const userLocation = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
@@ -200,7 +212,8 @@ function handleEnterKey(event) {
                     query: {
                         address: results[0].formatted_address,
                         lat: results[0].geometry.location.lat(),
-                        lng: results[0].geometry.location.lng()
+                        lng: results[0].geometry.location.lng(),
+                        status: false
                     }
                 })
             }
@@ -222,7 +235,8 @@ function sendData() {
                     query: {
                         address: results[0].formatted_address,
                         lat: results[0].geometry.location.lat(),
-                        lng: results[0].geometry.location.lng()
+                        lng: results[0].geometry.location.lng(),
+                        status: false
                     }
                 })
             }
@@ -234,7 +248,8 @@ function sendData() {
         query: {
             address: selectedPosition.value.address,
             lat: selectedPosition.value.lat,
-            lng: selectedPosition.value.lng
+            lng: selectedPosition.value.lng,
+            status: false
         }
     })
 }
@@ -280,8 +295,20 @@ async function savePlace() {
     }
 }
 
-function changeState() {
-    router.push(`/places/add_place/${userId}`)
+function backToAddPlace() {
+    console.log("backToAddPlace : false")
+    router.push({
+        path: `/places/add_place/${userId}/${placeId}`,
+        query: {
+            name: name,
+            address: address,
+            type: type,
+            remark: remark,
+            lat: latitude,
+            lng: longitude,
+            status: false,
+        }
+    })
 }
 
 function clearSearch() {
@@ -381,12 +408,12 @@ watch(searchQuery, (val) => {
                 class="absolute top-35 left-0 right-0 mt-3 w-full text-left text-lg bg-white rounded-xl p-4 shadow z-50">
                 <p class="font-bold mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
                 <ul class="text-gray-800"> <!-- selectPlace(place) -->
-                    <li v-for="place in searchResults" :key="place.place_id" @click="sendData"
+                    <li v-for="place in searchResults" :key="place.place_id" @click.stop="sendData"
                         class="cursor-pointer hover:bg-gray-100 transition-colors duration-150 p-2 rounded-lg">
                         <div class="flex justify-between items-center space-x-4">
                             <p class="truncate flex-1">📍 {{ place.name }}</p>
                             <button @click.stop="sendData"
-                                class="bg-blue-100 text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
+                                class="bg-[#035CB2] text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
                                 <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
                             </button>
                         </div>
@@ -423,7 +450,7 @@ watch(searchQuery, (val) => {
                     </p>
                 </div>
                 <button @click="sendData"
-                    class="bg-blue-100 text-blue-500 rounded-full p-3 flex justify-center flex-shrink-0">
+                    class="bg-[#035CB2] text-blue-500 rounded-full p-3 flex justify-center flex-shrink-0">
                     <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
                 </button>
             </div>
@@ -459,7 +486,7 @@ watch(searchQuery, (val) => {
             </div>
 
             <div class="flex justify-between gap-4 font-bold mt-6">
-                <button type="button" @click="changeState"
+                <button type="button" @click="backToAddPlace"
                     class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                     Back
                 </button>
