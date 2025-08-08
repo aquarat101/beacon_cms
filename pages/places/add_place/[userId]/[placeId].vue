@@ -77,10 +77,11 @@ async function toSavePlace() {
                 name: trimmedName,
                 address: address,
                 type: form.placeType,
-                remark: form.remark,
+                remark: form.remark || '-',
                 lat: lat,
                 lng: lng,
                 status: status,
+                state: false,
             }
         })
     } else {
@@ -91,11 +92,12 @@ async function toSavePlace() {
                 name: trimmedName,
                 address: address,
                 type: form.placeType,
-                remark: form.remark,
+                remark: form.remark || '-',
                 lat: lat,
                 lng: lng,
                 status: status,
                 state: true,
+                state: false,
             }
         })
     }
@@ -116,7 +118,7 @@ function backPage() {
                 name: trimmedName,
                 address: address,
                 type: form.placeType,
-                remark: form.remark,
+                remark: form.remark || '-',
                 lat: lat,
                 lng: lng,
                 status: false,

@@ -17,7 +17,8 @@ const remark = route.query.remark
 let showP = route.query.status
 const latitude = route.query.lat
 const longitude = route.query.lng
-const noPin = route.query.state || false
+const noPin = route.query.state || true
+console.log(latitude, longitude)
 
 const searchQuery = ref('')
 const showPlace = ref(false)
@@ -42,16 +43,12 @@ const selectedPosition = ref(null)
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
 function onMapClick(event) {
     const latLng = event.latLng
-    if (noPin) {
-        return
-    } else {
-        updateSelectedPosition(latLng)
-    }
+    updateSelectedPosition(latLng)
 }
 
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
-    if (isClearing.value) return
+    if (isClearing.value || noPin === 'false') return
 
     if (val) {
         setMarker(new google.maps.LatLng(val.lat, val.lng), val.address || 'Selected Location')
@@ -121,26 +118,31 @@ function loadGoogleMaps(apiKey) {
 }
 
 async function goToCurrentLocation() {
+    let userLocation = {}
+    const lat = Number(latitude)
+    const lng = Number(longitude)
+
     if (!map.value) return
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 // const userLocation = ({})
-                // if (noPin) {
-                //     userLocation = {
-                //         lat: latitude,
-                //         lng: longitude,
-                //     }
-                // } else {
-                //     userLocation = {
-                //         lat: position.coords.latitude,
-                //         lng: position.coords.longitude,
-                //     }
-                // }
-                const userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
+                console.log("noPin : ", noPin)
+                if (noPin === "false") {
+                    userLocation = {
+                        lat: lat,
+                        lng: lng,
+                    }
+                } else {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    }
                 }
+                // const userLocation = {
+                //     lat: position.coords.latitude,
+                //     lng: position.coords.longitude,
+                // }
 
                 map.value.panTo(userLocation)
                 map.value.setZoom(14)

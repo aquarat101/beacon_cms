@@ -15,8 +15,9 @@ const address = route.query.address
 const type = route.query.type
 const remark = route.query.remark
 const showP = route.query.status
-const latitude = route.query.lat
-const longitude = route.query.lng
+let latitude = route.query.lat
+let longitude = route.query.lng
+console.log(latitude, longitude)
 
 const searchQuery = ref('')
 const showPlace = ref(false)
@@ -128,33 +129,53 @@ function loadGoogleMaps(apiKey) {
     })
 }
 
-function selectPlace(place) {
-    console.log("CALL SELECTPLACE")
-    const location = place.geometry.location
-    resultName.value = place.name
-    resultAddress.value = place.formatted_address
+// function selectPlace(place) {
+//     console.log("CALL SELECTPLACE")
+//     const location = place.geometry.location
+//     resultName.value = place.name
+//     resultAddress.value = place.formatted_address
 
-    map.value.panTo(location)
-    setMarker(location, place.name)
+//     map.value.panTo(location)
+//     setMarker(location, place.name)
 
-    searchQuery.value = place.name
-    showResults.value = false
-}
+//     searchQuery.value = place.name
+//     showResults.value = false
+// }
 
 async function goToCurrentLocation() {
+    const lat = Number(latitude)
+    const lng = Number(longitude)
+
     if (!map.value) return
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
+                    lat: lat,
+                    lng: lng,
                 }
 
-                map.value.panTo(userLocation)
+                // ✅ แปลงตำแหน่งให้เลื่อนขึ้นไปบนจอ
+                const projection = map.value.getProjection()
+                if (projection) {
+                    const point = projection.fromLatLngToPoint(
+                        new google.maps.LatLng(userLocation.lat, userLocation.lng)
+                    )
+                    // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
+                    const scale = Math.pow(2, map.value.getZoom())
+                    const pixelOffset = -100 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
+                    const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
+
+                    const newLatLng = projection.fromPointToLatLng(newPoint)
+                    map.value.panTo(newLatLng)
+                } else {
+                    map.value.panTo(userLocation)
+                }
+
                 map.value.setZoom(14)
 
-                // สร้างหรือย้ายหมุดตำแหน่งปัจจุบัน (สีน้ำเงิน)
+                // 🔵 หมุดตำแหน่งปัจจุบัน
                 if (currentLocationMarker.value) {
                     currentLocationMarker.value.setPosition(userLocation)
                 } else {
@@ -165,7 +186,7 @@ async function goToCurrentLocation() {
                         icon: {
                             path: google.maps.SymbolPath.CIRCLE,
                             scale: 8,
-                            fillColor: '#4285F4',  // สีน้ำเงิน
+                            fillColor: '#4285F4',
                             fillOpacity: 0.8,
                             strokeColor: 'white',
                             strokeWeight: 2,
@@ -173,6 +194,7 @@ async function goToCurrentLocation() {
                     })
                 }
 
+                // 🔵 วงกลม
                 if (circle.value) circle.value.setMap(null)
                 circle.value = new google.maps.Circle({
                     strokeColor: '#4285F4',
@@ -191,6 +213,7 @@ async function goToCurrentLocation() {
         )
     }
 }
+
 
 async function reverseGeocode(lat, lng) {
     const geocoder = new google.maps.Geocoder()
@@ -263,6 +286,14 @@ function sendData() {
 }
 
 async function updatePlace() {
+    console.log(latitude, selectedPosition.value.lat)
+    console.log(longitude, selectedPosition.value.lng)
+
+    if (selectedPosition.value) {
+        latitude = selectedPosition.value.lat
+        longitude = selectedPosition.value.lng
+    }
+
     try {
         const response = await fetch(`${config.apiDomain}/places/update/${placeId}`, {
             method: 'PUT',
@@ -463,7 +494,7 @@ watch(searchQuery, (val) => {
         </div>
 
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
+        <div v-if="showPlace && !showResults" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
             <!-- <p class="font-bold mb-2">Result place</p> -->
             <div class="flex items-start justify-between">
                 <div class="">
