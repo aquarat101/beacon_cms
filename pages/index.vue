@@ -1,5 +1,5 @@
 <script setup lang="ts">
-navigateTo('/auth/register')
+navigateTo('/auth/register?t=' + new Date().getTime().toString());
 </script>
 
 <template>

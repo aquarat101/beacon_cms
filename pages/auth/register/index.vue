@@ -7,7 +7,7 @@ const router = useRouter()
 const {public: config} = useRuntimeConfig()
 
 const isLoading = ref(false)
-let userId = ref('')
+const userId = ref(null)
 
 const form = reactive({
   userId: '',
@@ -34,9 +34,9 @@ async function handleRegister() {
   errors.phone = ''
 
   try {
-    const profile = await liff.getProfile()
-    userId = profile.userId
-    form.userId = profile.userId
+    // const profile = await liff.getProfile()
+    // userId.value = profile.userId
+    form.userId = userId.value
     const res = await fetch(`${config.apiDomain}/register`, {
       method: 'POST',
       headers: {
@@ -47,10 +47,8 @@ async function handleRegister() {
 
     const data = await res.json()
 
-    console.log(profile.userId)
     if (res.ok) {
-      console.log("HERE")
-      router.push(`/users/user_profile/${profile.userId}`)
+      router.push(`/users/user_profile/${userId.value}`)
 
       form.firstName = ''
       form.lastName = ''
@@ -71,25 +69,20 @@ async function handleRegister() {
   }
 }
 
-const loaded = ref(false)
 const profile = await liff.getProfile()
+userId.value = profile?.userId
 
-try {
-  isLoading.value = true
-  const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profile.userId}`);
+onMounted(async () => {
+  try {
+    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId.value}`);
 
-  if (res.ok) {
-    router.push(`/users/user_profile/${profile.userId}`)
-  } else {
-    loaded.value = true
-    throw new Error('Unexpected error');
+    if (res.ok) {
+      router.push(`/users/user_profile/${userId.value}`)
+    }
+  } catch (err) {
+    console.error('Error checking userId:', err);
   }
-} catch (err) {
-  console.error('Error checking userId:', err);
-  console.log("false")
-} finally {
-  isLoading.value = false
-}
+})
 
 </script>
 
@@ -99,10 +92,10 @@ try {
       <div class="w-16 h-16 border-4 border-white border-t-[#0198FF] rounded-full animate-spin"></div>
     </div>
 
-    <img v-if="loaded" src="/images/header_register.png" alt="Register Header"
+    <img src="/images/header_register.png" alt="Register Header"
          class="w-full min-w-md max-h-100 object-cover z-0"/>
 
-    <div v-if="loaded" class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+    <div class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
       <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
         <div class="flex flex-col gap-4">
           <div>

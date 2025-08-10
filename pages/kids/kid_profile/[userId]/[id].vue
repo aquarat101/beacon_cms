@@ -79,9 +79,8 @@ async function deleteKid() {
     }
 }
 
-onMounted(() => {
-    fetchKid()
-})
+
+fetchKid()
 
 </script>
 

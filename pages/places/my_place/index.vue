@@ -8,15 +8,14 @@ import PlaceCard from '~/components/PlaceCard.vue'
 const route = useRoute()
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
-const getProfile = await liff.getProfile()
-const userId = getProfile.userId
-console.log(userId)
+const userId = ref(null)
 
 const places = ref([])
 
 async function fetchPlaces() {
+  if (!userId.value) return;
     try {
-        const res = await fetch(`${config.apiDomain}/places/get/${userId}`)
+        const res = await fetch(`${config.apiDomain}/places/get/${userId.value}`)
         if (!res.ok) throw new Error('Failed to fetch places')
         places.value = await res.json()
         console.log(places.value)
@@ -25,26 +24,28 @@ async function fetchPlaces() {
     }
 }
 
-try {
-    const profileLine = await liff.getProfile()
-    
-    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
+
+const getProfile = await liff.getProfile()
+userId.value = getProfile?.userId
+
+onMounted(async () => {
+  try {
+    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId.value}`);
 
     if (res.ok) {
-        const data = await res.json();
-        if (data.exists) {
-            router.push(`/places/my_place/${profileLine.userId}`)
-        }
+      const data = await res.json();
+      fetchPlaces()
+      // if (data.exists) {
+      //   // router.push(`/places/my_place/${profileLine.userId}`)
+      // }
     } else {
-        router.push(`/auth/register`)
+      router.push(`/auth/register`)
     }
-} catch (err) {
+  } catch (err) {
+    router.push(`/auth/register`)
     console.error('Error checking userId:', err);
     console.log("false")
-}
-
-onMounted(() => {
-    fetchPlaces()
+  }
 })
 </script>
 

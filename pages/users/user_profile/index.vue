@@ -6,20 +6,21 @@ import KidCard from '~/components/KidCard.vue'
 
 const route = useRoute()
 const router = useRouter()
-const getProfile = await liff.getProfile()
-const userId = getProfile.userId
+
 const {public: config} = useRuntimeConfig()
 
-const profile = ref(null)
+const profile = ref({})
 const kids = ref([])
+const userId = ref(null)
 
 // โหลดดิ้ง
 const loadingProfile = ref(true)
 const loadingKids = ref(true)
 
 async function fetchUserProfile() {
+  if (!userId.value) return;
   try {
-    const res = await fetch(`${config.apiDomain}/users/get/${userId}`)
+    const res = await fetch(`${config.apiDomain}/users/get/${userId.value}`)
     if (!res.ok) throw new Error('Failed to fetch profile')
     const data = await res.json()
     profile.value = data
@@ -32,8 +33,9 @@ async function fetchUserProfile() {
 }
 
 async function fetchKids() {
+  if (!userId.value) return;
   try {
-    const res = await fetch(`${config.apiDomain}/kids/getUserKids/${userId}`)
+    const res = await fetch(`${config.apiDomain}/kids/getUserKids/${userId.value}`)
     if (!res.ok) throw new Error('Failed to fetch kids')
     const data = await res.json()
     kids.value = data.kids
@@ -44,20 +46,24 @@ async function fetchKids() {
   }
 }
 
-try {
-  const profileLine = await liff.getProfile()
+const getProfile = await liff.getProfile()
+userId.value = getProfile?.userId
 
-  const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
-
-  if (res.ok) {
-    Promise.all([fetchUserProfile(), fetchKids()])
-  } else {
+onMounted(async () => {
+  try {
+    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId.value}`);
+    if (res.ok) {
+      Promise.all([fetchUserProfile(), fetchKids()])
+    } else {
+      router.push(`/auth/register`)
+    }
+  } catch (err) {
     router.push(`/auth/register`)
+    console.error('Error checking userId:', err);
+    console.log("false")
   }
-} catch (err) {
-  console.error('Error checking userId:', err);
-  console.log("false")
-}
+})
+
 </script>
 
 <template>
@@ -73,7 +79,7 @@ try {
         <div class="flex justify-between w-full">
           <h1 class="text-3xl font-bold text-outline-blue">Your Profile</h1>
 
-          <NuxtLink :to="`/users/user_edit_profile/${userId}`">
+          <NuxtLink v-if="userId" :to="`/users/user_edit_profile/${userId}`">
             <button class="mr-8 mt-1 bg-[#035CB2] text-sm text-black rounded-full p-2 shadow z-10">
               <img src="/image-icons/edit.png" alt="edit" class="w-5 h-5">
             </button>
@@ -97,7 +103,7 @@ try {
     <div class="-mt-7 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
-        <NuxtLink :to="`/kids/kid_create_profile/${userId}`">
+        <NuxtLink v-if="userId" :to="`/kids/kid_create_profile/${userId}`">
           <button
               class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
             <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
@@ -107,7 +113,7 @@ try {
 
       <!-- ทำแนวตั้งด้วย flex + scroll -->
       <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
-        <template v-if="kids.length">
+        <template v-if="kids?.length">
           <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"
                    :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
                    class="min-w-[200px] shrink-0"/>
