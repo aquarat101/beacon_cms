@@ -92,10 +92,11 @@ onMounted(async () => {
       <div class="w-16 h-16 border-4 border-white border-t-[#0198FF] rounded-full animate-spin"></div>
     </div>
 
+    
     <img src="/images/header_register.png" alt="Register Header"
-         class="w-full min-w-md max-h-100 object-cover z-0"/>
+         class="w-full  max-h-100 object-cover z-0"/>
 
-    <div class="w-full min-w-md p-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+    <div class="w-full lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
       <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
         <div class="flex flex-col gap-4">
           <div>

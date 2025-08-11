@@ -99,7 +99,6 @@ onMounted(async () => {
     </div>
 
 
-    <!-- กล่องล่าง -->
     <div class="-mt-7 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
@@ -111,7 +110,6 @@ onMounted(async () => {
         </NuxtLink>
       </div>
 
-      <!-- ทำแนวตั้งด้วย flex + scroll -->
       <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
         <template v-if="kids?.length">
           <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"

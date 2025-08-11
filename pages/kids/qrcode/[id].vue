@@ -22,15 +22,15 @@ function triggerFileInput() {
 </script>
 
 <template>
-    <div class="min-h-screen w-full h-full bg-white flex flex-col items-center text-[#035CB2] relative">
+    <div class="min-h-screen w-full h-full  bg-white flex flex-col items-center text-[#035CB2] relative">
         <!-- ส่วนหัว -->
         <div class="relative w-full h-64">
             <img src="/images/background.png" alt="Background Header"
-                class="absolute inset-0 w-full h-full object-cover z-0" />
+                class="absolute inset-0 w-full h-64 object-cover z-0" />
 
             <!-- ข้อความตรงกลาง -->
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 gap-3">
-                <h1 class="text-3xl font-bold text-outline-blue">Create Kid Profile</h1>
+                <h1 class="text-3xl font-bold text-outline-blue">Scan QR Code</h1>
                 <h3 class="text-sm text-white">Place QR code in frame or select photo</h3>
             </div>
         </div>
@@ -42,7 +42,6 @@ function triggerFileInput() {
                 <!-- ถ้าเลือกไฟล์ ให้แสดง preview -->
                 <img v-if="previewImage" :src="previewImage" alt="Selected"
                     class="object-contain max-h-full max-w-full" />
-                <!-- ถ้ายังไม่เลือกแสดงไอคอน QR -->
                 <img v-else src="/image-icons/qrcode.png" alt="QR Code" class="w-12 h-12 opacity-50" />
             </div>
         </div>
