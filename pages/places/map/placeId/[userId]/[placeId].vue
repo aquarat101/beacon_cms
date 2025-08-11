@@ -473,7 +473,7 @@ watch(searchQuery, (val) => {
         </div>
 
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="!showResults && !showPlace && !isInputFocused"
+        <div v-if="showPlace && !showResults && !isInputFocused"
             class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex-1 min-w-0">
