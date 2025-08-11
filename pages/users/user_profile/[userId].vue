@@ -39,21 +39,23 @@ async function fetchKids() {
   }
 }
 
-try {
-  const profileLine = await liff.getProfile()
+onMounted(async () => {
+  try {
+    const profileLine = await liff.getProfile()
 
-  const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
+    const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
 
-  if (res.ok) {
-    fetchUserProfile()
-    fetchKids()
-  } else {
-    router.push(`/auth/register`)
+    if (res.ok) {
+      fetchUserProfile()
+      fetchKids()
+    } else {
+      router.push(`/auth/register`)
+    }
+  } catch (err) {
+    console.error('Error checking userId:', err);
+    console.log("false")
   }
-} catch (err) {
-  console.error('Error checking userId:', err);
-  console.log("false")
-}
+})
 </script>
 
 <template>

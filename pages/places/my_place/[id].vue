@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PlaceCard from '~/components/PlaceCard.vue'
+import liff from "@line/liff";
 
 const route = useRoute()
+const router = useRouter()
 const { public: config } = useRuntimeConfig()
 const userId = route.params.id
 
@@ -20,27 +22,27 @@ async function fetchPlaces() {
     }
 }
 
-try {
+onMounted(async () => {
+  try {
     const profileLine = await liff.getProfile()
 
     const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
 
     if (res.ok) {
-        const data = await res.json();
-        if (data.exists) {
-            router.push(`/user/user_profile/${profileLine.userId}`)
-        }
-    } else {
-        router.push(`/auth/register`)
+      const data = await res.json();
+      if (data) {
+        router.push(`/places/my_place/${profileLine.userId}`)
+        fetchPlaces()
+      }
+    } else {    
+      router.push(`/auth/register`)
     }
-} catch (err) {
+  } catch (err) {
     console.error('Error checking userId:', err);
     console.log("false")
-}
-
-onMounted(() => {
-    fetchPlaces()
+  }
 })
+
 </script>
 
 <template>

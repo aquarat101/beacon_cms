@@ -355,9 +355,8 @@ onMounted(async () => {
         showResults.value = false;
     }
 
-    const config = useRuntimeConfig()
     try {
-        const googleMaps = await loadGoogleMaps(config.public.googleMapsApiKey)
+        const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
 
         const initialCenter = { lat: 13.7563, lng: 100.5018 }
 

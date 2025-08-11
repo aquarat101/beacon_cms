@@ -101,8 +101,9 @@ function triggerFileInput() {
     fileInputRef.value?.click()
 }
 
+fetchKid()
+
 onMounted(() => {
-    fetchKid()
     Object.assign(form, data)
 })
 
