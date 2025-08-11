@@ -79,7 +79,6 @@ async function deleteKid() {
     }
 }
 
-
 fetchKid()
 
 </script>
@@ -87,7 +86,7 @@ fetchKid()
 <template>
     <div class="min-h-screen bg-white flex flex-col justify-between items-center">
 
-        <div>
+        <div class="w-full">
             <div class="relative w-full h-72 text-[#035CB2]">
                 <img src="/images/background.png" alt="Background Header"
                     class="absolute inset-0 w-full h-full object-cover z-0" />
@@ -111,7 +110,7 @@ fetchKid()
             </div>
 
             <div
-                class="flex flex-col w-full min-w-md px-8 pt-8 pb-6 -mt-8 font-bold bg-white rounded-t-3xl relative z-10 overflow-hidden">
+                class="flex flex-col w-full  px-8 pt-8 pb-6 -mt-8 font-bold bg-white rounded-t-3xl relative z-10 overflow-hidden">
                 <div>
                     <div class="flex flex-row justify-between items-center w-full">
                         <div class="flex flex-col">

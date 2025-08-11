@@ -105,7 +105,7 @@ function triggerFileInput() {
         </div>
 
         <!-- form -->
-        <div class="w-full min-w-md p-5 px-7 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+        <div class="w-full  lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
             <form @submit.prevent="createKidProfile" class="space-y-20 font-bold">
                 <div>
                     <div>
