@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -8,53 +9,80 @@ const userId = route.params.userId
 const kidId = route.params.id
 const { public: config } = useRuntimeConfig()
 
-const kid = ref()
-const Histories = [
-    {
-        id: 1,
-        place: "Home",
-        date: "10/7/25 10:26 am",
-    },
-    {
-        id: 2,
-        place: "School",
-        date: "10/7/25 14:13 pm",
-    },
-    {
-        id: 3,
-        place: "School",
-        date: "11/7/25 15:26 pm",
-    },
-    {
-        id: 4,
-        place: "Work",
-        date: "14/7/25 07:26 am",
-    },
-    {
-        id: 5,
-        place: "Home",
-        date: "21/7/25 11:53 am",
-    },
-    {
-        id: 6,
-        place: "School",
-        date: "23/7/25 08:13 am",
-    },
-    {
-        id: 7,
-        place: "Work",
-        date: "02/8/25 12:26 am",
-    },
-]
+const beaconId = ref("")
+const type = ref("")
+const time = ref("")
+
+const kid = ref(null)
+const Histories = ref([])
 
 async function fetchKid() {
     try {
         const res = await fetch(`${config.apiDomain}/kids/getKid/${userId}/${kidId}`)
         if (!res.ok) throw new Error('Failed to fetch kid')
         const data = await res.json()
-        console.log("data: ", data)
         kid.value = data
-        console.log("kids : ", kid.value)
+        beaconId.value = kid.value.beaconId
+        fetchZoneHits()
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function fetchZoneHits() {
+    try {
+        const res = await fetch(`${config.apiDomain}/beacons/getZoneHits/${beaconId.value}/${userId}`)
+        const json = await res.json()
+        if (!json.data || json.data.length === 0) {
+            Histories.value = []
+            return
+        }
+
+        // แปลงข้อมูลทุกตัวใน json.data เป็น object สำหรับ Histories
+        Histories.value = json.data.map((item, index) => {
+            let placeType = item.type || '-'
+            let dateStr = '-'
+
+            if (item.timestamp && item.timestamp._seconds) {
+                const date = new Date(item.timestamp._seconds * 1000)
+                dateStr = date.toLocaleString('th-TH', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
+            }
+
+            return {
+                id: index + 1,
+                place: placeType,
+                date: dateStr
+            }
+        })
+
+        // อัปเดต kid.updated เป็นเวลาของ history ตัวล่าสุด (ตัวแรก)
+        if (Histories.value.length > 0) {
+            kid.value.updated = Histories.value[0].date
+        }
+
+        // ถ้าต้องการเก็บล่าสุดไว้ใน type, time ก็อัพเดตจากตัวแรกด้วย
+        const first = json.data[0]
+        type.value = first.type || '-'
+        if (first.timestamp && first.timestamp._seconds) {
+            const date = new Date(first.timestamp._seconds * 1000)
+            time.value = date.toLocaleString('th-TH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            })
+        } else {
+            time.value = '-'
+        }
 
     } catch (error) {
         console.error(error)
@@ -79,10 +107,9 @@ async function deleteKid() {
     }
 }
 
-
 fetchKid()
-
 </script>
+
 
 <template>
     <div class="min-h-screen bg-white flex flex-col justify-between items-center">

@@ -3,6 +3,7 @@ defineProps({
     place: String,
     date: String,
 })
+
 </script>
 
 <template>
