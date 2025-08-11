@@ -244,57 +244,70 @@ function sendData() {
         })
     }
 
+    let addr = ""
+    let lt = ""
+    let lg = ""
+    if (selectedPosition.value === null) {
+        addr = address
+        lt = latitude
+        lg = longitude
+    } else {
+        addr = selectedPosition.value.address
+        lt = selectedPosition.value.lat
+        lg = selectedPosition.value.lng
+    }
     router.push({
         path: `/places/add_place/${userId}/${placeId}`,
         query: {
-            address: selectedPosition.value.address,
-            lat: selectedPosition.value.lat,
-            lng: selectedPosition.value.lng,
+            address: addr,
+            lat: lt,
+            lng: lg,
             status: false
         }
     })
 }
 
-// async function savePlace() {
-//     if (!name || !type) {
-//         alert('Please fill in place name and type')
-//         return
-//     }
+async function savePlace() {
+    console.log("INTO SAVE PLACE")
+    if (!name || !type) {
+        alert('Please fill in place name and type')
+        return
+    }
 
-//     try {
-//         const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 userId: userId,
-//                 name: name,
-//                 address: address,
-//                 type: type,
-//                 remark: remark,
-//                 lat: latitude,
-//                 lng: longitude
-//             })
-//         })
+    try {
+        const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                name: name,
+                address: address,
+                type: type,
+                remark: remark,
+                lat: latitude,
+                lng: longitude
+            })
+        })
 
-//         const data = await response.json()
+        const data = await response.json()
 
-//         if (!response.ok) {
-//             throw new Error(data.message || 'Something went wrong')
-//         }
+        if (!response.ok) {
+            throw new Error(data.message || 'Something went wrong')
+        }
 
-//         // alert('✅ Place saved successfully!')
+        // alert('✅ Place saved successfully!')
 
-//         router.push({
-//             path: `/places/my_place/${userId}`
-//         })
+        router.push({
+            path: `/places/my_place/${userId}`
+        })
 
-//     } catch (error) {
-//         console.error('❌ Error:', error)
-//         alert('❌ Failed to save place')
-//     }
-// }
+    } catch (error) {
+        console.error('❌ Error:', error)
+        alert('❌ Failed to save place')
+    }
+}
 
 function backToAddPlace() {
     console.log("backToAddPlace : false")

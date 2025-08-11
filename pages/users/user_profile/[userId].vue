@@ -1,6 +1,6 @@
 <script setup>
-import {useRoute} from 'vue-router'
-import {onMounted} from 'vue'
+import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
 import liff from '@line/liff'
 
 import KidCard from '~/components/KidCard.vue'
@@ -9,7 +9,7 @@ const route = useRoute()
 const router = useRouter()
 const userId = route.params.userId
 
-const {public: config} = useRuntimeConfig()
+const { public: config } = useRuntimeConfig()
 
 const profile = ref(null)
 const kids = ref([])
@@ -61,8 +61,7 @@ try {
     <!-- กล่องรวม: ต้อง relative -->
     <div class="relative w-full h-64">
       <!-- รูป background อยู่ข้างล่าง -->
-      <img src="/images/background.png" alt="Register Header"
-           class="absolute inset-0 w-full h-full object-cover z-0"/>
+      <img src="/images/background.png" alt="Register Header" class="absolute inset-0 w-full h-full object-cover z-0" />
 
       <!-- กล่องเนื้อหาซ้อนทับ -->
       <div class="absolute inset-0 flex flex-col items-start justify-center pl-10 z-10 gap-5">
@@ -94,8 +93,7 @@ try {
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
         <NuxtLink :to="`/kids/kid_create_profile/${userId}`">
-          <button
-              class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
+          <button class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
             <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
           </button>
         </NuxtLink>
@@ -104,9 +102,8 @@ try {
       <!-- ทำแนวตั้งด้วย flex + scroll -->
       <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
         <template v-if="kids.length">
-          <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"
-                   :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
-                   class="min-w-[200px] shrink-0"/>
+          <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name" :status="kid.status"
+            :updated="kid.updated" :avatarUrl="kid.avatarUrl" class="min-w-[200px] shrink-0" />
         </template>
         <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
 

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     public: {
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       apiDomain: process.env.API_DOMAIN || '',
-      liffId: process.env.LIFF_ID || ''
+      liffId: process.env.LIFFID || ''
     },
   },
 
@@ -20,7 +20,7 @@ export default defineNuxtConfig({
 
     server: {
       allowedHosts: [
-        'c1a2c7e6b44b.ngrok-free.app' // 👈 เพิ่ม host ที่จะใช้ (จาก ngrok หรืออื่น ๆ)
+        '92593f6478fd.ngrok-free.app' // 👈 เพิ่ม host ที่จะใช้ (จาก ngrok หรืออื่น ๆ)
       ]
     }
   },

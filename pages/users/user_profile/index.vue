@@ -1,6 +1,6 @@
 <script setup>
-import {useRoute, useRouter} from 'vue-router'
-import {onMounted, ref} from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
 import liff from '@line/liff'
 import KidCard from '~/components/KidCard.vue'
 
@@ -8,7 +8,7 @@ const route = useRoute()
 const router = useRouter()
 const getProfile = await liff.getProfile()
 const userId = getProfile.userId
-const {public: config} = useRuntimeConfig()
+const { public: config } = useRuntimeConfig()
 
 const profile = ref(null)
 const kids = ref([])
@@ -50,8 +50,11 @@ try {
   const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
 
   if (res.ok) {
-    Promise.all([fetchUserProfile(), fetchKids()])
+    // Promise.all([fetchUserProfile(), fetchKids()])
+    fetchUserProfile()
+    fetchKids()
   } else {
+    alert("Can't register!!!")
     router.push(`/auth/register`)
   }
 } catch (err) {
@@ -68,8 +71,7 @@ try {
       <p class="text-gray-500">Loading profile...</p>
     </div>
     <div v-else class="relative w-full h-64">
-      <img src="/images/background.png" alt="Register Header"
-           class="absolute inset-0 w-full h-full object-cover z-0"/>
+      <img src="/images/background.png" alt="Register Header" class="absolute inset-0 w-full h-full object-cover z-0" />
       <div class="absolute inset-0 flex flex-col items-start justify-center pl-10 z-10 gap-5">
         <div class="flex justify-between w-full">
           <h1 class="text-3xl font-bold text-outline-blue">Your Profile</h1>
@@ -107,9 +109,8 @@ try {
       </div>
       <div v-else class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
         <template v-if="kids.length">
-          <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"
-                   :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
-                   class="min-w-[200px] shrink-0"/>
+          <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name" :status="kid.status"
+            :updated="kid.updated" :avatarUrl="kid.avatarUrl" class="min-w-[200px] shrink-0" />
         </template>
         <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
       </div>

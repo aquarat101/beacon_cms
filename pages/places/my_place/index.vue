@@ -27,7 +27,7 @@ async function fetchPlaces() {
 
 try {
     const profileLine = await liff.getProfile()
-    
+
     const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
 
     if (res.ok) {

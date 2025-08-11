@@ -11,7 +11,7 @@ const placeId = route.params.placeId || null
 const status = route.params.status
 
 const name = route.query.name
-const address = route.query.address
+let address = route.query.address
 const type = route.query.type
 const remark = route.query.remark
 const showP = route.query.status
@@ -261,12 +261,14 @@ function sendData() {
 }
 
 async function updatePlace() {
-    console.log(latitude, selectedPosition.value.lat)
-    console.log(longitude, selectedPosition.value.lng)
+    // console.log("update : ", latitude, selectedPosition.value.lat)
+    // console.log("update : ", longitude, selectedPosition.value.lng)
+    // console.log("update : ", address, selectedPosition.value.address)
 
     if (selectedPosition.value) {
         latitude = selectedPosition.value.lat
         longitude = selectedPosition.value.lng
+        address = selectedPosition.value.address
     }
 
     try {
@@ -281,8 +283,8 @@ async function updatePlace() {
                 address: address,
                 type: type,
                 remark: remark,
-                lat: latitude,
-                lng: longitude,
+                lat: latitude.toString(),
+                lng: longitude.toString(),
             })
         })
 

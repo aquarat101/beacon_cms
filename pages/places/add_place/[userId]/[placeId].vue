@@ -16,7 +16,9 @@ const remark = route.query.remark
 const lat = route.query.lat
 const lng = route.query.lng
 const status = route.query.status
-console.log("status : ", status, "type of : ", typeof(status))
+console.log("status : ", status, "type of : ", typeof (status))
+console.log("latitude : ", lat)
+console.log("longtitude : ", lng)
 
 const selectedType = ref('')
 
@@ -69,7 +71,7 @@ async function toSavePlace() {
 
     console.log("toSavePlace status : ", status)
     // ดำเนินการต่อ
-    if (status === 'false') {   
+    if (status === 'false') {
         console.log("USER ID")
         router.push({
             path: `/places/map/userId/${userId}`,
@@ -108,6 +110,9 @@ function backPage() {
     const trimmedName = form.placeName
 
     console.log("backPage status : ", status)
+    console.log("from address : ", address)
+    console.log("from latitude : ", lat)
+    console.log("from longtitude : ", lng)
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
@@ -137,6 +142,7 @@ function backPage() {
 
 onMounted(() => {
     Object.assign(form, data)
+    console.log(form, data)
 })
 
 </script>

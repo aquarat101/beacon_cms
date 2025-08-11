@@ -34,17 +34,17 @@ async function handleRegister() {
     errors.phone = ''
 
 
-    if (!liff.isLoggedIn()) {
-        liff.login()
+    // if (!liff.isLoggedIn()) {
+    //     liff.login()
         // const profile = await liff.getProfile()
         // router.push(`/users/user_profile/${profile.userId}`)
         // console.log('ชื่อ:', profile.displayName)
         // console.log(profile)
-    } else {
-        const profile = await liff.getProfile()
-        console.log('ชื่อ:', profile.displayName)
-        console.log(profile)
-    }
+    // } else {
+    //     const profile = await liff.getProfile()
+    //     console.log('ชื่อ:', profile.displayName)
+    //     console.log(profile)
+    // }
 
     try {
         const profile = await liff.getProfile()
@@ -114,8 +114,8 @@ try {
 
     if (res.ok) {
         const data = await res.json();
-        if (data.exists) {
-            router.push(`/user/user_profile/${profile.userId}`)
+        if (data) {
+            router.push(`/users/user_profile/${profile.userId}`)
         }
     } else if (res.status === 404) {
         // return false;
