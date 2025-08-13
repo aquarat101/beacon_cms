@@ -126,7 +126,7 @@ fetchKid()
                     </div>
 
                     <img :src="kid?.avatarUrl || '/images/profile.png'" alt="profile"
-                        class="w-26 h-26 bg-white rounded-full border-4"
+                        class="w-26 h-26 bg-white rounded-full border-4 object-cover"
                         :class="kid?.status === 'online' ? 'border-green-500' : 'border-gray-400'" />
 
                     <div class="absolute top-55 px-3 pb-1 rounded-full text-sm text-white"
