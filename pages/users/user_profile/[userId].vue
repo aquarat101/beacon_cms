@@ -42,7 +42,6 @@ async function fetchKids() {
 onMounted(async () => {
   try {
     const profileLine = await liff.getProfile()
-
     const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${profileLine.userId}`);
 
     if (res.ok) {
@@ -78,7 +77,9 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-row gap-5">
-          <img :src="`${profile?.avatarUrl}`" alt="user profile" class="w-20 h-20 bg-white rounded-full">
+          <div class="relative w-24 h-24">
+              <img :src="`${profile?.avatarUrl}`" alt="user profile" class="w-full h-full bg-white rounded-full object-cover">
+          </div>
 
           <div class="">
             <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
