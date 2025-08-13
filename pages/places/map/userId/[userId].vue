@@ -11,7 +11,7 @@ const placeId = route.params.placeId || "placeId"
 const status = route.params.status
 
 const name = route.query.name
-const address = ref(route.query.address || "No place...")
+const address = ref(route.query.address || "Loading...")
 const type = route.query.type
 const remark = route.query.remark
 let showP = route.query.status
