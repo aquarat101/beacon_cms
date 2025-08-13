@@ -197,9 +197,9 @@ onMounted(() => {
                         ]">
                             <div :class="[
                                 'w-10 h-10 flex items-center justify-center rounded-full mr-3',
-                                form.placeType === type.value ? 'bg-blue-500 text-white' : 'bg-[#0099FF] text-gray-500'
+                                type.value === 'Home' ? 'bg-[#035CB2]' : type.value === 'School' ? 'bg-[#0099FF]' : type.value === 'Work' ? 'bg-[#92DBFF]' : 'bg-[#C3EBFF]'
                             ]">
-                                <img :src="type.icon" alt="icon" class="w-5 h-5 bg-[#0099FF]">
+                                <img :src="type.icon" alt="icon" :class="['w-5 h-5', type.value === 'Home' ? 'bg-[#035CB2]' : type.value === 'School' ? 'bg-[#0099FF]' : type.value === 'Work' ? 'bg-[#92DBFF]' : 'bg-[#C3EBFF]']">
                             </div>
                             <span class="text-sm font-medium text-gray-800">{{ type.label }}</span>
                         </div>
