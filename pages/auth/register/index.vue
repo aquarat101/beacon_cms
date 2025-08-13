@@ -1,10 +1,10 @@
 <script setup>
-import {reactive, ref} from 'vue'
-import {useRouter} from 'vue-router'
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import liff from '@line/liff'
 
 const router = useRouter()
-const {public: config} = useRuntimeConfig()
+const { public: config } = useRuntimeConfig()
 
 const isLoading = ref(false)
 const userId = ref(null)
@@ -26,22 +26,15 @@ const errors = reactive({
 })
 
 async function handleRegister() {
+  if (!validateForm()) return // ถ้า validate ไม่ผ่านจะหยุดตรงนี้
+
   isLoading.value = true
 
-  errors.firstName = ''
-  errors.lastName = ''
-  errors.email = ''
-  errors.phone = ''
-
   try {
-    // const profile = await liff.getProfile()
-    // userId.value = profile.userId
     form.userId = userId.value
     const res = await fetch(`${config.apiDomain}/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
 
@@ -49,12 +42,10 @@ async function handleRegister() {
 
     if (res.ok) {
       router.push(`/users/user_profile/${userId.value}`)
-
       form.firstName = ''
       form.lastName = ''
       form.email = ''
       form.phone = ''
-
     } else {
       if (data.error && typeof data.error === 'object') {
         Object.assign(errors, data.error)
@@ -65,8 +56,46 @@ async function handleRegister() {
   } catch (err) {
     alert('เกิดข้อผิดพลาด: ' + err.message)
   } finally {
-    isLoading.value = false // หยุดโหลดไม่ว่าจะสำเร็จหรือ error
+    isLoading.value = false
   }
+}
+
+function validateForm() {
+  let valid = true
+
+  // รีเซ็ตข้อความ error ก่อน
+  errors.firstName = ''
+  errors.lastName = ''
+  errors.email = ''
+  errors.phone = ''
+
+  if (!form.firstName.trim()) {
+    errors.firstName = 'Please enter your first name'
+    valid = false
+  }
+
+  if (!form.lastName.trim()) {
+    errors.lastName = 'Please enter your last name'
+    valid = false
+  }
+
+  if (!form.email.trim()) {
+    errors.email = 'Please enter your email'
+    valid = false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = 'Invalid email format'
+    valid = false
+  }
+
+  if (!form.phone.trim()) {
+    errors.phone = 'Please enter your phone number'
+    valid = false
+  } else if (!/^[0-9]{9,15}$/.test(form.phone)) {
+    errors.phone = 'Phone number must be 9–15 digits'
+    valid = false
+  }
+
+  return valid
 }
 
 const profile = await liff.getProfile()
@@ -92,9 +121,8 @@ onMounted(async () => {
       <div class="w-16 h-16 border-4 border-white border-t-[#0198FF] rounded-full animate-spin"></div>
     </div>
 
-    
-    <img src="/images/header_register.png" alt="Register Header"
-         class="w-full  max-h-100 object-cover z-0"/>
+
+    <img src="/images/header_register.png" alt="Register Header" class="w-full  max-h-100 object-cover z-0" />
 
     <div class="w-full lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
       <form @submit.prevent="handleRegister" class="space-y-20 font-bold max-w-[60rem] m-auto">
@@ -102,34 +130,34 @@ onMounted(async () => {
           <div>
             <label class="block mb-2 text-gray-700">First Name</label>
             <input v-model="form.firstName" type="text" placeholder="First Name"
-                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"/>
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
             <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">{{ errors.firstName }}</p>
           </div>
 
           <div>
             <label class="block mb-2 text-gray-700">Last Name</label>
             <input v-model="form.lastName" type="text" placeholder="Last Name"
-                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"/>
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
             <p v-if="errors.lastName" class="text-red-500 text-sm mt-1">{{ errors.lastName }}</p>
           </div>
 
           <div>
             <label class="block mb-2 text-gray-700">E-mail</label>
             <input v-model="form.email" type="email" placeholder="Email"
-                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"/>
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
             <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
           </div>
 
           <div>
             <label class="block mb-2 text-gray-700">Phone Number</label>
             <input v-model="form.phone" type="tel" placeholder="Phone number"
-                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]"/>
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
             <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone }}</p>
           </div>
         </div>
 
         <button type="submit"
-                class="flex justify-center w-full bg-[#0198FF] font-bold text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+          class="flex justify-center w-full bg-[#0198FF] font-bold text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
           Register
         </button>
       </form>
