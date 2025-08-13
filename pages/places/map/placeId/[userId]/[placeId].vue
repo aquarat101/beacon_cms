@@ -270,7 +270,7 @@ async function updatePlace() {
     if (selectedPosition.value) {
         latitude = selectedPosition.value.lat
         longitude = selectedPosition.value.lng
-        address = selectedPosition.value.address
+        address.value = selectedPosition.value.address
     }
 
     try {
