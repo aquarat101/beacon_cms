@@ -141,7 +141,7 @@ async function goToCurrentLocation() {
                     )
                     // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
                     const scale = Math.pow(2, map.value.getZoom())
-                    const pixelOffset = -100 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
+                    const pixelOffset = -130 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
                     const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
 
                     const newLatLng = projection.fromPointToLatLng(newPoint)
@@ -270,7 +270,7 @@ async function updatePlace() {
     if (selectedPosition.value) {
         latitude = selectedPosition.value.lat
         longitude = selectedPosition.value.lng
-        address = selectedPosition.value.address
+        address.value = selectedPosition.value.address
     }
 
     try {

@@ -12,9 +12,9 @@ const previewImage = ref(null)
 
 function backPage() {
     if (page === "create") {
-        router.push(`/kids/create/${userId}`)
+        router.push(`/kids/create_profile/${userId}`)
     } else {
-        router.push(`/kids/edit/${userId}`)
+        router.push(`/kids/edit_profile/${userId}`)
     }
 }
 
