@@ -1,12 +1,22 @@
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-const id = route.params.id
+const router = useRouter()
+const userId = route.params.id
+const page = route.query.page
 
 const selectedFile = ref(null)
 const previewImage = ref(null)
+
+function backPage() {
+    if (page === "create") {
+        router.push(`/kids/create/${userId}`)
+    } else {
+        router.push(`/kids/edit/${userId}`)
+    }
+}
 
 function onFileChange(event) {
     const file = event.target.files[0]
@@ -19,6 +29,7 @@ function onFileChange(event) {
 function triggerFileInput() {
     document.getElementById('fileInput').click()
 }
+
 </script>
 
 <template>
@@ -58,12 +69,10 @@ function triggerFileInput() {
 
         <!-- ปุ่ม Cancel -->
         <div class="absolute bottom-12 z-20 w-full px-7 mt-12">
-            <NuxtLink :to="`/kids/kid_create_profile/${id}`">
-                <button type="submit"
-                    class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                    Cancel
-                </button>
-            </NuxtLink>
+            <button type="button" @click="backPage"
+                class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                Cancel
+            </button>
         </div>
     </div>
 </template>

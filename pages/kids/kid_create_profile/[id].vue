@@ -53,7 +53,7 @@ const createKidProfile = async () => {
 
         if (selectedFile.value) {
             formData.append('avatar', selectedFile.value)
-        }   
+        }
 
         const res = await fetch(`${config.apiDomain}/kids/create/${userId}`, {
             method: 'POST',
@@ -67,6 +67,15 @@ const createKidProfile = async () => {
     } catch (err) {
         console.error('Failed to submit:', err)
     }
+}
+
+function goToQRcode() {
+    router.push({
+        path: `/kids/qrcode/${userId}`,
+        query: {
+            page: "create"
+        }
+    })
 }
 
 function onFileChange(event) {
@@ -105,7 +114,8 @@ function triggerFileInput() {
         </div>
 
         <!-- form -->
-        <div class="w-full  lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+        <div
+            class="w-full  lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
             <form @submit.prevent="createKidProfile" class="space-y-20 font-bold">
                 <div>
                     <div>
@@ -121,12 +131,10 @@ function triggerFileInput() {
                             <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                             <!-- ปุ่มลิงก์ QR Code ต้องไม่เป็น submit -->
-                            <NuxtLink :to="`/kids/qrcode/${userId}`" class="inline-block">
-                                <button type="button">
-                                    <img src="/image-icons/qrcode.png" alt="qrcode"
-                                        class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md" />
-                                </button>
-                            </NuxtLink>
+                            <button type="button" @click="goToQRcode">
+                                <img src="/image-icons/qrcode.png" alt="qrcode"
+                                    class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md" />
+                            </button>
                         </div>
                         <p class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
                     </div>

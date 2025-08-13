@@ -11,7 +11,7 @@ const placeId = route.params.placeId || null
 const status = route.params.status
 
 const name = route.query.name
-let address = route.query.address
+const address = ref(route.query.address || 'Loading...')
 const type = route.query.type
 const remark = route.query.remark
 const showP = route.query.status
@@ -282,7 +282,7 @@ async function updatePlace() {
             body: JSON.stringify({
                 userId: userId,
                 name: name,
-                address: address,
+                address: address.value,
                 type: type,
                 remark: remark,
                 lat: latitude.toString(),
@@ -312,7 +312,7 @@ function toAddPlacePage() {
         path: `/places/add_place/${userId}/${placeId}`,
         query: {
             name: name,
-            address: address,
+            address: address.value,
             type: type,
             remark: remark,
             lat: latitude,
