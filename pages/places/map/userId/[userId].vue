@@ -145,7 +145,7 @@ async function goToCurrentLocation() {
                         const geoResult = await reverseGeocode(position.coords.latitude, position.coords.longitude)
                         address.value = geoResult.formatted_address
                     } catch (err) {
-                        address.value = 'Unable to find address'
+                        address.value= 'Unable to find address'
                     }
                 }
 
@@ -259,7 +259,7 @@ function sendData() {
     let lt = ""
     let lg = ""
     if (selectedPosition.value === null) {
-        addr = address
+        addr = address.value
         lt = latitude
         lg = longitude
     } else {
@@ -294,7 +294,7 @@ async function savePlace() {
             body: JSON.stringify({
                 userId: userId,
                 name: name,
-                address: address,
+                address: address.value,
                 type: type,
                 remark: remark,
                 lat: latitude,
@@ -326,7 +326,7 @@ function backToAddPlace() {
         path: `/places/add_place/${userId}/${placeId}`,
         query: {
             name: name,
-            address: address,
+            address: address.value,
             type: type,
             remark: remark,
             lat: latitude,
