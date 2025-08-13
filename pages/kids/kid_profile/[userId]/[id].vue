@@ -158,8 +158,11 @@ fetchKid()
 
                     <div class="flex flex-col">
                         <p class="text-[#035CB2]">Place History</p>
+                        <div v-if="Histories.length === 0" class="flex justify-center text-gray-500 mt-5 ">
+                            No place history
+                        </div>
 
-                        <div class="max-h-85 overflow-y-auto space-y-4 space-x-1.5 mt-2">
+                        <div v-else class="max-h-85 overflow-y-auto space-y-4 space-x-1.5 mt-2">
                             <HistoryCard v-for="history in Histories" :key="history.id" :place="history.place"
                                 :date="history.date" class="min-w-[200px] shrink-0" />
                         </div>
