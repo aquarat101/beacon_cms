@@ -93,7 +93,8 @@ function goToQRcode() {
     router.push({
         path: `/kids/qrcode/${userId}`,
         query: {
-            page: "edit"
+            page: "edit",
+            kidId: kidId
         }
     })
 }
