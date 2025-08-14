@@ -29,7 +29,8 @@ defineProps({
                         ● {{ status.charAt(0).toUpperCase() + status.slice(1) }}
                     </span>
                 </p>
-                <p class="text-sm text-gray-500">Last updated: {{ updated }}</p>
+                <p class="text-sm text-gray-500">Last updated:</p>
+                <p class="text-sm text-gray-500">{{ updated }}</p>
             </div>
         </div>
     </NuxtLink>
