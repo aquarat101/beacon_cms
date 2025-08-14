@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     public: {
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       apiDomain: process.env.API_DOMAIN || '',
-      liffId: process.env.LIFF_ID || ''
+      liffId: process.env.LIFF_ID || '',
+      channelToken: process.env.CHANNEL_ACCESS_TOKEN
     },
   },
 
