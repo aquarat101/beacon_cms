@@ -37,6 +37,8 @@ const map = ref(null)
 
 const isClearing = ref(false)
 const isInputFocused = ref(false)
+const loadingPage = ref(true)
+const isSaving = ref(false)
 
 const selectedPosition = ref(null)
 
@@ -302,6 +304,8 @@ async function savePlace() {
     }
 
     try {
+        isSaving.value = true
+
         const response = await fetch(`${config.apiDomain}/places/add/${userId}`, {
             method: 'POST',
             headers: {
@@ -333,6 +337,8 @@ async function savePlace() {
     } catch (error) {
         console.error('❌ Error:', error)
         alert('❌ Failed to save place')
+    } finally {
+        isSaving.value = false  // ปิด loading
     }
 }
 
@@ -382,6 +388,7 @@ onMounted(async () => {
             scaleControl: false,
             draggable: true,
             keyboardShortcuts: false,
+            gestureHandling: 'greedy',
             styles: [
                 {
                     featureType: "poi",
@@ -396,7 +403,10 @@ onMounted(async () => {
             position: initialCenter,
             map: map.value,
             icon: {
-                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                url: '/image-icons/piyopin.png', // รูปใน public folder
+                scaledSize: new google.maps.Size(50, 50), // ปรับขนาด icon
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(20, 40) // จุดยึด icon
             }
         })
 
@@ -441,6 +451,8 @@ onMounted(async () => {
 
     } catch (error) {
         console.error(error)
+    } finally {
+        loadingPage.value = false
     }
 })
 
@@ -468,119 +480,133 @@ watch(searchQuery, (val) => {
 
 <template>
     <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
-        <!-- Header -->
-        <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
-            <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
 
-            <!-- Search Input -->
-            <div class="mt-3 mb-4 mx-4 relative">
-                <input v-model="searchQuery" @keydown.enter.prevent="handleEnterKey" type="text"
-                    placeholder="Search location" @focus="isInputFocused = true" @blur="isInputFocused = false"
-                    class="w-full rounded-full px-4 pl-10 py-2 text-xl shadow-sm bg-white border border-white placeholder-gray-400" />
-                <span class="absolute left-4 top-3.5 text-gray-400">
-                    <img src="/image-icons/search.png" alt="search" class="w-4 h-5" />
-                </span>
+        <!-- Loading overlay -->
+        <transition name="fade">
+            <div v-if="loadingPage || isSaving"
+                class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
+                    </div>
+                    <p class="text-lg font-semibold text-[#035CB2]">{{ isSaving ? 'Saving...' : 'Loading map...' }}</p>
+                </div>
+            </div>
+        </transition>
 
-                <button @click="clearSearch" class="absolute top-0 right-3 text-sm bg-white pl-3 w-8 h-7 mt-2 z-5">
-                    <img src="/image-icons/x.png" alt="clear search" class="w-3 h-3">
+        <div v-show="!loadingPage">
+            <!-- Header -->
+            <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
+                <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
+
+                <!-- Search Input -->
+                <div class="mt-3 mb-4 mx-4 relative">
+                    <input v-model="searchQuery" @keydown.enter.prevent="handleEnterKey" type="text"
+                        placeholder="Search location" @focus="isInputFocused = true" @blur="isInputFocused = false"
+                        class="w-full rounded-full px-4 pl-10 py-2 text-xl shadow-sm bg-white border border-white placeholder-gray-400" />
+                    <span class="absolute left-4 top-3.5 text-gray-400">
+                        <img src="/image-icons/search.png" alt="search" class="w-4 h-5" />
+                    </span>
+
+                    <button @click="clearSearch" class="absolute top-0 right-3 text-sm bg-white pl-3 w-8 h-7 mt-2 z-5">
+                        <img src="/image-icons/x.png" alt="clear search" class="w-3 h-3">
+                    </button>
+
+                </div>
+
+                <!-- Search Results -->
+                <div v-if="showResults"
+                    class="absolute top-35 left-0 right-0 mt-3 w-full text-left text-lg bg-white rounded-xl p-4 shadow z-50">
+                    <p class="font-bold mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
+                    <ul class="text-gray-800"> <!-- selectPlace(place) -->
+                        <li v-for="place in searchResults" :key="place.place_id" @click.stop="sendData"
+                            class="cursor-pointer hover:bg-gray-100 transition-colors duration-150 p-2 rounded-lg">
+                            <div class="flex justify-between items-center space-x-4">
+                                <p class="truncate flex-1">📍 {{ place.name }}</p>
+                                <button @click.stop="sendData"
+                                    class="bg-[#035CB2] text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
+                                    <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Map Section -->
+            <div class="relative flex-1">
+                <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
+
+                <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
+                <button @click="goToCurrentLocation"
+                    class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
+                    📍
                 </button>
 
-            </div>
-
-            <!-- Search Results -->
-            <div v-if="showResults"
-                class="absolute top-35 left-0 right-0 mt-3 w-full text-left text-lg bg-white rounded-xl p-4 shadow z-50">
-                <p class="font-bold mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
-                <ul class="text-gray-800"> <!-- selectPlace(place) -->
-                    <li v-for="place in searchResults" :key="place.place_id" @click.stop="sendData"
-                        class="cursor-pointer hover:bg-gray-100 transition-colors duration-150 p-2 rounded-lg">
-                        <div class="flex justify-between items-center space-x-4">
-                            <p class="truncate flex-1">📍 {{ place.name }}</p>
-                            <button @click.stop="sendData"
-                                class="bg-[#035CB2] text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
-                                <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-        </div>
-
-        <!-- Map Section -->
-        <div class="relative flex-1">
-            <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
-
-            <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
-            <button @click="goToCurrentLocation"
-                class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
-                📍
-            </button>
-
-            <!-- <button @click.stop="clearPin"
+                <!-- <button @click.stop="clearPin"
                 class="absolute top-15 right-2.5 bg-white p-3 rounded-full text-sm text-red-500 underline mt-2">
                 <img src="/image-icons/x.png" alt="clear pin" class="w-4 h-4">
             </button> -->
-        </div>
+            </div>
 
-        <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="!showResults && !showPlace && !isInputFocused"
-            class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
-            <p class="font-bold mb-2 text-[#035CB2] text-3xl">Pin place</p>
-            <div class="flex items-center justify-between space-x-4">
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold whitespace-normal break-words">
-                        {{ selectedPosition && selectedPosition.address ? selectedPosition.address : address }}
-                    </p>
+            <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
+            <div v-if="!showResults && !showPlace && !isInputFocused"
+                class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
+                <p class="font-bold mb-2 text-[#035CB2] text-3xl">Pin place</p>
+                <div class="flex items-center justify-between space-x-4">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold whitespace-normal break-words">
+                            {{ selectedPosition && selectedPosition.address ? selectedPosition.address : address }}
+                        </p>
+                    </div>
+                    <button @click="sendData"
+                        class="bg-[#035CB2] text-blue-500 rounded-full p-3 flex justify-center flex-shrink-0">
+                        <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
+                    </button>
                 </div>
-                <button @click="sendData"
-                    class="bg-[#035CB2] text-blue-500 rounded-full p-3 flex justify-center flex-shrink-0">
-                    <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
-                </button>
+
+                <NuxtLink :to="`/places/my_place/${userId}`">
+                    <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
+                        Back to My Places
+                    </button>
+                </NuxtLink>
             </div>
 
-            <NuxtLink :to="`/places/my_place/${userId}`">
-                <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
-                    Back to My Places
-                </button>
-            </NuxtLink>
-        </div>
+            <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
+            <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
+                <!-- <p class="font-bold mb-2">Result place</p> -->
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
+                        <p class="text-gray-700 break-words w-full">
+                            {{ address }}
+                        </p>
+                    </div>
+                </div>
 
-        <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-        <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
-            <!-- <p class="font-bold mb-2">Result place</p> -->
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
-                    <p class="text-gray-700 break-words w-full">
-                        {{ address }}
-                    </p>
+                <div class="mt-2">
+                    <p class="font-bold">Place type</p>
+                    <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
+                </div>
+
+                <div class="mt-2">
+                    <p class="font-bold">Remark</p>
+                    <p>{{ remark }}</p>
+                </div>
+
+                <div class="flex justify-between gap-4 font-bold mt-6">
+                    <button type="button" @click="backToAddPlace"
+                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                        Back
+                    </button>
+
+                    <button type="button" @click="savePlace"
+                        class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                        Save
+                    </button>
                 </div>
             </div>
-
-            <div class="mt-2">
-                <p class="font-bold">Place type</p>
-                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
-            </div>
-
-            <div class="mt-2">
-                <p class="font-bold">Remark</p>
-                <p>{{ remark }}</p>
-            </div>
-
-            <div class="flex justify-between gap-4 font-bold mt-6">
-                <button type="button" @click="backToAddPlace"
-                    class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                    Back
-                </button>
-
-                <button type="button" @click="savePlace"
-                    class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                    Save
-                </button>
-            </div>
         </div>
-
 
     </div>
 </template>
