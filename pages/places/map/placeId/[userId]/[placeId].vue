@@ -141,7 +141,7 @@ async function goToCurrentLocation() {
                     )
                     // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
                     const scale = Math.pow(2, map.value.getZoom())
-                    const pixelOffset = -130 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
+                    const pixelOffset = -120 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
                     const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
 
                     const newLatLng = projection.fromPointToLatLng(newPoint)
@@ -371,7 +371,6 @@ onMounted(async () => {
             fullscreenControl: false,
             rotateControl: false,
             scaleControl: false,
-            scrollwheel: false,
             draggable: true,
             keyboardShortcuts: false,
             styles: [
@@ -383,9 +382,50 @@ onMounted(async () => {
             ]
         })
 
-        map.value.addListener('click', onMapClick)
+        // ✅ สร้างหมุดกลาง map ครั้งเดียว
+        selectedMarker.value = new googleMaps.Marker({
+            position: initialCenter,
+            map: map.value,
+            icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            }
+        })
 
-        goToCurrentLocation() // เรียกให้เลื่อนไปตำแหน่งปัจจุบันถ้ามีสิทธิ์
+        // ✅ อัปเดตตำแหน่งหมุดให้ตรง center map เสมอ
+        map.value.addListener('center_changed', () => {
+            const projection = map.value.getProjection()
+            if (!projection) return
+
+            const center = map.value.getCenter()
+            const point = projection.fromLatLngToPoint(center)
+
+            // ขยับ marker ขึ้น 50px
+            const scale = Math.pow(2, map.value.getZoom())
+            const pixelOffset = 100 / scale
+            const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
+
+            const newLatLng = projection.fromPointToLatLng(newPoint)
+            selectedMarker.value.setPosition(newLatLng)
+        })
+
+
+        // ✅ เมื่อหยุดเลื่อน map ให้อัปเดต address จากตำแหน่งหมุด (offset แล้ว)
+        map.value.addListener('idle', async () => {
+            const markerPos = selectedMarker.value.getPosition() // เอาตำแหน่งหมุดจริง
+            try {
+                const geoResult = await reverseGeocode(markerPos.lat(), markerPos.lng())
+                address.value = geoResult.formatted_address
+                selectedPosition.value = {
+                    lat: markerPos.lat(),
+                    lng: markerPos.lng(),
+                    address: geoResult.formatted_address
+                }
+            } catch (err) {
+                address.value = 'Unable to find address'
+            }
+        })
+
+        goToCurrentLocation()
 
     } catch (error) {
         console.error(error)
@@ -423,8 +463,7 @@ watch(searchQuery, (val) => {
             <!-- Search Input -->
             <div class="mt-3 mb-4 mx-4 relative">
                 <input v-model="searchQuery" @keydown.enter.prevent="handleEnterKey" type="text"
-                    placeholder="Search location"
-                    @focus="isInputFocused = true" @blur="isInputFocused = false"
+                    placeholder="Search location" @focus="isInputFocused = true" @blur="isInputFocused = false"
                     class="w-full rounded-full px-4 pl-10 py-2 text-xl shadow-sm bg-white border border-white placeholder-gray-400" />
                 <span class="absolute left-4 top-3.5 text-gray-400">
                     <img src="/image-icons/search.png" alt="search" class="w-4 h-5" />
@@ -475,18 +514,13 @@ watch(searchQuery, (val) => {
         <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
         <div v-if="showPlace && !showResults && !isInputFocused"
             class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex-1 min-w-0">
-                    <p class="font-bold text-3xl text-[#035CB2] break-words">
-                        {{ name }}
-                    </p>
-                    <p class="font-semibold break-words">
-                        {{ selectedPosition?.address || address }}
-                    </p>
-                </div>
 
-                <!-- ปุ่ม -->
-                <div class="flex items-start gap-2 flex-shrink-0">
+            <!-- แถวชื่อ + ปุ่ม -->
+            <div class="flex items-center justify-between gap-4">
+                <p class="font-bold text-3xl text-[#035CB2] break-words flex-1 min-w-0">
+                    {{ name }}
+                </p>
+                <div class="flex items-center gap-2 flex-shrink-0">
                     <button @click="toAddPlacePage">
                         <img src="/image-icons/edit.png" alt="edit" class="bg-[#035CB2] w-9 h-9 p-2 rounded-full">
                     </button>
@@ -496,17 +530,20 @@ watch(searchQuery, (val) => {
                 </div>
             </div>
 
-
+            <!-- แถว address เต็มแนวนอน -->
+            <p class="font-semibold break-words w-full mt-2">
+                {{ selectedPosition?.address || address }}
+            </p>
 
             <div class="mt-2">
                 <p class="font-bold">Place type</p>
-
-                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
+                <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">
+                    {{ type }}
+                </div>
             </div>
 
             <div class="mt-2">
                 <p class="font-bold">Remark</p>
-
                 <p>{{ remark }}</p>
             </div>
 
@@ -515,13 +552,13 @@ watch(searchQuery, (val) => {
                     class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                     Back
                 </button>
-
                 <button type="button" @click="updatePlace"
                     class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
                     Save
                 </button>
             </div>
         </div>
+
     </div>
 </template>
 
