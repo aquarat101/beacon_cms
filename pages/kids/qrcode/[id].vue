@@ -13,6 +13,9 @@ const videoRef = ref(null)
 const canvasRef = ref(null)
 const previewImage = ref(null)
 const scanning = ref(true)
+const processingQR = ref(false)
+const qrResult = ref("")
+const loadingPage = ref(true) // Loading หน้า
 
 let videoStream = null
 let scanAnimationFrame = null
@@ -46,10 +49,12 @@ async function startCamera() {
         videoRef.value.setAttribute('playsinline', true) // iOS
         await videoRef.value.play()
         scanning.value = true
+        loadingPage.value = false // โหลดเสร็จ
         scanFrame()
     } catch (err) {
         console.error('Camera error:', err)
         scanning.value = false
+        loadingPage.value = false
     }
 }
 
@@ -74,17 +79,19 @@ function scanFrame() {
     const code = jsQR(imageData.data, imageData.width, imageData.height)
 
     if (code) {
-        console.log('QR Code detected:', code.data)
-        alert(`QR Code: ${code.data}`)
         scanning.value = false
+        processingQR.value = true
+        qrResult.value = code.data
         stopCamera()
         previewImage.value = canvas.toDataURL('image/png')
+        setTimeout(() => { processingQR.value = false }, 2000)
     } else {
         scanAnimationFrame = requestAnimationFrame(scanFrame)
     }
 }
 
 function scanQRCodeFromFile(file) {
+    processingQR.value = true
     const img = new Image()
     img.onload = () => {
         const canvas = document.createElement('canvas')
@@ -95,11 +102,11 @@ function scanQRCodeFromFile(file) {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         const code = jsQR(imageData.data, imageData.width, imageData.height)
         if (code) {
-            console.log('QR Code from file:', code.data)
-            alert(`QR Code: ${code.data}`)
+            qrResult.value = code.data
         } else {
-            alert('No QR code found in image.')
+            qrResult.value = "No QR code found"
         }
+        processingQR.value = false
     }
     img.src = URL.createObjectURL(file)
 }
@@ -114,7 +121,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="min-h-screen w-full h-full  bg-white flex flex-col items-center text-[#035CB2] relative">
+    <div class="min-h-screen w-full h-full bg-white flex flex-col items-center text-[#035CB2] relative">
+
+        <!-- Loading หน้า -->
+        <div v-if="loadingPage" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#035CB2]">Loading...</p>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="relative w-full h-64">
             <img src="/images/background.png" alt="Background Header"
@@ -125,22 +141,17 @@ onBeforeUnmount(() => {
             </div>
         </div>
 
-        <!-- กล้อง / preview -->
+        <!-- Camera / Preview -->
         <div class="flex justify-center items-center w-full h-full">
             <div
                 class="w-full h-110 m-10 border-4 border-dashed border-[#0198FF] flex items-center justify-center rounded-lg relative overflow-hidden">
-
-                <!-- Video สำหรับสแกน -->
                 <video v-if="scanning" ref="videoRef" class="object-cover w-full h-full"></video>
-
-                <!-- แสดง preview image -->
                 <img v-if="previewImage && !scanning" :src="previewImage" class="object-contain w-full h-full" />
-
                 <canvas ref="canvasRef" class="hidden"></canvas>
             </div>
         </div>
 
-        <!-- ปุ่มเลือก gallery -->
+        <!-- Gallery Button -->
         <div class="absolute bottom-32 right-10 z-20">
             <div class="cursor-pointer bg-white border-2 border-[#0198FF] text-[#0198FF] p-2 rounded-xl text-sm hover:bg-[#0198FF] hover:text-white transition flex items-center gap-2"
                 @click="triggerFileInput">
@@ -149,12 +160,22 @@ onBeforeUnmount(() => {
             </div>
         </div>
 
-        <!-- ปุ่ม Cancel -->
+        <!-- Cancel Button -->
         <div class="absolute bottom-12 z-20 w-full px-7 mt-12">
             <button type="button" @click="backPage"
                 class="flex justify-center py-3 w-full bg-white text-[#0198FF] font-bold border-2 border-[#0198FF] rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                 Cancel
             </button>
+        </div>
+
+        <!-- QR Processing Popup -->
+        <div v-if="processingQR" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#035CB2]">
+                    {{ qrResult ? qrResult : 'Scanning...' }}
+                </p>
+            </div>
         </div>
     </div>
 </template>
