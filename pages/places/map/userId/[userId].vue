@@ -388,6 +388,7 @@ onMounted(async () => {
             scaleControl: false,
             draggable: true,
             keyboardShortcuts: false,
+            gestureHandling: 'cooperative',
             styles: [
                 {
                     featureType: "poi",
