@@ -134,15 +134,15 @@ onBeforeUnmount(() => {
         <!-- Header -->
         <div class="relative w-full h-64">
             <img src="/images/background.png" alt="Background Header"
-                class="absolute inset-0 w-full h-64 object-cover z-0" />
+                class="absolute inset-0 w-full h-48 object-cover z-0" />
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 gap-3">
                 <h1 class="text-3xl font-bold text-outline-blue">Scan QR Code</h1>
-                <h3 class="text-sm text-white">Place QR code in frame or select photo</h3>
+                <h3 class="text-md text-white">Place QR code in frame or select photo</h3>
             </div>
         </div>
 
         <!-- Camera / Preview -->
-        <div class="flex justify-center items-center w-full h-full">
+        <div class="flex w-full h-full">
             <div
                 class="w-full h-110 m-10 border-4 border-dashed border-[#0198FF] flex items-center justify-center rounded-lg relative overflow-hidden">
                 <video v-if="scanning" ref="videoRef" class="object-cover w-full h-full"></video>
