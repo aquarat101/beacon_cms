@@ -10,6 +10,7 @@ const { public: config } = useRuntimeConfig()
 const previewImage = ref(null)
 const fileInputRef = ref(null)
 const selectedFile = ref(null)
+const isLoading = ref(false) // ✅ Loading state
 
 const form = reactive({
     profileName: '',
@@ -45,6 +46,7 @@ const validateForm = () => {
 const createKidProfile = async () => {
     if (!validateForm()) return
 
+    isLoading.value = true
     try {
         const formData = new FormData()
         formData.append('profileName', form.profileName)
@@ -58,7 +60,6 @@ const createKidProfile = async () => {
         const res = await fetch(`${config.apiDomain}/kids/create/${userId}`, {
             method: 'POST',
             body: formData,
-            // ไม่ต้องกำหนด Content-Type, fetch จะจัดการให้เอง
         })
 
         if (!res.ok) throw new Error('Failed to submit')
@@ -66,15 +67,16 @@ const createKidProfile = async () => {
         router.push(`/users/user_profile/${userId}`)
     } catch (err) {
         console.error('Failed to submit:', err)
+        alert('Failed to create kid profile.')
+    } finally {
+        isLoading.value = false
     }
 }
 
 function goToQRcode() {
     router.push({
         path: `/kids/qrcode/${userId}`,
-        query: {
-            page: "create"
-        }
+        query: { page: "create" }
     })
 }
 
@@ -93,6 +95,15 @@ function triggerFileInput() {
 
 <template>
     <div class="min-h-screen bg-white flex flex-col items-center text-[#035CB2]">
+
+        <!-- ✅ Loading overlay -->
+        <div v-if="isLoading" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#035CB2]">Creating profile...</p>
+            </div>
+        </div>
+
         <!-- header -->
         <div class="relative w-full h-72">
             <img src="/images/background.png" alt="Background Header"
@@ -114,8 +125,7 @@ function triggerFileInput() {
         </div>
 
         <!-- form -->
-        <div
-            class="w-full  lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
+        <div class="w-full lg:p-8 md:p-8 sm:p-8 max-sm:p-8 -mt-10 bg-white rounded-t-3xl relative z-10 overflow-hidden">
             <form @submit.prevent="createKidProfile" class="space-y-20 font-bold">
                 <div>
                     <div>
@@ -130,7 +140,6 @@ function triggerFileInput() {
                         <div class="flex gap-4 items-center">
                             <input v-model="form.beaconId" type="text" placeholder="beacon id"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
-                            <!-- ปุ่มลิงก์ QR Code ต้องไม่เป็น submit -->
                             <button type="button" @click="goToQRcode">
                                 <img src="/image-icons/qrcode.png" alt="qrcode"
                                     class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md" />
