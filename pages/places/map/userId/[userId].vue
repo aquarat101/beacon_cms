@@ -388,7 +388,7 @@ onMounted(async () => {
             scaleControl: false,
             draggable: true,
             keyboardShortcuts: false,
-            gestureHandling: 'cooperative',
+            gestureHandling: 'greedy',
             styles: [
                 {
                     featureType: "poi",
@@ -403,7 +403,10 @@ onMounted(async () => {
             position: initialCenter,
             map: map.value,
             icon: {
-                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                url: '/image-icons/piyopin.png', // รูปใน public folder
+                scaledSize: new google.maps.Size(50, 50), // ปรับขนาด icon
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(20, 40) // จุดยึด icon
             }
         })
 
