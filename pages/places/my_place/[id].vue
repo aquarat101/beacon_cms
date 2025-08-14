@@ -70,7 +70,7 @@ onMounted(async () => {
                 <!-- กล่องเนื้อหาซ้อนทับ -->
                 <div class="absolute inset-0 flex flex-col justify-center z-10 gap-5 px-10 mb-5">
                     <div class="flex justify-between mb-4">
-                        <h2 class="text-3xl font-bold text-outline-blue">My Place</h2>
+                        <h2 class="text-3xl font-bold text-outline-blue">My Places</h2>
                         <NuxtLink :to="`/places/map/userId/${userId}`">
                             <button
                                 class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
