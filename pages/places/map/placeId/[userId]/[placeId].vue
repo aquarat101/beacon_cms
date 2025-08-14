@@ -401,7 +401,7 @@ onMounted(async () => {
 
             // ขยับ marker ขึ้น 50px
             const scale = Math.pow(2, map.value.getZoom())
-            const pixelOffset = 100 / scale
+            const pixelOffset = 120 / scale
             const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
 
             const newLatLng = projection.fromPointToLatLng(newPoint)
