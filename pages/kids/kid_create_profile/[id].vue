@@ -100,7 +100,7 @@ function triggerFileInput() {
         <div v-if="isLoading" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
                 <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-lg font-semibold text-[#035CB2]">Creating profile...</p>
+                <p class="text-lg font-semibold text-[#035CB2]">Creating kid profile...</p>
             </div>
         </div>
 

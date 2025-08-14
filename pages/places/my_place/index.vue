@@ -9,8 +9,8 @@ const route = useRoute()
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
 const userId = ref(null)
-
 const places = ref([])
+const loadingPage = ref(true) // Loading หน้า
 
 async function fetchPlaces() {
     if (!userId.value) return;
@@ -21,38 +21,51 @@ async function fetchPlaces() {
         console.log(places.value)
     } catch (error) {
         console.error(error)
+    } finally {
+        loadingPage.value = false
     }
 }
 
-const getProfile = await liff.getProfile()
-userId.value = getProfile?.userId
-
 onMounted(async () => {
     try {
-        console.log("fetch user")
-        const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId.value}`);
+        const profile = await liff.getProfile()
+        userId.value = profile?.userId
 
-        console.log("fetching")
-        if (res.ok) {
-            const data = await res.json();
-            console.log("fetch places")
-            fetchPlaces()
-            // if (data.exists) {
-            router.push(`/places/my_place/${userId.value}`)
-            // }
-        } else {
+        if (!userId.value) {
             router.push(`/auth/register`)
+            loadingPage.value = false
+            return
         }
+
+        const res = await fetch(`${config.apiDomain}/users/findUserByUserId/${userId.value}`)
+        if (!res.ok) {
+            router.push(`/auth/register`)
+            loadingPage.value = false
+            return
+        }
+
+        const data = await res.json()
+        router.push(`/places/my_place/${userId.value}`)
+        await fetchPlaces()
     } catch (err) {
+        console.error('Error checking userId:', err)
         router.push(`/auth/register`)
-        console.error('Error checking userId:', err);
-        console.log("false")
+        loadingPage.value = false
     }
 })
 </script>
 
 <template>
-    <div class="min-h-screen bg-white flex flex-col justify-between text-[#035CB2]">
+    <div class="min-h-screen bg-white flex flex-col justify-between text-[#035CB2] relative">
+
+        <!-- Loading หน้า -->
+        <div v-if="loadingPage" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#035CB2]">Loading...</p>
+            </div>
+        </div>
+
         <div>
             <!-- กล่องรวม: ต้อง relative -->
             <div class="relative w-full h-40">

@@ -20,8 +20,9 @@ const Histories = ref([])
 // Loading states
 const loadingKid = ref(true)
 const loadingHistories = ref(true)
-const deleting = ref(false)
 const isLoading = computed(() => loadingKid.value || loadingHistories.value)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
 
 async function fetchKid() {
     try {
@@ -81,11 +82,9 @@ async function fetchZoneHits() {
 }
 
 async function deleteKid() {
-    const confirmDelete = confirm('Are you sure you want to delete this kid?')
-    if (!confirmDelete) return
-
-    deleting.value = true
     try {
+        isDeleting.value = true
+
         const res = await fetch(`${config.apiDomain}/kids/delete/${kidId}`, {
             method: 'DELETE',
         })
@@ -96,8 +95,13 @@ async function deleteKid() {
         console.error(error)
         alert('Error deleting kid')
     } finally {
-        deleting.value = false
+        isDeleting.value = false
+        showDeleteModal.value = false
     }
+}
+
+function confirmDeleteKid() {
+    showDeleteModal.value = true
 }
 
 onMounted(() => {
@@ -117,12 +121,39 @@ onMounted(() => {
         </div>
 
         <!-- Deleting overlay -->
-        <div v-if="deleting" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+        <div v-if="isDeleting" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
                 <div class="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-lg font-semibold text-[#E24B4B]">Deleting...</p>
             </div>
         </div>
+
+        <transition name="fade" enter-active-class="transition ease-out duration-55"
+            enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-55" leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95">
+            <div v-if="showDeleteModal" class="fixed inset-0 flex items-center justify-center z-50">
+                <!-- overlay โปร่งบาง ไม่บัง map มาก -->
+                <div class="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
+
+                <!-- modal ลอยหน้า overlay -->
+                <div class="relative bg-white rounded-2xl shadow-lg p-6 w-80 flex flex-col items-center space-y-4 z-10">
+                    <p class="text-lg font-semibold text-gray-800 text-center">
+                        Are you sure you want to delete this kid?
+                    </p>
+                    <div class="flex gap-4 w-full">
+                        <button @click="showDeleteModal = false"
+                            class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-xl hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button @click="deleteKid"
+                            class="flex-1 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
 
         <div class="w-full">
             <!-- Header -->
@@ -158,7 +189,7 @@ onMounted(() => {
 
                     <img src="/image-icons/trash.png" alt="delete"
                         class="bg-[#E24B4B] w-10 h-10 p-2 rounded-full cursor-pointer hover:opacity-80"
-                        @click="deleteKid" />
+                        @click="confirmDeleteKid" />
                 </div>
 
                 <div class="flex flex-col mt-4">
