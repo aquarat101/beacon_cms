@@ -40,7 +40,7 @@ async function fetchKids() {
     const res = await fetch(`${config.apiDomain}/kids/getUserKids/${userId.value}`)
     if (!res.ok) throw new Error('Failed to fetch kids')
     const data = await res.json()
-    kids.value = data.kids
+    kids.value = data.kids.sort((a, b) => b.createdAt._seconds - a.createdAt._seconds)
   } catch (error) {
     console.error(error)
   } finally {

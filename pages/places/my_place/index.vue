@@ -17,7 +17,9 @@ async function fetchPlaces() {
     try {
         const res = await fetch(`${config.apiDomain}/places/get/${userId.value}`)
         if (!res.ok) throw new Error('Failed to fetch places')
-        places.value = await res.json()
+        const data = await res.json()
+        places.value = data.sort((a, b) => b.createdAt._seconds - a.createdAt._seconds)
+
         console.log(places.value)
     } catch (error) {
         console.error(error)
