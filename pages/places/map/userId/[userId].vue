@@ -36,10 +36,10 @@ const mapRef = ref(null)
 const map = ref(null)
 
 const isClearing = ref(false)
+const isInputFocused = ref(false)
 
 const selectedPosition = ref(null)
 
-const isInputFocused = ref(false)
 
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
 function onMapClick(event) {
@@ -145,7 +145,7 @@ async function goToCurrentLocation() {
                         const geoResult = await reverseGeocode(position.coords.latitude, position.coords.longitude)
                         address.value = geoResult.formatted_address
                     } catch (err) {
-                        address.value= 'Unable to find address'
+                        address.value = 'Unable to find address'
                     }
                 }
 
@@ -154,7 +154,23 @@ async function goToCurrentLocation() {
                 //     lng: position.coords.longitude,
                 // }
 
-                map.value.panTo(userLocation)
+                // ✅ แปลงตำแหน่งให้เลื่อนขึ้นไปบนจอ
+                const projection = map.value.getProjection()
+                if (projection) {
+                    const point = projection.fromLatLngToPoint(
+                        new google.maps.LatLng(userLocation.lat, userLocation.lng)
+                    )
+                    // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
+                    const scale = Math.pow(2, map.value.getZoom())
+                    const pixelOffset = -120 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
+                    const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
+
+                    const newLatLng = projection.fromPointToLatLng(newPoint)
+                    map.value.panTo(newLatLng)
+                } else {
+                    map.value.panTo(userLocation)
+                }
+
                 map.value.setZoom(14)
 
                 // สร้างหรือย้ายหมุดตำแหน่งปัจจุบัน (สีน้ำเงิน)
@@ -343,6 +359,7 @@ function clearSearch() {
 
 onMounted(async () => {
     console.log("INTO [USERID]")
+    console.log(showP, status, showPlace.value)
     if (showP || status) {
         // console.log(status)
         showPlace.value = true;
@@ -363,7 +380,6 @@ onMounted(async () => {
             fullscreenControl: false,
             rotateControl: false,
             scaleControl: false,
-            scrollwheel: false,
             draggable: true,
             keyboardShortcuts: false,
             styles: [
@@ -375,9 +391,53 @@ onMounted(async () => {
             ]
         })
 
-        map.value.addListener('click', onMapClick)
+        // ✅ สร้างหมุดกลาง map ครั้งเดียว
+        selectedMarker.value = new googleMaps.Marker({
+            position: initialCenter,
+            map: map.value,
+            icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            }
+        })
 
-        goToCurrentLocation() // เรียกให้เลื่อนไปตำแหน่งปัจจุบันถ้ามีสิทธิ์
+        if (!showPlace.value) {
+            // ✅ อัปเดตตำแหน่งหมุดให้ตรง center map เสมอ
+            map.value.addListener('center_changed', () => {
+                const projection = map.value.getProjection()
+                if (!projection) return
+
+                const center = map.value.getCenter()
+                const point = projection.fromLatLngToPoint(center)
+
+                // ขยับ marker ขึ้น 50px
+                const scale = Math.pow(2, map.value.getZoom())
+                const pixelOffset = 100 / scale
+                const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
+
+                const newLatLng = projection.fromPointToLatLng(newPoint)
+                selectedMarker.value.setPosition(newLatLng)
+            })
+
+
+            // ✅ เมื่อหยุดเลื่อน map ให้อัปเดต address จากตำแหน่งหมุด (offset แล้ว)
+            map.value.addListener('idle', async () => {
+                const markerPos = selectedMarker.value.getPosition() // เอาตำแหน่งหมุดจริง
+                try {
+                    const geoResult = await reverseGeocode(markerPos.lat(), markerPos.lng())
+                    address.value = geoResult.formatted_address
+                    selectedPosition.value = {
+                        lat: markerPos.lat(),
+                        lng: markerPos.lng(),
+                        address: geoResult.formatted_address
+                    }
+                } catch (err) {
+                    address.value = 'Unable to find address'
+                }
+            })
+
+        }
+
+        goToCurrentLocation()
 
     } catch (error) {
         console.error(error)
@@ -490,22 +550,21 @@ watch(searchQuery, (val) => {
         <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
             <!-- <p class="font-bold mb-2">Result place</p> -->
             <div class="flex items-start justify-between">
-                <div class="">
+                <div>
                     <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
-                    <p class="text-gray-500 truncate max-w-[220px]">{{ address }}</p>
+                    <p class="text-gray-700 break-words w-full">
+                        {{ address }}
+                    </p>
                 </div>
             </div>
 
-
             <div class="mt-2">
                 <p class="font-bold">Place type</p>
-
                 <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">{{ type }}</div>
             </div>
 
             <div class="mt-2">
                 <p class="font-bold">Remark</p>
-
                 <p>{{ remark }}</p>
             </div>
 
@@ -521,6 +580,7 @@ watch(searchQuery, (val) => {
                 </button>
             </div>
         </div>
+
 
     </div>
 </template>
