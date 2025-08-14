@@ -49,7 +49,15 @@ async function fetchZoneHits() {
     try {
         const res = await fetch(`${config.apiDomain}/beacons/getZoneHits/${beaconId.value}/${userId}`)
         const json = await res.json()
-        Histories.value = json.data?.map((item, index) => {
+
+        // เรียงใหม่ก่อนเก่าตาม timestamp._seconds
+        const sortedData = (json.data || []).sort((a, b) => {
+            const timeA = a.timestamp?._seconds || 0
+            const timeB = b.timestamp?._seconds || 0
+            return timeB - timeA // ใหม่ก่อน
+        })
+
+        Histories.value = sortedData.map((item, index) => {
             let placeType = item.type || '-'
             let dateStr = '-'
             if (item.timestamp?._seconds) {
@@ -60,11 +68,11 @@ async function fetchZoneHits() {
                 })
             }
             return { id: index + 1, place: placeType, date: dateStr }
-        }) || []
+        })
 
         if (Histories.value.length > 0) {
             kid.value.updated = Histories.value[0].date
-            const first = json.data[0]
+            const first = sortedData[0]
             type.value = first.type || '-'
             if (first.timestamp?._seconds) {
                 const date = new Date(first.timestamp._seconds * 1000)
@@ -72,7 +80,9 @@ async function fetchZoneHits() {
                     day: '2-digit', month: '2-digit', year: '2-digit',
                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                 })
-            } else time.value = '-'
+            } else {
+                time.value = '-'
+            }
         }
     } catch (error) {
         console.error(error)
@@ -80,6 +90,7 @@ async function fetchZoneHits() {
         loadingHistories.value = false
     }
 }
+
 
 async function deleteKid() {
     try {
