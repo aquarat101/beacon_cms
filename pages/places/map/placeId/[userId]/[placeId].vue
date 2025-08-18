@@ -508,7 +508,7 @@ onMounted(async () => {
         <div v-show="!loadingPage">
             <!-- Header -->
             <div class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
-                <p class="text-2xl font-bold text-outline-blue">Tap the map or search location name</p>
+                <p class="text-2xl font-bold text-outline-blue">Drag the map or search location name</p>
 
                 <!-- Search Input -->
                 <div class="mt-3 mb-4 mx-4 relative">

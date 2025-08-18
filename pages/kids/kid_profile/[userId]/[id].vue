@@ -226,7 +226,7 @@ onMounted(() => {
         <div class="flex justify-between w-full px-8 gap-4 mb-10 font-bold">
             <button type="button" @click="router.push(`/users/user_profile/${userId}`)"
                 class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
-                Cancel
+                Back
             </button>
 
             <button type="button" @click="router.push(`/kids/kid_edit_profile/${userId}/${kidId}`)"
