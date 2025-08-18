@@ -28,7 +28,6 @@ const validateForm = () => {
     let isValid = true
     errors.profileName = ''
     errors.beaconId = ''
-    errors.remark = ''
 
     if (!form.profileName.trim()) {
         errors.profileName = 'Profile name is required.'
