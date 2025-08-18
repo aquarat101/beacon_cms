@@ -331,9 +331,6 @@ function toAddPlacePage() {
 }
 
 async function deletePlace() {
-    const confirmDelete = confirm('Are you sure you want to delete this place?')
-    if (!confirmDelete) return
-
     try {
         isDeleting.value = true
 
@@ -405,7 +402,7 @@ onMounted(async () => {
             position: initialCenter,
             map: map.value,
             icon: {
-                url: '/image-icons/piyopin.png', // รูปใน public folder
+                url: '', // รูปใน public folder
                 scaledSize: new google.maps.Size(50, 50), // ปรับขนาด icon
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(20, 40) // จุดยึด icon
@@ -568,6 +565,9 @@ watch(searchQuery, (val) => {
             <!-- Map Section -->
             <div class="relative flex-1">
                 <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
+
+                <img src="/image-icons/piyopin.png" alt="pin point"
+                    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
 
                 <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
                 <button @click="goToCurrentLocation"

@@ -44,10 +44,10 @@ const selectedPosition = ref(null)
 
 
 // ปรับ onMapClick เรียกฟังก์ชันนี้แทน
-function onMapClick(event) {
-    const latLng = event.latLng
-    updateSelectedPosition(latLng)
-}
+// function onMapClick(event) {
+//     const latLng = event.latLng
+//     updateSelectedPosition(latLng)
+// }
 
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
@@ -124,6 +124,7 @@ async function goToCurrentLocation() {
     let userLocation = {}
     const lat = Number(latitude)
     const lng = Number(longitude)
+    console.log(latitude, longitude)
 
     if (!map.value) return
     if (navigator.geolocation) {
@@ -143,9 +144,11 @@ async function goToCurrentLocation() {
                         lng: position.coords.longitude,
                     }
 
+                    console.log(position.coords.latitude, position.coords.longitude)
                     try {
                         const geoResult = await reverseGeocode(position.coords.latitude, position.coords.longitude)
                         address.value = geoResult.formatted_address
+                        console.log(address.value)
                     } catch (err) {
                         address.value = 'Unable to find address'
                     }
@@ -162,6 +165,7 @@ async function goToCurrentLocation() {
                     const point = projection.fromLatLngToPoint(
                         new google.maps.LatLng(userLocation.lat, userLocation.lng)
                     )
+                    console.log(position.coords.latitude, position.coords.longitude)
                     // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
                     const scale = Math.pow(2, map.value.getZoom())
                     const pixelOffset = -120 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
@@ -178,6 +182,8 @@ async function goToCurrentLocation() {
                 // สร้างหรือย้ายหมุดตำแหน่งปัจจุบัน (สีน้ำเงิน)
                 if (currentLocationMarker.value) {
                     currentLocationMarker.value.setPosition(userLocation)
+                    console.log(userLocation.lat, userLocation.lng)
+
                 } else {
                     currentLocationMarker.value = new google.maps.Marker({
                         position: userLocation,
@@ -403,7 +409,7 @@ onMounted(async () => {
             position: initialCenter,
             map: map.value,
             icon: {
-                url: '/image-icons/piyopin.png', // รูปใน public folder
+                url: '', // รูปใน public folder
                 scaledSize: new google.maps.Size(50, 50), // ปรับขนาด icon
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(20, 40) // จุดยึด icon
@@ -536,6 +542,9 @@ watch(searchQuery, (val) => {
             <!-- Map Section -->
             <div class="relative flex-1">
                 <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
+
+                <img src="/image-icons/piyopin.png" alt="pin point"
+                    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
 
                 <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
                 <button @click="goToCurrentLocation"

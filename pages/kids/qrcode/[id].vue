@@ -81,7 +81,7 @@ function scanFrame() {
     if (code) {
         scanning.value = false
         processingQR.value = true
-        qrResult.value = code.data
+        qrResult.value = code.data // ผลลัพธ์
         stopCamera()
         previewImage.value = canvas.toDataURL('image/png')
         setTimeout(() => { processingQR.value = false }, 2000)
