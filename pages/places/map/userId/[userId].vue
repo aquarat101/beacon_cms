@@ -532,11 +532,11 @@ onMounted(async () => {
 
             <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
             <div v-if="!showResults && !showPlace && !isInputFocused"
-                class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
-                <p class="font-bold mb-2 text-[#035CB2] text-3xl">Pin place</p>
+                class="fixed bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 shadow-lg">
+                <p class="font-bold mb-2 text-[#035CB2] text-2xl">Pin place</p>
                 <div class="flex items-center justify-between space-x-4">
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold whitespace-normal break-words">
+                        <p class="font-semibold whitespace-normal break-words line-clamp-3">
                             {{ selectedPosition && selectedPosition.address ? selectedPosition.address : address }}
                         </p>
                     </div>
@@ -554,12 +554,12 @@ onMounted(async () => {
             </div>
 
             <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
-            <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl text-lg p-6 shadow-lg">
+            <div v-if="showPlace" class="absolute bottom-0 w-full bg-white rounded-t-3xl p-6 shadow-lg">
                 <!-- <p class="font-bold mb-2">Result place</p> -->
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="font-bold text-3xl text-[#035CB2]">{{ name }}</p>
-                        <p class="text-gray-700 break-words w-full">
+                        <p class="font-bold text-2xl text-[#035CB2]">{{ name }}</p>
+                        <p class="text-gray-700 break-words w-full line-clamp-3">
                             {{ address }}
                         </p>
                     </div>

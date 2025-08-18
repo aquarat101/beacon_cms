@@ -559,11 +559,11 @@ onMounted(async () => {
 
             <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
             <div v-if="showPlace && !showResults && !isInputFocused"
-                class="fixed bottom-0 left-0 w-full bg-white text-xl rounded-t-3xl p-6 shadow-lg">
+                class="fixed bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 shadow-lg">
 
                 <!-- แถวชื่อ + ปุ่ม -->
                 <div class="flex items-center justify-between gap-4">
-                    <p class="font-bold text-3xl text-[#035CB2] break-words flex-1 min-w-0">
+                    <p class="font-bold text-2xl text-[#035CB2] break-words flex-1 min-w-0">
                         {{ name }}
                     </p>
                     <div class="flex items-center gap-2 flex-shrink-0">
@@ -578,13 +578,13 @@ onMounted(async () => {
                 </div>
 
                 <!-- แถว address เต็มแนวนอน -->
-                <p class="font-semibold break-words w-full mt-2">
+                <p class="font-semibold break-words w-full mt-2 line-clamp-3">
                     {{ selectedPosition?.address || address }}
                 </p>
 
                 <div class="mt-2">
                     <p class="font-bold">Place type</p>
-                    <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-md">
+                    <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm">
                         {{ type }}
                     </div>
                 </div>
