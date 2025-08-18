@@ -17,25 +17,20 @@ const remark = route.query.remark
 const showP = route.query.status
 let latitude = route.query.lat
 let longitude = route.query.lng
-console.log(latitude, longitude)
 
 const searchQuery = ref('')
 const showPlace = ref(false)
 const showResults = ref(false)
 const searchResults = ref([])
 
-const result = ref('')
-const resultName = ref('')
-const resultAddress = ref('')
-
-const marker = ref(null)
-const currentLocationMarker = ref(null)  // หมุดตำแหน่งปัจจุบันสีน้ำเงิน
-const selectedMarker = ref(null)         // หมุดตำแหน่งที่เลือก สีแดง
+const currentLocationMarker = ref(null)
+const selectedMarker = ref(null)
 const circle = ref(null)
 
 const mapRef = ref(null)
 const map = ref(null)
 
+const isMoving = ref(false)
 const isClearing = ref(false)
 const isInputFocused = ref(false)
 const loadingPage = ref(true)
@@ -44,13 +39,6 @@ const isDeleting = ref(false)
 const showDeleteModal = ref(false)
 
 const selectedPosition = ref(null)
-
-
-// ปรับ onMapClick เรียกฟังก์ชันนี้แทน
-function onMapClick(event) {
-    const latLng = event.latLng
-    updateSelectedPosition(latLng)
-}
 
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
@@ -67,7 +55,7 @@ watch(selectedPosition, (val) => {
 })
 
 async function setMarker(position, title = 'Selected Location') {
-    console.log('Set marker at', position)
+    // console.log('Set marker at', position)
     if (selectedMarker.value) {
         selectedMarker.value.setPosition(position)
         selectedMarker.value.setTitle(title)
@@ -81,30 +69,6 @@ async function setMarker(position, title = 'Selected Location') {
             },
         })
         console.log('Created new selectedMarker', selectedMarker.value)
-    }
-}
-
-// ฟังก์ชันแยกสำหรับตั้ง selectedPosition และดึงที่อยู่ (address)
-async function updateSelectedPosition(position) {
-    selectedPosition.value = {
-        lat: position.lat(),
-        lng: position.lng(),
-        address: 'Loading...',
-        name: 'Loading...'
-    }
-
-    try {
-        const geoResult = await reverseGeocode(position.lat(), position.lng())
-        selectedPosition.value.address = geoResult.formatted_address
-
-        // const placeName = await getPlaceNameFromLatLng(position.lat(), position.lng())
-        // selectedPosition.value.name = placeName || 'No name found'
-
-        // console.log(geoResult)
-        // console.log(placeName)
-    } catch (err) {
-        selectedPosition.value.address = 'Unable to find address'
-        selectedPosition.value.name = 'No name found'
     }
 }
 
@@ -135,6 +99,28 @@ async function goToCurrentLocation() {
                 const userLocation = {
                     lat: lat,
                     lng: lng,
+                }
+
+                if (isMoving.value) {
+                    console.log("isMoving : ", isMoving.value)
+                    // ✅ แปลงตำแหน่งให้เลื่อนขึ้นไปบนจอ
+                    const projection = map.value.getProjection()
+                    if (projection) {
+                        const point = projection.fromLatLngToPoint(
+                            new google.maps.LatLng(userLocation.lat, userLocation.lng)
+                        )
+                        // ขยับขึ้น (ค่า y น้อยลง) เช่น 100 พิกเซล
+                        const scale = Math.pow(2, map.value.getZoom())
+                        const pixelOffset = -120 / scale // แปลงพิกเซลเป็นหน่วย world coordinates
+                        const newPoint = new google.maps.Point(point.x, point.y - pixelOffset)
+
+                        const newLatLng = projection.fromPointToLatLng(newPoint)
+                        map.value.panTo(newLatLng)
+                    } else {
+                        map.value.panTo(userLocation)
+                    }
+
+                    return
                 }
 
                 // ✅ แปลงตำแหน่งให้เลื่อนขึ้นไปบนจอ
@@ -209,68 +195,85 @@ async function reverseGeocode(lat, lng) {
     })
 }
 
-// ฟังก์ชันสำหรับกด enter ในช่อง search ให้แผนที่ไปตำแหน่งนั้น
-function handleEnterKey(event) {
+async function handleEnterKey(event) {
     if (event.key === 'Enter' && searchQuery.value.trim()) {
-        const service = new google.maps.places.PlacesService(map.value)
-        const request = {
-            query: searchQuery.value,
-            fields: ['name', 'geometry', 'place_id'],
-        }
-        service.textSearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-                // selectPlace(results[0])
-                router.push({
-                    path: `/places/add_place/${userId}`,
-                    query: {
-                        address: results[0].formatted_address,
-                        lat: results[0].geometry.location.lat(),
-                        lng: results[0].geometry.location.lng()
-                    }
-                })
+        try {
+            const res = await fetch(`${config.apiDomain}/places/searchPlaces/search?query=${encodeURIComponent(searchQuery.value)}`)
+            const data = await res.json()
+
+            if (data.results && data.results.length > 0) {
+                const place = data.results[0]  // ใช้ผลลัพธ์แรกเหมือนเดิม
+                const location = place.geometry.location
+
+                selectedPosition.value = {
+                    lat: location.lat,
+                    lng: location.lng,
+                    address: place.formatted_address
+                }
+
+                latitude = location.lat
+                longitude = location.lng
+                address.value = place.formatted_address
+
+                showResults.value = false
+                showPlace.value = true
+                isMoving.value = true
+                clearSearch()
+                goToCurrentLocation()
+            } else {
+                alert('No results found')
             }
-        })
+        } catch (err) {
+            console.error('Search error:', err)
+        }
     }
 }
 
-function sendData() {
-    if (!selectedPosition.value) {
-        const service = new google.maps.places.PlacesService(map.value)
-        const request = {
-            query: searchQuery.value,
-            fields: ['name', 'geometry', 'place_id'],
-        }
-        service.textSearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-                router.push({
-                    path: `/places/add_place/${userId}`,
-                    query: {
-                        address: results[0].formatted_address,
-                        lat: results[0].geometry.location.lat(),
-                        lng: results[0].geometry.location.lng(),
-                        status: true,
-                    }
-                })
-            }
-        })
+function selectPlace(place) {
+    const location = place.geometry.location
+
+    selectedPosition.value = {
+        lat: location.lat,
+        lng: location.lng,
+        address: place.formatted_address
     }
 
-    router.push({
-        path: `/places/add_place/${userId}`,
-        query: {
-            address: selectedPosition.value.address,
-            lat: selectedPosition.value.lat,
-            lng: selectedPosition.value.lng,
-            status: true,
-        }
-    })
+    latitude = location.lat
+    longitude = location.lng
+    address.value = place.formatted_address
+
+    showResults.value = false
+    showPlace.value = true
+    isMoving.value = true
+    clearSearch()
+    goToCurrentLocation()
 }
+
+
+watch(searchQuery, async (val) => {
+    if (!val.trim()) {
+        showResults.value = false
+        return
+    }
+
+    try {
+        const res = await fetch(`${config.apiDomain}/places/searchPlaces/search?query=${encodeURIComponent(val)}`)
+        const data = await res.json()
+        if (data.results && data.results.length > 0) {
+            searchResults.value = data.results.slice(0, 5)
+            showResults.value = true
+        } else {
+            searchResults.value = []
+            showResults.value = false
+        }
+    } catch (err) {
+        console.error('Search error:', err)
+        searchResults.value = []
+        showResults.value = false
+    }
+})
 
 async function updatePlace() {
-    // console.log("update : ", latitude, selectedPosition.value.lat)
-    // console.log("update : ", longitude, selectedPosition.value.lng)
-    // console.log("update : ", address, selectedPosition.value.address)
-
     if (selectedPosition.value) {
         latitude = selectedPosition.value.lat
         longitude = selectedPosition.value.lng
@@ -331,9 +334,6 @@ function toAddPlacePage() {
 }
 
 async function deletePlace() {
-    const confirmDelete = confirm('Are you sure you want to delete this place?')
-    if (!confirmDelete) return
-
     try {
         isDeleting.value = true
 
@@ -405,7 +405,7 @@ onMounted(async () => {
             position: initialCenter,
             map: map.value,
             icon: {
-                url: '/image-icons/piyopin.png', // รูปใน public folder
+                url: '', // รูปใน public folder
                 scaledSize: new google.maps.Size(50, 50), // ปรับขนาด icon
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(20, 40) // จุดยึด icon
@@ -455,26 +455,6 @@ onMounted(async () => {
     }
 })
 
-watch(searchQuery, (val) => {
-    if (!val.trim()) {
-        showResults.value = false
-        return
-    }
-
-    const service = new google.maps.places.PlacesService(map.value)
-    const request = {
-        query: val,
-        fields: ['name', 'geometry', 'place_id'],
-    }
-
-    service.textSearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            searchResults.value = results.slice(0, 5)
-            showResults.value = true
-            // showPlace.value = false
-        }
-    })
-})
 </script>
 
 <template>
@@ -542,43 +522,39 @@ watch(searchQuery, (val) => {
                     <button @click="clearSearch" class="absolute top-0 right-3 text-sm bg-white pl-3 w-8 h-7 mt-2 z-5">
                         <img src="/image-icons/x.png" alt="clear search" class="w-3 h-3">
                     </button>
-
                 </div>
 
                 <!-- Search Results -->
                 <div v-if="showResults"
                     class="absolute top-35 left-0 right-0 mt-3 w-full text-left text-lg bg-white rounded-xl p-4 shadow z-50">
                     <p class="font-bold mb-2 text-gray-700">Results for "{{ searchQuery }}"</p>
-                    <ul class="text-gray-800"> <!-- selectPlace(place) -->
-                        <li v-for="place in searchResults" :key="place.place_id" @click="sendData"
+                    <ul class="text-gray-800">
+                        <li v-for="place in searchResults" :key="place.place_id" @click.stop="selectPlace(place)"
                             class="cursor-pointer hover:bg-gray-100 transition-colors duration-150 p-2 rounded-lg">
                             <div class="flex justify-between items-center space-x-4">
                                 <p class="truncate flex-1">📍 {{ place.name }}</p>
-                                <button @click.stop="sendData"
-                                    class="bg-blue-100 text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
+                                <button @click.stop="selectPlace(place)"
+                                    class="bg-[#035CB2] text-blue-500 rounded-full p-2 flex items-center justify-center flex-shrink-0">
                                     <img src="/image-icons/plus.png" alt="plus" class="w-4 h-4" />
                                 </button>
                             </div>
                         </li>
                     </ul>
                 </div>
-
             </div>
 
             <!-- Map Section -->
             <div class="relative flex-1">
                 <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
 
+                <img src="/image-icons/piyopin.png" alt="pin point"
+                    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
+
                 <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
                 <button @click="goToCurrentLocation"
                     class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
                     📍
                 </button>
-
-                <!-- <button @click.stop="clearPin"
-                class="absolute top-15 right-2.5 bg-white p-3 rounded-full text-sm text-red-500 underline mt-2">
-                <img src="/image-icons/x.png" alt="clear pin" class="w-4 h-4">
-            </button> -->
             </div>
 
             <!-- Pin Result Place Section (ซ่อนเมื่อค้นหา) -->
