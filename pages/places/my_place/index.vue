@@ -20,7 +20,7 @@ async function fetchPlaces() {
         const data = await res.json()
         places.value = data.sort((a, b) => b.createdAt._seconds - a.createdAt._seconds)
 
-        console.log(places.value)
+        // console.log(places.value)
     } catch (error) {
         console.error(error)
     } finally {
