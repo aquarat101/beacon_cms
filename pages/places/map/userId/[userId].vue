@@ -377,14 +377,14 @@ onMounted(async () => {
 
         map.value = new googleMaps.Map(mapRef.value, {
             center: initialCenter,
-            zoom: 14,
+            zoom: !showPlace.value ? 14 : 17,
             zoomControl: false,
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
             rotateControl: false,
             scaleControl: false,
-            draggable: true,
+            draggable: !showPlace.value,
             keyboardShortcuts: false,
             gestureHandling: 'greedy',
             styles: [
@@ -443,9 +443,9 @@ onMounted(async () => {
                 }
             })
 
+            goToCurrentLocation()
         }
 
-        goToCurrentLocation()
 
     } catch (error) {
         console.error(error)
