@@ -268,7 +268,7 @@ onMounted(() => {
                         <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
-                    
+
                     <div class="flex justify-between gap-4 font-bold">
                         <button type="button" @click="backPage"
                             class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
@@ -293,10 +293,6 @@ onMounted(() => {
 </template>
 
 <style>
-.text-outline-blue {
-    color: white;
-    -webkit-text-stroke: 1.6px #035CB2;
-}
 
 .fade-enter-active,
 .fade-leave-active {
