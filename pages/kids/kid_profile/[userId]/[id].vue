@@ -236,10 +236,3 @@ onMounted(() => {
         </div>
     </div>
 </template>
-
-<style scoped>
-.text-outline-blue {
-    color: white;
-    -webkit-text-stroke: 1.6px #035CB2;
-}
-</style>

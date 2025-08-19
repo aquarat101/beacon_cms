@@ -50,3 +50,17 @@ liff.init({ liffId: config.liffId }).then(async () => {
     </NuxtLayout>
   </div>
 </template>
+
+
+<style scoped>
+h1 {
+  text-shadow: 0px 0px 2px #035CB2;
+  color: #fff;
+}
+
+.text-outline-blue {
+  color: white;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 3px #035CB2;
+}
+</style>
