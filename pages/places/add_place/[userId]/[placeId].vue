@@ -16,12 +16,13 @@ const remark = route.query.remark
 const lat = route.query.lat
 const lng = route.query.lng
 const status = route.query.status
+const useFunction = ref(true)
 
-console.log("status : ", status, "type of : ", typeof (status))
-console.log("latitude : ", lat)
-console.log("longtitude : ", lng)
+if (status === 'false') {
+    useFunction.value = false
+}
 
-const selectedType = ref('')
+const isUpdating = ref(false)
 
 const form = reactive({
     userId: '',
@@ -54,6 +55,54 @@ const types = [
 
 // --- NEW: Loading overlay ---
 const loadingPage = ref(true)
+
+async function updatePlace() {
+    try {
+        isUpdating.value = true
+
+        const response = await fetch(`${config.apiDomain}/places/update/${placeId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                name: form.placeName,
+                address: address,
+                type: form.placeType,
+                remark: form.remark,
+                lat: lat,
+                lng: lng,
+            })
+        })
+
+        const json = await response.json()
+        console.log(json.data)
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Something went wrong')
+        }
+
+        router.push({
+            path: `/places/map/placeId/${userId}/${placeId}`,
+            query: {
+                name: form.placeName || placeName,
+                address: address,
+                type: form.placeType || placeType,
+                remark: form.remark || remark,
+                lat: lat,
+                lng: lng,
+                status: true,
+            }
+        })
+
+    } catch (error) {
+        console.error('❌ Error updating place:', error)
+        alert('❌ Failed to update place')
+    } finally {
+        isUpdating.value = false
+    }
+}
 
 async function toSavePlace() {
     errors.placeName = ''
@@ -138,14 +187,17 @@ onMounted(() => {
 <template>
     <div class="relative min-h-screen">
 
-        <!-- Loading overlay -->
+        <!-- Loading / Updating / Deleting overlay -->
         <transition name="fade">
-            <div v-if="loadingPage"
+            <div v-if="loadingPage || isUpdating"
                 class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
                 <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
-                    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
+                    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+                        v-if="!isDeleting">
                     </div>
-                    <p class="text-lg font-semibold text-[#035CB2]">Loading...</p>
+                    <p class="text-lg font-semibold text-[#035CB2]">
+                        {{ isUpdating ? 'Updating...' : 'Loading...' }}
+                    </p>
                 </div>
             </div>
         </transition>
@@ -215,19 +267,25 @@ onMounted(() => {
                         <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                     </div>
+                    
+                    <div class="flex justify-between gap-4 font-bold">
+                        <button type="button" @click="backPage"
+                            class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
+                            Back
+                        </button>
+
+                        <button v-if="!useFunction" type="button" @click="toSavePlace"
+                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                            Next
+                        </button>
+
+                        <button v-if="useFunction" type="submit" @click="updatePlace"
+                            class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
+                            Save
+                        </button>
+                    </div>
                 </form>
 
-                <div class="flex justify-between gap-4 font-bold">
-                    <button type="button" @click="backPage"
-                        class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
-                        Back
-                    </button>
-
-                    <button type="button" @click="toSavePlace"
-                        class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
-                        Next
-                    </button>
-                </div>
             </div>
         </div>
     </div>
