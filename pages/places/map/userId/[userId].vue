@@ -294,6 +294,7 @@ watch(searchQuery, async (val) => {
         showResults.value = false
     }
 })
+
 async function savePlace() {
     console.log("INTO SAVE PLACE")
     if (!name || !type) {
@@ -443,8 +444,8 @@ onMounted(async () => {
                 }
             })
 
-            goToCurrentLocation()
         }
+        goToCurrentLocation()
 
 
     } catch (error) {
@@ -515,7 +516,7 @@ onMounted(async () => {
             <div class="relative flex-1">
                 <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
 
-                <img src="/image-icons/piyopin.png" alt="pin point"
+                <img :src="!showPlace ? '/image-icons/piyopin.png' : ''" alt="pin point"
                     class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
 
                 <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
