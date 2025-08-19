@@ -120,7 +120,8 @@ async function toSavePlace() {
 
     if (errors.placeName || errors.placeType) return
 
-    console.log("toSavePlace status : ", status)
+    // console.log("toSavePlace status : ", status)
+    console.log(address, lat, lng)
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
