@@ -5,6 +5,14 @@ const { public: config } = useRuntimeConfig()
 const loaded = ref(false)
 const isLoading = ref(true) // ✅ state สำหรับ popup โหลด
 
+definePageMeta({
+  head: {
+    link: [
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap' }
+    ]
+  }
+})
+
 liff.init({ liffId: config.liffId }).then(async () => {
   try {
     const url = new URL(window.location.href);
