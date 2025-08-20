@@ -52,15 +52,12 @@ liff.init({ liffId: config.liffId }).then(async () => {
 </template>
 
 
-<style scoped>
-h1 {
-  text-shadow: 0px 0px 2px #035CB2;
-  color: #fff;
-}
+<style>
 
 .text-outline-blue {
   color: white;
   paint-order: stroke fill;
   -webkit-text-stroke: 3px #035CB2;
+  /* -webkit-text-stroke: 1.6px #035CB2; */
 }
 </style>
