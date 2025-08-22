@@ -431,20 +431,20 @@ onMounted(async () => {
 
 
         // ✅ เมื่อหยุดเลื่อน map ให้อัปเดต address จากตำแหน่งหมุด (offset แล้ว)
-        map.value.addListener('idle', async () => {
-            const markerPos = selectedMarker.value.getPosition() // เอาตำแหน่งหมุดจริง
-            try {
-                const geoResult = await reverseGeocode(markerPos.lat(), markerPos.lng())
-                address.value = geoResult.formatted_address
-                selectedPosition.value = {
-                    lat: markerPos.lat(),
-                    lng: markerPos.lng(),
-                    address: geoResult.formatted_address
-                }
-            } catch (err) {
-                address.value = 'Unable to find address'
-            }
-        })
+        // map.value.addListener('idle', async () => {
+        //     const markerPos = selectedMarker.value.getPosition() // เอาตำแหน่งหมุดจริง
+        //     try {
+        //         const geoResult = await reverseGeocode(markerPos.lat(), markerPos.lng())
+        //         address.value = geoResult.formatted_address
+        //         selectedPosition.value = {
+        //             lat: markerPos.lat(),
+        //             lng: markerPos.lng(),
+        //             address: geoResult.formatted_address
+        //         }
+        //     } catch (err) {
+        //         address.value = 'Unable to find address'
+        //     }
+        // })
 
         goToCurrentLocation()
 
