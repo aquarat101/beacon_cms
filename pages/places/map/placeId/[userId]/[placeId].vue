@@ -579,7 +579,7 @@ onMounted(async () => {
 
                 <!-- แถว address เต็มแนวนอน -->
                 <p class="font-semibold break-words w-full mt-2 line-clamp-3">
-                    {{ selectedPosition?.address || address }}
+                    {{ address }}
                 </p>
 
                 <div class="mt-2">
