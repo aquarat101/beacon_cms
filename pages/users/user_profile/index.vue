@@ -50,6 +50,8 @@ async function fetchKids() {
 
 onMounted(async () => {
   try {
+    isLoading.value = true
+
     const profileLine = await liff.getProfile()
     userId.value = profileLine?.userId
 
@@ -58,10 +60,13 @@ onMounted(async () => {
       await Promise.all([fetchUserProfile(), fetchKids()])
     } else {
       router.push(`/auth/register`)
+      isLoading.value = false
     }
   } catch (err) {
     router.push(`/auth/register`)
     console.error('Error checking userId:', err)
+  } finally {
+    isLoading.value = false
   }
 })
 </script>
@@ -89,7 +94,7 @@ onMounted(async () => {
           </NuxtLink>
         </div>
         <div class="flex flex-row gap-5">
-          <img :src="profile?.avatarUrl" alt="user profile" class="w-20 h-20 bg-white rounded-full" />
+          <img :src="profile?.avatarUrl" alt="user profile" class="w-full h-full bg-white rounded-full object-cover" />
           <div>
             <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
             <p class="text-sm">{{ profile?.email }}</p>

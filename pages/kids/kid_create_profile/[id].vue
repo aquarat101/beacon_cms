@@ -75,7 +75,12 @@ const createKidProfile = async () => {
 function goToQRcode() {
     router.push({
         path: `/kids/qrcode/${userId}`,
-        query: { page: "create" }
+        query: {
+            page: "create",
+            name: form.profileName || "",
+            beaconId: form.beaconId || "",
+            remark: form.remark || ""
+        }
     })
 }
 
@@ -141,7 +146,7 @@ function triggerFileInput() {
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                             <button type="button" @click="goToQRcode">
                                 <img src="/image-icons/qrcode.png" alt="qrcode"
-                                    class="w-14 h-12 p-2 -mb-1 border-2 border-[#0198FF] rounded-md" />
+                                    class="w-14 h-11 p-2 -mb-1 border-2 border-[#0198FF] rounded-md" />
                             </button>
                         </div>
                         <p class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
@@ -169,4 +174,3 @@ function triggerFileInput() {
         </div>
     </div>
 </template>
-

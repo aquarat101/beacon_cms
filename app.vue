@@ -53,7 +53,6 @@ liff.init({ liffId: config.liffId }).then(async () => {
 
 
 <style>
-
 .text-outline-blue {
   color: white;
   paint-order: stroke fill;
