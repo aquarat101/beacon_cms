@@ -218,7 +218,9 @@ onMounted(() => {
 
                 <div class="flex flex-col mt-4">
                     <p class="text-[#035CB2]">Remark</p>
-                    <p>{{ kid?.remark || '-' }}</p>
+                    <p class="truncate ... md:break-words break-words">
+                        {{ kid?.remark || '-' }}
+                    </p>
                 </div>
 
                 <div class="flex flex-col mt-4">
@@ -227,7 +229,7 @@ onMounted(() => {
                         No place history
                     </div>
 
-                    <div v-else class="max-h-85 overflow-y-auto space-y-4 space-x-1.5 mt-2">
+                    <div v-else class="max-h-69 overflow-y-auto space-y-4 space-x-1.5 mt-2">
                         <HistoryCard v-for="history in Histories" :key="history.id" :place="history.place"
                             :date="history.date" class="min-w-[200px] shrink-0" />
                     </div>

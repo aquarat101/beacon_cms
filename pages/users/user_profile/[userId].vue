@@ -83,13 +83,13 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-row gap-5">
-          <div class="relative w-24 h-24">
+          <div class="relative min-w-24 max-w-24 h-24">
             <img :src="`${profile?.avatarUrl}`" alt="user profile"
               class="w-full h-full bg-white rounded-full object-cover">
           </div>
 
           <div class="mt-2">
-            <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
+            <p class="font-bold text-md">{{ profile?.firstName }} {{ profile?.lastName }}</p>
             <p class="text-md">{{ profile?.email }}</p>
             <p class="text-md">{{ profile?.phone }}</p>
           </div>
