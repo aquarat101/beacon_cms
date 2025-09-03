@@ -52,7 +52,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-white flex flex-col justify-between text-[#035CB2] relative">
+    <div class="h-screen flex flex-col bg-white text-[#035CB2]">
 
         <!-- Loading หน้า -->
         <div v-if="loadingPage" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
@@ -62,39 +62,36 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div>
-            <!-- กล่องรวม: ต้อง relative -->
-            <div class="relative w-full h-40">
-                <!-- รูป background อยู่ข้างล่าง -->
-                <img src="/images/background.png" alt="Register Header"
-                    class="absolute inset-0 w-full h-full object-cover z-0" />
+        <!-- Header -->
+        <div class="relative h-30">
+            <img src="/images/background.png" alt="Register Header"
+                class="absolute inset-0 w-full h-full object-cover z-0" />
 
-                <!-- กล่องเนื้อหาซ้อนทับ -->
-                <div class="absolute inset-0 flex flex-col justify-center z-10 gap-5 px-10 mb-5">
-                    <div class="flex justify-between mb-4">
-                        <h2 class="text-3xl font-bold text-outline-blue">My Places</h2>
-                        <NuxtLink :to="`/places/map/userId/${userId}`">
-                            <button
-                                class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
-                                <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
-                            </button>
-                        </NuxtLink>
-                    </div>
-                </div>
-            </div>
+            <div class="absolute inset-0 flex flex-col justify-center z-10 gap-5 px-10 mb-5">
+                <div class="mt-10 flex justify-between mb-4">
+                    <h2 class="text-3xl font-bold text-outline-blue">My Places</h2>
 
-            <!-- กล่องล่าง -->
-            <div class="-mt-6 rounded-t-3xl bg-white px-8 py-6 w-full relative z-10">
-                <!-- ทำแนวตั้งด้วย flex + scroll -->
-                <div class="max-h-140 overflow-y-auto space-y-4 pr-2">
-                    <PlaceCard v-for="place in places" :key="place.id" :userId="place.userId" :placeId="place.id"
-                        :name="place.name" :address="place.address" :type="place.type" :remark="place.remark"
-                        :lat="place.lat" :lng="place.lng" :status="`true`" :state="`true`"
-                        class="min-w-[200px] shrink-0" @click="" />
+                    <NuxtLink :to="`/places/map/userId/${userId}`">
+                        <button
+                            class="bg-[#035CB2] text-white rounded-full w-8 h-8 text-4xl flex items-center justify-center">
+                            <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
+                        </button>
+                    </NuxtLink>
                 </div>
             </div>
         </div>
 
+        <!-- List กลาง -->
+        <div class="flex-1 mt-7 rounded-t-3xl bg-white px-8 overflow-y-auto -mb-8">
+            <div class="space-y-4 pr-2">
+                <PlaceCard v-for="place in places" :key="place.id" :userId="place.userId" :placeId="place.id"
+                    :name="place.name" :address="place.address" :type="place.type" :remark="place.remark"
+                    :lat="place.lat" :lng="place.lng" :status="`true`" :state="`true`" class="min-w-[200px] shrink-0"
+                    @click="" />
+            </div>
+        </div>
+
+        <!-- Footer -->
         <img src="/images/footer.png" alt="footer" />
     </div>
 </template>

@@ -23,6 +23,7 @@ const loadingHistories = ref(true)
 const isLoading = computed(() => loadingKid.value || loadingHistories.value)
 const isDeleting = ref(false)
 const showDeleteModal = ref(false)
+const completed = ref(false)
 
 async function fetchKid() {
     try {
@@ -91,7 +92,6 @@ async function fetchZoneHits() {
     }
 }
 
-
 async function deleteKid() {
     try {
         isDeleting.value = true
@@ -101,7 +101,12 @@ async function deleteKid() {
         })
         if (!res.ok) throw new Error('Failed to delete kid')
 
-        router.push(`/users/user_profile/${userId}`)
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push(`/users/user_profile/${userId}`)
+        }, 800)
+
     } catch (error) {
         console.error(error)
         alert('Error deleting kid')
@@ -128,6 +133,14 @@ onMounted(() => {
             <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
                 <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-lg font-semibold text-[#035CB2]">Loading...</p>
+            </div>
+        </div>
+
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
             </div>
         </div>
 
@@ -205,7 +218,9 @@ onMounted(() => {
 
                 <div class="flex flex-col mt-4">
                     <p class="text-[#035CB2]">Remark</p>
-                    <p>{{ kid?.remark || '-' }}</p>
+                    <p class="truncate ... md:break-words break-words">
+                        {{ kid?.remark || '-' }}
+                    </p>
                 </div>
 
                 <div class="flex flex-col mt-4">
@@ -214,7 +229,7 @@ onMounted(() => {
                         No place history
                     </div>
 
-                    <div v-else class="max-h-85 overflow-y-auto space-y-4 space-x-1.5 mt-2">
+                    <div v-else class="max-h-69 overflow-y-auto space-y-4 space-x-1.5 mt-2">
                         <HistoryCard v-for="history in Histories" :key="history.id" :place="history.place"
                             :date="history.date" class="min-w-[200px] shrink-0" />
                     </div>

@@ -17,7 +17,7 @@ defineProps({
 
 <template>
     <NuxtLink :to="`/kids/kid_profile/${userId}/${id}`">
-        <div class="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3">
+        <div class="flex items-center bg-white border border-gray-200 rounded-xl shadow-md p-3">
             <img :src="avatarUrl" class="w-12 h-12 rounded-full mr-3 object-cover" />
             <div class="flex-1">
                 <p class="font-semibold text-gray-800">
@@ -29,8 +29,16 @@ defineProps({
                         ● {{ status.charAt(0).toUpperCase() + status.slice(1) }}
                     </span>
                 </p>
-                <p class="text-sm text-gray-500">Last updated:</p>
-                <p class="text-sm text-gray-500">{{ updated }}</p>
+
+                <p :class="[
+                    'text-sm',
+                    status === 'online' ? 'text-gray-800' : 'text-sm text-gray-500'
+                ]">Last updated:</p>
+                
+                <p :class="[
+                    'text-sm',
+                    status === 'online' ? 'text-gray-800' : 'text-sm text-gray-500'
+                ]">{{ updated }}</p>
             </div>
         </div>
     </NuxtLink>

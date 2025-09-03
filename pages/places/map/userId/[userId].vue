@@ -12,6 +12,8 @@ const status = route.params.status
 
 const name = route.query.name
 const address = ref(route.query.address || "Loading...")
+const backAddress = address.value
+const check = ref(route.query.check)
 const type = route.query.type
 const remark = route.query.remark
 const showP = route.query.status
@@ -35,14 +37,9 @@ const isClearing = ref(false)
 const isInputFocused = ref(false)
 const loadingPage = ref(true)
 const isSaving = ref(false)
+const completed = ref(false)
 
 const selectedPosition = ref(null)
-
-// ปรับ onMapClick เรียกฟังก์ชันนี้แทน
-// function onMapClick(event) {
-//     const latLng = event.latLng
-//     updateSelectedPosition(latLng)
-// }
 
 // watcher ดู selectedPosition เพื่อสร้าง marker เท่านั้น (ไม่แก้ค่า selectedPosition ในนี้)
 watch(selectedPosition, (val) => {
@@ -104,7 +101,7 @@ async function goToCurrentLocation() {
 
                 // const userLocation = ({})
                 // console.log("noPin : ", noPin)
-                if (noPin === "false") {
+                if (noPin === "false" || check.value) {
                     userLocation = {
                         lat: lat,
                         lng: lng,
@@ -119,7 +116,7 @@ async function goToCurrentLocation() {
                     try {
                         const geoResult = await reverseGeocode(position.coords.latitude, position.coords.longitude)
                         address.value = geoResult.formatted_address
-                        // console.log(address.value)
+
                     } catch (err) {
                         address.value = 'Unable to find address'
                     }
@@ -327,11 +324,13 @@ async function savePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        // alert('✅ Place saved successfully!')
-
-        router.push({
-            path: `/places/my_place/${userId}`
-        })
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push({
+                path: `/places/my_place/${userId}`
+            })
+        }, 800)
 
     } catch (error) {
         console.error('❌ Error:', error)
@@ -372,6 +371,8 @@ onMounted(async () => {
     }
 
     try {
+        loadingPage.value = true
+
         const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
 
         const initialCenter = { lat: 13.7563, lng: 100.5018 }
@@ -427,7 +428,6 @@ onMounted(async () => {
                 selectedMarker.value.setPosition(newLatLng)
             })
 
-
             // ✅ เมื่อหยุดเลื่อน map ให้อัปเดต address จากตำแหน่งหมุด (offset แล้ว)
             map.value.addListener('idle', async () => {
                 const markerPos = selectedMarker.value.getPosition() // เอาตำแหน่งหมุดจริง
@@ -443,10 +443,9 @@ onMounted(async () => {
                     address.value = 'Unable to find address'
                 }
             })
-
         }
-        goToCurrentLocation()
 
+        goToCurrentLocation()
 
     } catch (error) {
         console.error(error)
@@ -472,10 +471,18 @@ onMounted(async () => {
             </div>
         </transition>
 
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
+            </div>
+        </div>
+
         <div v-show="!loadingPage">
             <!-- Header -->
             <div v-if="!showPlace" class="px-4 pt-4 pb-2 text-center bg-[#92DBFF]">
-                <p class="text-2xl font-bold text-outline-blue">Drag the map or search location name</p>
+                <p class="text-2xl font-bold text-outline-blue">Drag the map or <br> search location name</p>
 
                 <!-- Search Input -->
                 <div class="mt-3 mb-4 mx-4 relative">
@@ -520,15 +527,15 @@ onMounted(async () => {
                     class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
 
                 <!-- ปุ่มเลื่อนไปตำแหน่งปัจจุบัน -->
-                <button @click="goToCurrentLocation"
+                <button v-if="!showPlace" @click="goToCurrentLocation"
                     class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">
                     📍
                 </button>
 
                 <!-- <button @click.stop="clearPin"
-                class="absolute top-15 right-2.5 bg-white p-3 rounded-full text-sm text-red-500 underline mt-2">
-                <img src="/image-icons/x.png" alt="clear pin" class="w-4 h-4">
-            </button> -->
+                    class="absolute top-15 right-2.5 bg-white p-3 rounded-full text-sm text-red-500 underline mt-2">
+                    <img src="/image-icons/x.png" alt="clear pin" class="w-4 h-4">
+                </button> -->
             </div>
 
             <!-- Pin Place Section (ซ่อนเมื่อค้นหา) -->
@@ -538,7 +545,8 @@ onMounted(async () => {
                 <div class="flex items-center justify-between space-x-4">
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold whitespace-normal break-words line-clamp-3">
-                            {{ selectedPosition && selectedPosition.address ? selectedPosition.address : address }}
+                            <!-- {{ check ? backAddress : selectedPosition && selectedPosition.address ? selectedPosition.address : address }} -->
+                            {{ selectedPosition && selectedPosition.address ? selectedPosition.address : "Loading..." }}
                         </p>
                     </div>
                     <button @click="sendData"

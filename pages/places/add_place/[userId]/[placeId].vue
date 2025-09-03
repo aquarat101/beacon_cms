@@ -23,6 +23,7 @@ if (status === 'false') {
 }
 
 const isUpdating = ref(false)
+const completed = ref(false)
 
 const form = reactive({
     userId: '',
@@ -83,18 +84,22 @@ async function updatePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        router.push({
-            path: `/places/map/placeId/${userId}/${placeId}`,
-            query: {
-                name: form.placeName || placeName,
-                address: address,
-                type: form.placeType || placeType,
-                remark: form.remark || remark,
-                lat: lat,
-                lng: lng,
-                status: true,
-            }
-        })
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push({
+                path: `/places/map/placeId/${userId}/${placeId}`,
+                query: {
+                    name: form.placeName || placeName,
+                    address: address,
+                    type: form.placeType || placeType,
+                    remark: form.remark || remark,
+                    lat: lat,
+                    lng: lng,
+                    status: true,
+                }
+            })
+        }, 800)
 
     } catch (error) {
         console.error('❌ Error updating place:', error)
@@ -121,7 +126,7 @@ async function toSavePlace() {
     if (errors.placeName || errors.placeType) return
 
     // console.log("toSavePlace status : ", status)
-    console.log(address, lat, lng)
+    // console.log(address, lat, lng)
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
@@ -160,7 +165,12 @@ function backPage() {
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
-            query: { address: address, lat: lat, lng: lng }
+            query: { 
+                address: address, 
+                lat: lat, 
+                lng: lng,
+                check: true,
+            }
         })
     } else {
         router.push({
@@ -203,10 +213,18 @@ onMounted(() => {
             </div>
         </transition>
 
-        <!-- หน้า UI ปกติ -->
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
+            </div>
+        </div>
+
+        <!-- Header -->
         <div v-show="!loadingPage" class="max-w-screen bg-white flex flex-col items-center text-[#035CB2] font-bold">
             <!-- กล่องรวม: ต้อง relative -->
-            <div class="relative w-full h-48">
+            <div class="relative w-full h-36">
                 <img src="/images/background.png" alt="Register Header"
                     class="absolute inset-0 w-full h-full object-cover z-0" />
                 <div class="absolute inset-0 flex justify-center items-center mb-5 z-10 gap-5 px-10">
@@ -219,7 +237,7 @@ onMounted(() => {
                 <form @submit.prevent="" class="space-y-5 font-bold">
                     <div>
                         <div class="">
-                            <label class="block my-3 text-gray-700">Place name</label>
+                            <label class="block -mt-2 mb-3 text-gray-700">Place name</label>
                             <input v-model="form.placeName" type="text" placeholder="place name"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                             <p :class="errors.placeName ? 'visible' : 'invisible'"
@@ -293,7 +311,6 @@ onMounted(() => {
 </template>
 
 <style>
-
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.3s;

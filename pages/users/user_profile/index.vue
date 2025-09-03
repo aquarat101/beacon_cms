@@ -94,9 +94,13 @@ onMounted(async () => {
           </NuxtLink>
         </div>
         <div class="flex flex-row gap-5">
-          <img :src="profile?.avatarUrl" alt="user profile" class="w-full h-full bg-white rounded-full object-cover" />
+          <div class="relative min-w-24 max-w-24 h-24">
+            <img :src="`${profile?.avatarUrl}`" alt="user profile"
+              class="w-full h-full bg-white rounded-full object-cover">
+          </div>
+
           <div>
-            <p class="font-bold text-lg">{{ profile?.firstName }} {{ profile?.lastName }}</p>
+            <p class="font-bold text-md">{{ profile?.firstName }} {{ profile?.lastName }}</p>
             <p class="text-sm">{{ profile?.email }}</p>
             <p class="text-sm">{{ profile?.phone }}</p>
           </div>
