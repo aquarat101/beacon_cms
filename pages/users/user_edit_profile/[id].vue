@@ -27,6 +27,7 @@ const data = reactive({
 
 const loadingProfile = ref(true)
 const saving = ref(false) // ✅ ใช้ตอนกด Save
+const completed = ref(false)
 const isLoading = computed(() => loadingProfile.value || saving.value)
 
 async function fetchUserProfile() {
@@ -77,7 +78,12 @@ async function updateUserProfile() {
             throw new Error(errData?.message || 'Failed to update')
         }
 
-        router.push(`/users/user_profile/${id}`)
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push(`/users/user_profile/${id}`)
+        }, 800)
+
     } catch (err) {
         console.error(err)
         alert(err.message || 'Failed to update profile.')
@@ -113,6 +119,14 @@ onMounted(() => {
                 <p class="text-lg font-semibold text-[#035CB2]">
                     {{ loadingProfile ? 'Loading...' : 'Saving...' }}
                 </p>
+            </div>
+        </div>
+
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
             </div>
         </div>
 

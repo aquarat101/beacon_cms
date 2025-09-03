@@ -23,6 +23,7 @@ if (status === 'false') {
 }
 
 const isUpdating = ref(false)
+const completed = ref(false)
 
 const form = reactive({
     userId: '',
@@ -83,18 +84,22 @@ async function updatePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        router.push({
-            path: `/places/map/placeId/${userId}/${placeId}`,
-            query: {
-                name: form.placeName || placeName,
-                address: address,
-                type: form.placeType || placeType,
-                remark: form.remark || remark,
-                lat: lat,
-                lng: lng,
-                status: true,
-            }
-        })
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push({
+                path: `/places/map/placeId/${userId}/${placeId}`,
+                query: {
+                    name: form.placeName || placeName,
+                    address: address,
+                    type: form.placeType || placeType,
+                    remark: form.remark || remark,
+                    lat: lat,
+                    lng: lng,
+                    status: true,
+                }
+            })
+        }, 800)
 
     } catch (error) {
         console.error('❌ Error updating place:', error)
@@ -121,7 +126,7 @@ async function toSavePlace() {
     if (errors.placeName || errors.placeType) return
 
     // console.log("toSavePlace status : ", status)
-    console.log(address, lat, lng)
+    // console.log(address, lat, lng)
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
@@ -202,6 +207,14 @@ onMounted(() => {
                 </div>
             </div>
         </transition>
+
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
+            </div>
+        </div>
 
         <!-- หน้า UI ปกติ -->
         <div v-show="!loadingPage" class="max-w-screen bg-white flex flex-col items-center text-[#035CB2] font-bold">
@@ -293,7 +306,6 @@ onMounted(() => {
 </template>
 
 <style>
-
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.3s;

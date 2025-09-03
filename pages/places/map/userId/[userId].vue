@@ -35,6 +35,7 @@ const isClearing = ref(false)
 const isInputFocused = ref(false)
 const loadingPage = ref(true)
 const isSaving = ref(false)
+const completed = ref(false)
 
 const selectedPosition = ref(null)
 
@@ -327,11 +328,13 @@ async function savePlace() {
             throw new Error(data.message || 'Something went wrong')
         }
 
-        // alert('✅ Place saved successfully!')
-
-        router.push({
-            path: `/places/my_place/${userId}`
-        })
+        completed.value = true
+        setTimeout(() => {
+            completed.value = false
+            router.push({
+                path: `/places/my_place/${userId}`
+            })
+        }, 800)
 
     } catch (error) {
         console.error('❌ Error:', error)
@@ -471,6 +474,14 @@ onMounted(async () => {
                 </div>
             </div>
         </transition>
+
+        <!-- ✅ Popup Completed -->
+        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
+            </div>
+        </div>
 
         <div v-show="!loadingPage">
             <!-- Header -->

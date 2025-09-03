@@ -5,9 +5,10 @@ import liff from '@line/liff'
 
 const router = useRouter()
 const { public: config } = useRuntimeConfig()
+const userId = ref(null)
 
 const isLoading = ref(false)
-const userId = ref(null)
+const completed = ref(false)
 
 const form = reactive({
   userId: '',
@@ -41,7 +42,12 @@ async function handleRegister() {
     const data = await res.json()
 
     if (res.ok) {
-      router.push(`/users/user_profile/${userId.value}`)
+      completed.value = true
+      setTimeout(() => {
+        completed.value = false
+        router.push(`/users/user_profile/${userId.value}`)
+      }, 800)
+
       form.firstName = ''
       form.lastName = ''
       form.email = ''
@@ -117,10 +123,19 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-white flex flex-col items-center">
+
+    <!-- ✅ Popup Loading -->
     <div v-if="isLoading" class="fixed inset-0 bg-white bg-opacity-30 flex items-center justify-center z-50">
       <div class="w-16 h-16 border-4 border-white border-t-[#0198FF] rounded-full animate-spin"></div>
     </div>
 
+    <!-- ✅ Popup Completed -->
+    <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
+        <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
+      </div>
+    </div>
 
     <img src="/images/header_register.png" alt="Register Header" class="w-full  max-h-100 object-cover z-0" />
 
