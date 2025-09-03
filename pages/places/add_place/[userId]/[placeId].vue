@@ -165,7 +165,12 @@ function backPage() {
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
-            query: { address: address, lat: lat, lng: lng }
+            query: { 
+                address: address, 
+                lat: lat, 
+                lng: lng,
+                check: true,
+            }
         })
     } else {
         router.push({
@@ -216,10 +221,10 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- หน้า UI ปกติ -->
+        <!-- Header -->
         <div v-show="!loadingPage" class="max-w-screen bg-white flex flex-col items-center text-[#035CB2] font-bold">
             <!-- กล่องรวม: ต้อง relative -->
-            <div class="relative w-full h-48">
+            <div class="relative w-full h-36">
                 <img src="/images/background.png" alt="Register Header"
                     class="absolute inset-0 w-full h-full object-cover z-0" />
                 <div class="absolute inset-0 flex justify-center items-center mb-5 z-10 gap-5 px-10">
@@ -232,7 +237,7 @@ onMounted(() => {
                 <form @submit.prevent="" class="space-y-5 font-bold">
                     <div>
                         <div class="">
-                            <label class="block my-3 text-gray-700">Place name</label>
+                            <label class="block -mt-2 mb-3 text-gray-700">Place name</label>
                             <input v-model="form.placeName" type="text" placeholder="place name"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                             <p :class="errors.placeName ? 'visible' : 'invisible'"
