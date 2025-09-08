@@ -556,7 +556,7 @@ onMounted(async () => {
                 </div>
 
                 <NuxtLink :to="`/places/my_place/${userId}`">
-                    <button class="mt-10 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
+                    <button class="mt-8 w-full border-2 border-blue-400 text-blue-500 font-semibold py-2 rounded-xl">
                         Back to My Places
                     </button>
                 </NuxtLink>

@@ -116,7 +116,7 @@ async function toSavePlace() {
     const trimmedName = form.placeName
 
     if (!trimmedName) {
-        errors.placeName = 'Please enter a valid place name'
+        errors.placeName = 'Please enter a place name'
     }
 
     if (!form.placeType) {
@@ -165,9 +165,9 @@ function backPage() {
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
-            query: { 
-                address: address, 
-                lat: lat, 
+            query: {
+                address: address,
+                lat: lat,
                 lng: lng,
                 check: true,
             }
@@ -196,7 +196,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="relative min-h-screen">
+    <div class="h-screen overflow-hidden">
 
         <!-- Loading / Updating / Deleting overlay -->
         <transition name="fade">
@@ -224,7 +224,7 @@ onMounted(() => {
         <!-- Header -->
         <div v-show="!loadingPage" class="max-w-screen bg-white flex flex-col items-center text-[#035CB2] font-bold">
             <!-- กล่องรวม: ต้อง relative -->
-            <div class="relative w-full h-36">
+            <div class="relative w-full h-34">
                 <img src="/images/background.png" alt="Register Header"
                     class="absolute inset-0 w-full h-full object-cover z-0" />
                 <div class="absolute inset-0 flex justify-center items-center mb-5 z-10 gap-5 px-10">
@@ -237,7 +237,7 @@ onMounted(() => {
                 <form @submit.prevent="" class="space-y-5 font-bold">
                     <div>
                         <div class="">
-                            <label class="block -mt-2 mb-3 text-gray-700">Place name</label>
+                            <label class="block -mt-2 mb-2 text-gray-700">Place name</label>
                             <input v-model="form.placeName" type="text" placeholder="place name"
                                 class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
                             <p :class="errors.placeName ? 'visible' : 'invisible'"
@@ -249,7 +249,7 @@ onMounted(() => {
                         <div class="-mt-2">
                             <div class="flex items-center gap-1.5 -mb-2">
                                 <label class="block my-3 text-gray-700">Address</label>
-                                <label class="text-sm text-gray-400">( *Disabled change here )</label>
+                                <label class="text-sm text-gray-400">*Disabled change here</label>
                             </div>
                             <input v-model="form.address" type="text" :placeholder="`${address}`" disabled
                                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
@@ -257,8 +257,8 @@ onMounted(() => {
                     </div>
 
                     <div class="max-w-sm mx-auto">
-                        <label class="block mb-4 text-gray-700">Places type</label>
-                        <div class="space-y-4">
+                        <label class="block mb-2 text-gray-700">Places type</label>
+                        <div class="space-y-2">
                             <div v-for="type in types" :key="type.value" @click="form.placeType = type.value" :class="[
                                 'flex items-center px-4 py-3 rounded-xl border cursor-pointer hover:bg-blue',
                                 form.placeType === type.value
@@ -281,7 +281,7 @@ onMounted(() => {
                         </p>
                     </div>
 
-                    <div class="-mt-4 mb-7">
+                    <div class="-mt-4 mb-6">
                         <label class="block text-gray-700">Remark</label>
                         <input v-model="form.remark" type="text" placeholder="remark"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
