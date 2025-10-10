@@ -28,7 +28,7 @@ export default defineNuxtConfig({
 
     server: {
       allowedHosts: [
-        'fa2ee9239928.ngrok-free.app' // 👈 เพิ่ม host ที่จะใช้ (จาก ngrok หรืออื่น ๆ)
+        'lori-unfiring-unvillainously.ngrok-free.dev' // 👈 เพิ่ม host ที่จะใช้ (จาก ngrok หรืออื่น ๆ)
       ]
     }
   },

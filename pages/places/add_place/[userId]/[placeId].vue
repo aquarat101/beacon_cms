@@ -16,6 +16,8 @@ const remark = route.query.remark
 const lat = route.query.lat
 const lng = route.query.lng
 const status = route.query.status
+const map_beacons = route.query.map_beacons
+
 const useFunction = ref(true)
 
 if (status === 'false') {
@@ -78,7 +80,6 @@ async function updatePlace() {
         })
 
         const json = await response.json()
-        console.log(json.data)
 
         if (!response.ok) {
             throw new Error(data.message || 'Something went wrong')
@@ -87,18 +88,28 @@ async function updatePlace() {
         completed.value = true
         setTimeout(() => {
             completed.value = false
-            router.push({
-                path: `/places/map/placeId/${userId}/${placeId}`,
-                query: {
-                    name: form.placeName || placeName,
-                    address: address,
-                    type: form.placeType || placeType,
-                    remark: form.remark || remark,
-                    lat: lat,
-                    lng: lng,
-                    status: true,
-                }
-            })
+            if (map_beacons === "map_beacons") {
+                router.push({
+                    path: `/map_beacons/${userId}/${0}`,
+                    query: {
+                        placeId: placeId,
+                        openDetail: "openPlaceDetail"
+                    }
+                })
+            } else {
+                router.push({
+                    path: `/places/map/placeId/${userId}/${placeId}`,
+                    query: {
+                        name: form.placeName || placeName,
+                        address: address,
+                        type: form.placeType || placeType,
+                        remark: form.remark || remark,
+                        lat: lat,
+                        lng: lng,
+                        status: true,
+                    }
+                })
+            }
         }, 800)
 
     } catch (error) {
@@ -125,8 +136,6 @@ async function toSavePlace() {
 
     if (errors.placeName || errors.placeType) return
 
-    // console.log("toSavePlace status : ", status)
-    // console.log(address, lat, lng)
     if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
@@ -161,8 +170,21 @@ async function toSavePlace() {
 
 function backPage() {
     const trimmedName = form.placeName
-
-    if (status === 'false') {
+    if (map_beacons === 'map_beacons') {
+        router.push({
+            path: `/map_beacons/${userId}/${0}`,
+            query: {
+                openDetail: "openPlaceDetail",
+                placeId: placeId,
+                name: trimmedName,
+                address: address,
+                type: form.placeType,
+                remark: form.remark || '-',
+                lat: lat,
+                lng: lng,
+            }
+        })
+    } else if (status === 'false') {
         router.push({
             path: `/places/map/userId/${userId}`,
             query: {

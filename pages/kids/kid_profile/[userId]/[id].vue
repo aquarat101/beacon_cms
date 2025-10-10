@@ -93,6 +93,7 @@ async function fetchZoneHits() {
 }
 
 async function deleteKid() {
+    console.log(kidId)
     try {
         isDeleting.value = true
 
@@ -191,7 +192,7 @@ onMounted(() => {
                         <p>Last updated: {{ kid?.updated || '-' }}</p>
                     </div>
 
-                    <img :src="kid?.avatarUrl || '/images/profile.png'" alt="profile"
+                    <img :src="kid?.avatarUrl || '/image-avatars/1.png'" alt="profile"
                         class="w-26 h-26 bg-white rounded-full border-4 object-cover"
                         :class="kid?.status === 'online' ? 'border-green-500' : 'border-gray-400'" />
 
