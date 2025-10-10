@@ -167,8 +167,24 @@ onMounted(() => {
 
                 <div>
                     <label class="block my-3 text-gray-700">Beacon ID</label>
-                    <input v-model="form.beaconId" type="text" placeholder="beacon id"
-                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+                    <div class="flex gap-2">
+                        <input v-model="form.beaconId" type="text" placeholder="beacon id"
+                            class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+
+                        <!-- ปุ่ม Search -->
+                        <button type="button"
+                            class="bg-[#0198FF] text-white px-3 py-2 rounded-md hover:bg-blue-700 transition"
+                            @click="searchBeacon">
+                            🔍
+                        </button>
+
+                        <!-- ปุ่ม QR Code Scan -->
+                        <button type="button"
+                            class="bg-[#0198FF] text-white px-3 py-2 rounded-md hover:bg-blue-700 transition"
+                            @click="scanQRCode">
+                            <img src="/image-icons/qrcode.png" alt="qrcode" class="w-4 h-4">
+                        </button>
+                    </div>
                     <p class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
                 </div>
 

@@ -19,6 +19,14 @@ const loadingKids = ref(true)
 // รวม loading
 const isLoading = computed(() => loadingProfile.value || loadingKids.value)
 
+const activeTab = ref('profile') // default tab
+
+function switchTab(tab) {
+    activeTab.value = tab
+    if (tab === 'map') router.push(`/map_beacons/${userId}/${0}`)
+    if (tab === 'profile') router.push(`/users/user_profile/${userId}`)
+}
+
 async function fetchUserProfile() {
   if (!userId.value) return
   try {
@@ -126,6 +134,28 @@ onMounted(async () => {
         <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
       </div>
     </div>
+  </div>
+
+  <!-- Floating bottom tab -->
+  <div
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-200 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
+    <!-- Map Tab -->
+    <button @click="switchTab('map')"
+      class="flex-1 mx-2 rounded-full flex items-center justify-center gap-3 px-6 py-3 transition-all duration-200"
+      :class="activeTab === 'map' ? 'bg-white text-[#035CB2] font-semibold text-lg' : 'text-gray-500 text-lg'">
+      <img src="/image-icons/map_pointer.png" alt="map" class="w-6 h-6"
+        :class="activeTab === 'map' ? 'opacity-100' : 'opacity-60'" />
+      <span class="text-base font-medium">Map</span>
+    </button>
+
+    <!-- Profile Tab -->
+    <button @click="switchTab('profile')"
+      class="flex-1 mx-2 rounded-full flex items-center justify-center gap-3 px-6 py-3 transition-all duration-200"
+      :class="activeTab === 'profile' ? 'bg-[#035CB2] text-white font-semibold text-lg' : 'text-gray-500 text-lg'">
+      <img src="/image-icons/profile.png" alt="profile" class="w-6 h-6"
+        :class="activeTab === 'profile' ? 'opacity-100' : 'opacity-60'" />
+      <span class="text-base font-medium">Profile</span>
+    </button>
   </div>
 </template>
 

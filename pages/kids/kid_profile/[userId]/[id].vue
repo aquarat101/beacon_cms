@@ -9,6 +9,7 @@ const { public: config } = useRuntimeConfig()
 
 const userId = route.params.userId
 const kidId = route.params.id
+const map_beacons = route.query.map_beacons
 
 const beaconId = ref("")
 const type = ref("")
@@ -119,6 +120,20 @@ async function deleteKid() {
 
 function confirmDeleteKid() {
     showDeleteModal.value = true
+}
+
+
+function goBack() {
+    if (map_beacons === "map_beacons") {
+        router.push({
+            path: `/map_beacons/${userId}/${kidId}`,
+            query: {
+                openDetail: "openKidDetail"
+            }
+        })
+    } else {
+        router.push(`/users/user_profile/${userId}`)
+    }
 }
 
 onMounted(() => {
@@ -240,7 +255,7 @@ onMounted(() => {
 
         <!-- Footer Buttons -->
         <div class="flex justify-between w-full px-8 gap-4 mb-10 font-bold">
-            <button type="button" @click="router.push(`/users/user_profile/${userId}`)"
+            <button type="button" @click="goBack"
                 class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
                 Back
             </button>
