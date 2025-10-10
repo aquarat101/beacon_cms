@@ -128,6 +128,15 @@ function confirmAvatar() {
     showAvatarPopup.value = false
 }
 
+function scanQRCode() {
+    router.push({
+        path: `/kids/qrcode/${userId}`,
+        query: {
+            page: "edit"
+        }
+    })
+}
+
 onMounted(fetchKid)
 </script>
 
@@ -179,9 +188,25 @@ onMounted(fetchKid)
 
                 <div>
                     <label class="block my-3 text-gray-700">Beacon ID</label>
-                    <input v-model="form.beaconId" type="text" placeholder="beacon id"
-                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
-                    <p v-if="errors.beaconId" class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
+                    <div class="flex justify-between gap-2 ">
+                        <input v-model="form.beaconId" type="text" placeholder="beacon id"
+                            class="w-2/3 rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-[#0198FF] focus:ring-[#0198FF]" />
+
+                        <div class="flex gap-3">
+                            <!-- ปุ่ม Search -->
+                            <button type="button" class="p-2 rounded-md border-1 border-blue-500 hover:bg-blue-700"
+                                @click="searchBeacon">
+                                <img src="/image-icons/search_beacon.png" alt="qrcode" class="w-6 h-6">
+                            </button>
+
+                            <!-- ปุ่ม QR Code Scan -->
+                            <button type="button" class="p-2 rounded-md border-1 border-blue-500 hover:bg-blue-700"
+                                @click="scanQRCode">
+                                <img src="/image-icons/qrcode.png" alt="qrcode" class="w-7 h-7">
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-red-500 text-sm mt-1">{{ errors.beaconId }}</p>
                 </div>
 
                 <div>

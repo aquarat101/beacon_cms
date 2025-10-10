@@ -62,7 +62,7 @@ function switchTab(tab) {
     activeTab.value = tab
     if (tab === 'map') router.push(`/map_beacons/${userId}/${0}`)
     if (tab === 'profile') router.push(`/users/user_profile/${userId}`)
-}   
+}
 
 const beaconId = ref("")
 const kid = ref(null)
@@ -533,25 +533,25 @@ onMounted(async () => {
     try {
         loadingPage.value = true
 
-        const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
-        map.value = new google.maps.Map(mapRef.value, {
-            center: { lat: 13.7563, lng: 100.5018 },
-            zoom: 14,
-            styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
-            gestureHandling: 'greedy',      // ✅ ให้ลาก, pinch, scroll ได้เต็มที่
-            draggable: true,                // ✅ เปิดการลาก map
-            scrollwheel: true,              // ✅ ให้ scroll zoom ได้
-            disableDoubleClickZoom: false,  // ✅ เปิด double click zoom
-            mapTypeControl: false,          // ❌ ปิด map type control
-            streetViewControl: false,       // ❌ ปิด street view
-        })
+        // const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
+        // map.value = new google.maps.Map(mapRef.value, {
+        //     center: { lat: 13.7563, lng: 100.5018 },
+        //     zoom: 14,
+        //     styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
+        //     gestureHandling: 'greedy',      // ✅ ให้ลาก, pinch, scroll ได้เต็มที่
+        //     draggable: true,                // ✅ เปิดการลาก map
+        //     scrollwheel: true,              // ✅ ให้ scroll zoom ได้
+        //     disableDoubleClickZoom: false,  // ✅ เปิด double click zoom
+        //     mapTypeControl: false,          // ❌ ปิด map type control
+        //     streetViewControl: false,       // ❌ ปิด street view
+        // })
 
-        goToCurrentLocation()
+        // goToCurrentLocation()
 
-        // add kid markers
-        addKidMarkers()
+        // // add kid markers
+        // addKidMarkers()
 
-        userPlaces.value.forEach(place => addPlaceMarker(place))
+        // userPlaces.value.forEach(place => addPlaceMarker(place))
 
     } catch (error) {
         console.error(error)
@@ -570,9 +570,9 @@ let maxTranslate, minTranslate
 
 onMounted(() => {
     const screenHeight = window.innerHeight
-    maxTranslate = screenHeight * 0.6  // ย่อลงสุด (40% sheet visible)
-    minTranslate = screenHeight * 0.3  // ขึ้นสุด (70% sheet visible)
-    translateY.value = maxTranslate // เริ่มที่ย่อสุด
+    maxTranslate = screenHeight * 0.4  // ย่อสุด (sheet เห็น 40%)
+    minTranslate = screenHeight * 0.15 // ขึ้นสุด (sheet เห็น 85%)
+    translateY.value = maxTranslate    // เริ่มที่ย่อสุด
 })
 
 function onDragStart(e) {
@@ -645,17 +645,16 @@ function onDragEnd() {
             <div v-if="!showKidDetail && !showPlaceDetail" class="fixed bottom-0 w-full z-50">
                 <!-- sheet container -->
                 <div ref="sheetRef"
-                    class="fixed bottom-0 left-0 w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
-                    :style="{ transform: `translateY(${translateY.value}px)` }">
-    
-                    <!-- 🔹 แถบด้านบนไว้ลาก -->
-                    <div class="w-full h-6 flex justify-center items-center cursor-grab active:cursor-grabbing"
-                        @touchstart="onDragStart" @touchmove="onDrag" @touchend="onDragEnd">
-                        <div class="mt-2 w-30 h-1.5 bg-gray-400 rounded-full"></div>
-                    </div>
+                    class=" w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
+                    :style="{ transform: `translateY(${translateY}px)`, height: '84vh', maxHeight: '124vh' }"
+                    @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
+
+                    <!-- drag handle -->
+                    <div class="h-3"></div>
+                    <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2 "></div>
 
                     <!-- header -->
-                    <div class="flex items-center justify-between px-6 mb-4">
+                    <div class="flex items-center justify-between px-6 ">
                         <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
                         <NuxtLink :to="{
                             path: `/kids/kid_create_profile/${userId}`,
@@ -668,10 +667,10 @@ function onDragEnd() {
                     </div>
 
                     <!-- kids list -->
-                    <div class="p-4 overflow-y-auto" style="max-height: calc(70vh - 40px)">
+                    <div class="p-4 overflow-y-auto space-y-2" style="max-height: calc(100vh - 220px)">
                         <template v-if="kids.length">
-                            <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"
-                                :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
+                            <KidCard v-for="kid in kids.slice(0, 4)" :key="kid.id" :userId="userId" :id="kid.id"
+                                :name="kid.name" :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
                                 state="kidDetail" />
                         </template>
                         <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
@@ -682,11 +681,14 @@ function onDragEnd() {
             <!-- Kid's detail Section -->
             <div v-if="showKidDetail" class="fixed bottom-0 w-full z-50">
                 <!-- sheet container -->
-                <div :class="[
-                    'bg-white p-1 rounded-t-3xl shadow-lg'
-                ]">
+                <div ref="sheetRef"
+                    class=" w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
+                    :style="{ transform: `translateY(${translateY}px)`, height: '90vh', maxHeight: '130vh' }"
+                    @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
+
                     <!-- drag handle -->
-                    <div class="w-30 h-1.5 bg-gray-400 rounded-full mx-auto my-3"></div>
+                    <div class="h-3"></div>
+                    <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2 "></div>
 
                     <!-- header -->
                     <div class="flex items-center justify-between px-6">
@@ -716,22 +718,24 @@ function onDragEnd() {
                     </div>
 
                     <div class="p-6">
-                        <div class="flex gap-4">
-                            <p class="text-gray-500">Beacon ID</p>
-                            <p> {{ kid.beaconId }} </p>
-                        </div>
+                        <p class="text-gray-500">Beacon ID</p>
+                        <p> {{ kid.beaconId }} </p>
 
-                        <div class="flex gap-4">
-                            <p class="text-gray-500">Remark</p>
-                            <p> {{ kid.remark }} </p>
-                        </div>
+                        <div class="h-2"></div>
+
+                        <p class="text-gray-500">Remark</p>
+                        <p> {{ kid.remark }} </p>
                     </div>
 
                     <div class="flex flex-col mt-4 px-4">
                         <div class="flex justify-between">
                             <p class="text-blue-800 text-xl font-bold">Place History</p>
-                            <div class=" text-blue-500 text-md underline"
-                                @click="router.push(`/kids/kid_profile/${userId}/${kidId}`)">
+                            <div class=" text-blue-500 text-md underline" @click="router.push({
+                                path: `/kids/kid_profile/${userId}/${kidId}`,
+                                query: {
+                                    map_beacons: 'map_beacons'
+                                }
+                            })">
                                 See All
                             </div>
                         </div>
@@ -740,8 +744,9 @@ function onDragEnd() {
                         </div>
 
                         <div v-else class="max-h-69 overflow-y-auto space-y-4 space-x-1.5 mt-2">
-                            <HistoryCard v-for="history in Histories" :key="history.id" :placeType="history.type"
-                                :date="history.date" :state="history.event" class="min-w-[200px] shrink-0" />
+                            <HistoryCard v-for="history in Histories.slice(0, 4)" :key="history.id"
+                                :placeType="history.type" :date="history.date" :state="history.event"
+                                class="min-w-[200px] shrink-0" />
                         </div>
                     </div>
 
@@ -893,7 +898,7 @@ function onDragEnd() {
 
         <!-- Floating bottom tab -->
         <div
-            class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-100/60 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
+            class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-200 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
             <!-- Map Tab -->
             <button @click="switchTab('map')"
                 class="flex-1 mx-2 rounded-full flex items-center justify-center gap-3 px-6 py-3 transition-all duration-200"

@@ -127,7 +127,7 @@ onMounted(async () => {
 
         <!-- Floating bottom tab -->
         <div
-            class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-100/60 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
+            class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-200 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
             <!-- Map Tab -->
             <button @click="switchTab('map')"
                 class="flex-1 mx-2 rounded-full flex items-center justify-center gap-3 px-6 py-3 transition-all duration-200"
