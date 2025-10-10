@@ -533,25 +533,25 @@ onMounted(async () => {
     try {
         loadingPage.value = true
 
-        // const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
-        // map.value = new google.maps.Map(mapRef.value, {
-        //     center: { lat: 13.7563, lng: 100.5018 },
-        //     zoom: 14,
-        //     styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
-        //     gestureHandling: 'greedy',      // ✅ ให้ลาก, pinch, scroll ได้เต็มที่
-        //     draggable: true,                // ✅ เปิดการลาก map
-        //     scrollwheel: true,              // ✅ ให้ scroll zoom ได้
-        //     disableDoubleClickZoom: false,  // ✅ เปิด double click zoom
-        //     mapTypeControl: false,          // ❌ ปิด map type control
-        //     streetViewControl: false,       // ❌ ปิด street view
-        // })
+        const googleMaps = await loadGoogleMaps(config.googleMapsApiKey)
+        map.value = new google.maps.Map(mapRef.value, {
+            center: { lat: 13.7563, lng: 100.5018 },
+            zoom: 14,
+            styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
+            gestureHandling: 'greedy',      // ✅ ให้ลาก, pinch, scroll ได้เต็มที่
+            draggable: true,                // ✅ เปิดการลาก map
+            scrollwheel: true,              // ✅ ให้ scroll zoom ได้
+            disableDoubleClickZoom: false,  // ✅ เปิด double click zoom
+            mapTypeControl: false,          // ❌ ปิด map type control
+            streetViewControl: false,       // ❌ ปิด street view
+        })
 
-        // goToCurrentLocation()
+        goToCurrentLocation()
 
-        // // add kid markers
-        // addKidMarkers()
+        // add kid markers
+        addKidMarkers()
 
-        // userPlaces.value.forEach(place => addPlaceMarker(place))
+        userPlaces.value.forEach(place => addPlaceMarker(place))
 
     } catch (error) {
         console.error(error)
