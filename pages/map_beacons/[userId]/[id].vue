@@ -62,12 +62,7 @@ function switchTab(tab) {
     activeTab.value = tab
     if (tab === 'map') router.push(`/map_beacons/${userId}/${0}`)
     if (tab === 'profile') router.push(`/users/user_profile/${userId}`)
-}
-
-const sheetRef = ref(null)
-const sheetOpen = ref(false)
-let startY = 0
-let startTranslate = 0
+}   
 
 const beaconId = ref("")
 const kid = ref(null)
@@ -565,6 +560,44 @@ onMounted(async () => {
     }
 })
 
+
+const sheetRef = ref(null)
+const translateY = ref(0)
+let startY = 0
+let currentY = 0
+let startTranslate = 0
+let maxTranslate, minTranslate
+
+onMounted(() => {
+    const screenHeight = window.innerHeight
+    maxTranslate = screenHeight * 0.6  // ย่อลงสุด (40% sheet visible)
+    minTranslate = screenHeight * 0.3  // ขึ้นสุด (70% sheet visible)
+    translateY.value = maxTranslate // เริ่มที่ย่อสุด
+})
+
+function onDragStart(e) {
+    startY = e.touches[0].clientY
+    startTranslate = translateY.value
+}
+
+function onDrag(e) {
+    currentY = e.touches[0].clientY
+    const deltaY = currentY - startY
+    let newTranslate = startTranslate + deltaY
+
+    // จำกัดไม่ให้เกิน min/max
+    if (newTranslate < minTranslate) newTranslate = minTranslate
+    if (newTranslate > maxTranslate) newTranslate = maxTranslate
+
+    translateY.value = newTranslate
+}
+
+function onDragEnd() {
+    // snap ให้อยู่ใกล้ค่าไหนมากกว่า
+    const mid = (minTranslate + maxTranslate) / 2
+    translateY.value = translateY.value < mid ? minTranslate : maxTranslate
+}
+
 </script>
 
 <template>
@@ -614,11 +647,11 @@ onMounted(async () => {
                 <div ref="sheetRef"
                     class="fixed bottom-0 left-0 w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
                     :style="{ transform: `translateY(${translateY.value}px)` }">
-
+    
                     <!-- 🔹 แถบด้านบนไว้ลาก -->
                     <div class="w-full h-6 flex justify-center items-center cursor-grab active:cursor-grabbing"
                         @touchstart="onDragStart" @touchmove="onDrag" @touchend="onDragEnd">
-                        <div class="w-12 h-1.5 bg-gray-400 rounded-full"></div>
+                        <div class="mt-2 w-30 h-1.5 bg-gray-400 rounded-full"></div>
                     </div>
 
                     <!-- header -->
@@ -881,3 +914,10 @@ onMounted(async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* ป้องกันไม่ให้ text หรือ scroll ภายในดึงแทน */
+.fixed {
+    touch-action: none;
+}
+</style>
