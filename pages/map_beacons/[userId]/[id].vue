@@ -858,7 +858,7 @@ function onDragEnd() {
                         </button>
 
                         <button
-                            @click="() => router.push({ path: `/places/add_place / ${userId} / ${placeId}`, query: { name: userPlace.name, address: userPlace.address, type: userPlace.type, remark: userPlace.remark, lat: userPlace.latitude, lng: userPlace.longitude, status: true, map_beacons: 'map_beacons' } })"
+                            @click="() => router.push({ path: `/places/add_place/${userId}/${placeId}`, query: { name: userPlace.name, address: userPlace.address, type: userPlace.type, remark: userPlace.remark, lat: userPlace.latitude, lng: userPlace.longitude, status: true, map_beacons: 'map_beacons' } })"
                             class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal"> Edit place </button>
                     </div>
 
