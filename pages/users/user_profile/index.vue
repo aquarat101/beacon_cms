@@ -22,9 +22,9 @@ const isLoading = computed(() => loadingProfile.value || loadingKids.value)
 const activeTab = ref('profile') // default tab
 
 function switchTab(tab) {
-    activeTab.value = tab
-    if (tab === 'map') router.push(`/map_beacons/${userId}/${0}`)
-    if (tab === 'profile') router.push(`/users/user_profile/${userId}`)
+  activeTab.value = tab
+  if (tab === 'map') router.push(`/map_beacons/${userId.value}/${0}`)
+  if (tab === 'profile') router.push(`/users/user_profile/${userId.value}`)
 }
 
 async function fetchUserProfile() {
@@ -129,7 +129,8 @@ onMounted(async () => {
       <div class="max-h-154 overflow-y-auto space-y-3 space-x-1.5">
         <template v-if="kids?.length">
           <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name" :status="kid.status"
-            :updated="kid.updated" :avatarUrl="kid.avatarUrl" class="min-w-[200px] shrink-0" />
+            :updated="kid.updated" :avatarUrl="kid.avatarUrl" :lastLat="kid.lastLat" :lastLng="kid.lastLng"
+            :zoneId="kid.lastZoneId" :lastOfflineAt="kid.lastOfflineAt" state="-" />
         </template>
         <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
       </div>
