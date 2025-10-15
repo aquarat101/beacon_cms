@@ -127,6 +127,14 @@ function scanQRCode() {
     })
 }
 
+function cancelPage() {
+    if (map_beacons === "map_beacons") {
+        router.push(`/map_beacons/${userId}/${0}`)
+    } else {
+        router.push(`/users/user_profile/${userId}`)
+    }
+}
+
 // set default avatar
 onMounted(() => {
     selectedAvatar.value = avatars[0]
@@ -215,9 +223,10 @@ onMounted(() => {
                 <div class="flex justify-between gap-4 font-bold">
                     <button type="button"
                         class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition"
-                        @click="router.push(`/users/user_profile/${userId}`)">
+                        @click="cancelPage">
                         Cancel
                     </button>
+
                     <button type="submit"
                         class="w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
                         Save
