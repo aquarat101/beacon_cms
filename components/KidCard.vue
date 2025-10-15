@@ -135,7 +135,6 @@ async function computeDistanceFromDevice() {
                 lng
             )
 
-            console.log(dist)
             if (dist < 500) {
                 distance.value = "With you"
             }

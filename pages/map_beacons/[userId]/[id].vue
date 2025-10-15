@@ -56,6 +56,14 @@ const loadingPage = ref(true)
 const completed = ref(false)
 const selectedPosition = ref(null)
 
+const panToIcon = ref(route.query.panToIcon) || "false"
+const lat = Number(route.query.lat)
+const lng = Number(route.query.lng)
+const kidName = route.query.kidName
+const kidAvatar = route.query.kidAvatar
+const placeName = route.query.placeName
+const placeType = route.query.placeType
+
 const distance = ref(route.query.distance) || "No distance"
 const lastLat = route.query.lastLat
 const lastLng = route.query.lastLng
@@ -97,7 +105,6 @@ async function computeDistanceFromDevice() {
                 lng
             )
 
-            console.log(dist)
             if (dist < 500) {
                 distance.value = "With you"
             }
@@ -196,7 +203,6 @@ async function fetchUserPlace() {
         if (!res.ok) throw new Error('Failed to fetch places')
         const data = await res.json()
         userPlace.value = data || null
-        console.log(data)
     } catch (err) {
         console.error('Fetch user places error:', err)
     }
@@ -291,7 +297,7 @@ async function fetchZoneEvents() {
                 : '-'
 
             const placeType = placeTypeMap[item.zoneId] || 'other'
-            console.log("EVENT TYPE : ", item.eventType)
+            // console.log("EVENT TYPE : ", item.eventType)
             const eventLabel = item.eventType === 'hit' ? 'inside' :
                 item.eventType === 'exit' ? 'outside' : 'Nowhere'
 
@@ -303,8 +309,6 @@ async function fetchZoneEvents() {
                 date: dateStr
             }
         })
-
-        console.log("Histories value : ", Histories.value)
 
         // 🔹 อัปเดตข้อมูลล่าสุดใน kid
         if (Histories.value.length > 0) {
@@ -369,6 +373,8 @@ function loadGoogleMaps(apiKey) {
 
 // go to current location
 async function goToCurrentLocation() {
+    console.log("goToCurrentLocation")
+
     let userLocation = {}
     const lat = Number(latitude)
     const lng = Number(longitude)
@@ -510,24 +516,27 @@ function addKidMarkers() {
         })
 
         marker.addListener('click', () => {
-            // ✅ เมื่อคลิก marker ให้ไปอีกหน้า
-            // ส่ง place.id หรือ object เป็น params / query
+            marker.setMap(null)
+
             router.push({
-                path: `/map_beacons/${userId}/${kid.id}`, // ชื่อ route
+                path: `/map_beacons/${userId}/${kid.id}`,
                 query: {
                     lastLat: kid.lastLat,
                     lastLng: kid.lastLng,
-                    openDetail: "openKidDetail"
-                }
-            }).then(() => {
-                // รีโหลดหน้าใหม่หลัง navigation
-                window.location.reload();
+                    openDetail: "openKidDetail",
+                    panToIcon: "true",
+                    lat: marker.getPosition().lat(),
+                    lng: marker.getPosition().lng(),
+                    kidName: kid.name,
+                    kidAvatar: kid.avatarUrl
+                },
             });
         });
     })
 }
 
 function addPlaceMarker(place) {
+    console.log(place)
     if (!map.value || !place) return;
 
     // กำหนดสี background และ Base64 ของ icon ตาม type
@@ -576,15 +585,18 @@ function addPlaceMarker(place) {
 
     // ✅ เมื่อคลิก marker ให้ไปอีกหน้า
     marker.addListener('click', () => {
-        // ส่ง place.id หรือ object เป็น params / query
         router.push({
             path: `/map_beacons/${userId}/${0}`, // ชื่อ route
             query: {
                 placeId: place.id,
-                openDetail: "openPlaceDetail"
+                openDetail: "openPlaceDetail",
+                panToIcon: "true",
+                lat: marker.getPosition().lat(),
+                lng: marker.getPosition().lng(),
+                placeName: place.name,
+                placeType: place.type
             }
         }).then(() => {
-            // รีโหลดหน้าใหม่หลัง navigation
             window.location.reload();
         });
     });
@@ -594,9 +606,9 @@ function addPlaceMarker(place) {
 onMounted(async () => {
     await fetchKid()
     await fetchKids()
-    await fetchZoneEvents()
     await fetchUserPlace()
     await fetchUserPlaces()
+    await fetchZoneEvents()
 
     // if (showP || status) showPlace.value = true
 
@@ -627,7 +639,58 @@ onMounted(async () => {
             streetViewControl: false,       // ❌ ปิด street view
         })
 
-        goToCurrentLocation()
+        if (panToIcon.value === "true") {
+            const position = new google.maps.LatLng(lat, lng)
+
+            if (kidName && kidAvatar) {
+                const iconBg = kidAvatar.replace('/image-avatars/', '/image-bgs/').replace('.png', '_bg.png')
+                new google.maps.Marker({
+                    position: position,
+                    map: map.value,
+                    title: kid.name,
+                    zIndex: 300,
+                    icon: {
+                        url: iconBg,
+                        scaledSize: new google.maps.Size(100, 100),
+                        anchor: new google.maps.Point(50, 75), // 🧭 ปรับจุดยึดของภาพ
+                    },
+                })
+            } else if (placeName && placeType) {
+                let url = "-"
+                if (placeType === "Home") {
+                    url = "/image-bgs/home_bg.png"
+                } else if (placeType === "Work") {
+                    url = "/image-bgs/work_bg.png"
+                } else if (placeType === "School") {
+                    url = "/image-bgs/school_bg.png"
+                } else {
+                    url = "/image-bgs/other_bg.png"
+                }
+
+                new google.maps.Marker({
+                    position: position,
+                    map: map.value,
+                    title: placeName,
+                    zIndex: 300,
+                    icon: {
+                        url: url,
+                        scaledSize: new google.maps.Size(100, 100),
+                        anchor: new google.maps.Point(50, 75), // 🧭 ปรับจุดยึดของภาพ
+                    },
+                })
+            }
+
+            map.value.panTo(position)
+            map.value.setZoom(19)
+
+            // ✅ รอแผนที่ render เสร็จ แล้วค่อย panBy
+            google.maps.event.addListenerOnce(map.value, 'idle', () => {
+                map.value.panBy(0, 140) // ขยับขึ้น 200px
+            })
+
+        } else {
+            goToCurrentLocation()
+        }
 
         addKidMarkers()
 
