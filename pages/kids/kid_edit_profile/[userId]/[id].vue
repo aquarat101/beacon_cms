@@ -220,7 +220,11 @@ onMounted(fetchKid)
                 <div class="flex justify-between gap-4 font-bold w-full">
                     <button type="button" @click="() => {
                         if (map_beacons === 'map_beacons') {
-                            router.push(`/map_beacons/${userId}/${kidId}`)
+                            router.push({ path: `/map_beacons/${userId}/${kidId}`,
+                                query: {
+                                    openDetail: "openKidDetail"
+                                }
+                             })
                         } else {
                             router.push(`/kids/kid_profile/${userId}/${kidId}`)
                         }
