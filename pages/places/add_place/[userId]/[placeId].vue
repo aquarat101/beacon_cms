@@ -218,7 +218,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="h-screen overflow-hidden">
+    <div class="h-screen overflow-y-auto">
 
         <!-- Loading / Updating / Deleting overlay -->
         <transition name="fade">
