@@ -137,6 +137,19 @@ function scanQRCode() {
     })
 }
 
+function cancelPage() {
+    if (map_beacons === 'map_beacons') {
+        router.push({
+            path: `/map_beacons/${userId}/${kidId}`,
+            query: {
+                openDetail: "openKidDetail"
+            }
+        })
+    } else {
+        router.push(`/kids/kid_profile/${userId}/${kidId}`)
+    }
+}
+
 onMounted(fetchKid)
 </script>
 
@@ -218,17 +231,7 @@ onMounted(fetchKid)
                 </div>
 
                 <div class="flex justify-between gap-4 font-bold w-full">
-                    <button type="button" @click="() => {
-                        if (map_beacons === 'map_beacons') {
-                            router.push({ path: `/map_beacons/${userId}/${kidId}`,
-                                query: {
-                                    openDetail: "openKidDetail"
-                                }
-                             })
-                        } else {
-                            router.push(`/kids/kid_profile/${userId}/${kidId}`)
-                        }
-                    }"
+                    <button type="button" @click="cancelPage"
                         class="w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-md text-lg hover:bg-[#0198FF] hover:text-white transition">
                         Cancel
                     </button>
