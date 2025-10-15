@@ -56,6 +56,69 @@ const loadingPage = ref(true)
 const completed = ref(false)
 const selectedPosition = ref(null)
 
+const distance = ref(route.query.distance) || "No distance"
+const lastLat = route.query.lastLat
+const lastLng = route.query.lastLng
+
+/* ✅ คำนวณระยะทาง (Haversine formula) */
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3 // metres
+    const φ1 = (lat1 * Math.PI) / 180
+    const φ2 = (lat2 * Math.PI) / 180
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180
+
+    const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    const d = R * c // in metres
+    return d
+}
+
+/* ✅ หาตำแหน่งมือถือและคำนวณระยะทาง */
+async function computeDistanceFromDevice() {
+    if (!lastLat || !lastLng) return
+
+    if (!navigator.geolocation) {
+        console.warn('Geolocation not supported')
+        return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude
+            const lng = pos.coords.longitude
+            const dist = calculateDistance(
+                Number(lastLat),
+                Number(lastLng),
+                lat,
+                lng
+            )
+
+            console.log(dist)
+            if (dist < 500) {
+                distance.value = "With you"
+            }
+            else if (dist < 1000) {
+                distance.value = `${Math.round(dist)} m`
+            } else {
+                distance.value = `${(dist / 1000).toFixed(1)} km`
+            }
+        },
+        (err) => {
+            console.warn('GPS error:', err.message)
+        }
+    )
+}
+
+/* ✅ เงื่อนไขหลัก */
+onMounted(async () => {
+    // 🔹 คำนวณระยะทางตอนโหลด
+    computeDistanceFromDevice()
+})
+
 const activeTab = ref('map') // default tab
 
 function switchTab(tab) {
@@ -435,15 +498,32 @@ function addKidMarkers() {
 
     kids.value.forEach(kid => {
         if (!kid.lastLat || !kid.lastLng) return
-        new google.maps.Marker({
+        const marker = new google.maps.Marker({
             position: { lat: Number(kid.lastLat), lng: Number(kid.lastLng) },
             map: map.value,
             title: kid.name,
+            zIndex: 100,
             icon: {
-                url: kid.avatarUrl || '/images-avatar/1.png', // avatar icon
+                url: kid.avatarUrl || '/image-avatars/1.png', // avatar icon
                 scaledSize: new google.maps.Size(40, 40),
             },
         })
+
+        marker.addListener('click', () => {
+            // ✅ เมื่อคลิก marker ให้ไปอีกหน้า
+            // ส่ง place.id หรือ object เป็น params / query
+            router.push({
+                path: `/map_beacons/${userId}/${kid.id}`, // ชื่อ route
+                query: {
+                    lastLat: kid.lastLat,
+                    lastLng: kid.lastLng,
+                    openDetail: "openKidDetail"
+                }
+            }).then(() => {
+                // รีโหลดหน้าใหม่หลัง navigation
+                window.location.reload();
+            });
+        });
     })
 }
 
@@ -487,6 +567,7 @@ function addPlaceMarker(place) {
         position: { lat: Number(place.lat), lng: Number(place.lng) },
         map: map.value,
         title: place.name,
+        zIndex: 1,
         icon: {
             url: svgUrl,
             scaledSize: new google.maps.Size(30, 30),
@@ -548,7 +629,6 @@ onMounted(async () => {
 
         goToCurrentLocation()
 
-        // add kid markers
         addKidMarkers()
 
         userPlaces.value.forEach(place => addPlaceMarker(place))
@@ -562,46 +642,33 @@ onMounted(async () => {
 
 
 const sheetRef = ref(null)
-const translateY = ref(0)
-let startY = 0
-let currentY = 0
-let startTranslate = 0
-let maxTranslate, minTranslate
-
-onMounted(() => {
-    const screenHeight = window.innerHeight
-    maxTranslate = screenHeight * 0.4  // ย่อสุด (sheet เห็น 40%)
-    minTranslate = screenHeight * 0.15 // ขึ้นสุด (sheet เห็น 85%)
-    translateY.value = maxTranslate    // เริ่มที่ย่อสุด
-})
+const translateY = ref(100) // start ย่อ
+const startY = ref(0)
+const sheetStart = ref(0)
+const minTranslate = -70   // สูงสุดที่ลากขึ้น
+const maxTranslate = 100   // ต่ำสุดที่ลากลง
 
 function onDragStart(e) {
-    startY = e.touches[0].clientY
-    startTranslate = translateY.value
+    startY.value = e.touches[0].clientY
+    sheetStart.value = translateY.value
 }
 
 function onDrag(e) {
-    currentY = e.touches[0].clientY
-    const deltaY = currentY - startY
-    let newTranslate = startTranslate + deltaY
-
-    // จำกัดไม่ให้เกิน min/max
-    if (newTranslate < minTranslate) newTranslate = minTranslate
-    if (newTranslate > maxTranslate) newTranslate = maxTranslate
-
-    translateY.value = newTranslate
+    const dy = e.touches[0].clientY - startY.value
+    let newY = sheetStart.value + dy
+    newY = Math.max(minTranslate, Math.min(maxTranslate, newY))
+    translateY.value = newY
 }
 
 function onDragEnd() {
-    // snap ให้อยู่ใกล้ค่าไหนมากกว่า
-    const mid = (minTranslate + maxTranslate) / 2
-    translateY.value = translateY.value < mid ? minTranslate : maxTranslate
+    // snap: ถ้าลากเกินครึ่ง ให้เลื่อนเต็ม
+    translateY.value = translateY.value < (minTranslate + maxTranslate) / 2 ? minTranslate : maxTranslate
 }
 
 </script>
 
 <template>
-    <div class="flex flex-col min-h-screen bg-[#E0F3FF]">
+    <div class="flex flex-col min-h-screen bg-white">
 
         <!-- Loading overlay -->
         <div v-if="isLoading" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
@@ -635,175 +702,150 @@ function onDragEnd() {
             <!-- Map Section -->
             <div class="relative flex-1">
                 <div ref="mapRef" style="width: 100%; height: 83vh;"></div>
-                <img v-show="!showPlace" src="/image-icons/piyopin.png" alt="pin point"
-                    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13">
+                <!-- <img v-show="!showPlace" src="/image-icons/piyopin.png" alt="pin point"
+                    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13"> -->
                 <button v-if="!showPlace" @click="goToCurrentLocation"
                     class="absolute top-3 right-2 bg-white p-2 rounded-full shadow-md text-blue-600 text-xl">📍</button>
             </div>
 
-            <!-- Pin Place Section -->
-            <div v-if="!showKidDetail && !showPlaceDetail" class="fixed bottom-0 w-full z-50">
-                <!-- sheet container -->
-                <div ref="sheetRef"
-                    class=" w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
-                    :style="{ transform: `translateY(${translateY}px)`, height: '84vh', maxHeight: '124vh' }"
-                    @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
+            <!-- All kid Section -->
+            <!-- Bottom Sheet -->
+            <div v-if="!showKidDetail && !showPlaceDetail" ref="sheetRef"
+                class="absolute bottom-0 left-0 w-full h-screen bg-white rounded-t-2xl transition-transform duration-200 ease-out"
+                :style="{ transform: `translateY(${translateY}px)`, maxHeight: '100vh', height: 'auto' }"
+                @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
 
-                    <!-- drag handle -->
-                    <div class="h-3"></div>
-                    <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2 "></div>
+                <!-- Drag handle -->
+                <div class="h-3"></div>
+                <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2"></div>
 
-                    <!-- header -->
-                    <div class="flex items-center justify-between px-6 ">
-                        <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
-                        <NuxtLink :to="{
-                            path: `/kids/kid_create_profile/${userId}`,
-                            query: { map_beacons: 'map_beacons' }
-                        }"> <button
-                                class="bg-[#035CB2] text-white rounded-full w-8 h-8 flex items-center justify-center">
-                                <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
-                            </button>
-                        </NuxtLink>
-                    </div>
-
-                    <!-- kids list -->
-                    <div class="p-4 overflow-y-auto space-y-2" style="max-height: calc(100vh - 220px)">
-                        <template v-if="kids.length">
-                            <KidCard v-for="kid in kids.slice(0, 4)" :key="kid.id" :userId="userId" :id="kid.id"
-                                :name="kid.name" :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
-                                state="kidDetail" />
-                        </template>
-                        <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
-                    </div>
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6">
+                    <h2 class="text-2xl font-bold text-blue-800">All Kids</h2>
+                    <NuxtLink
+                        :to="{ path: `/kids/kid_create_profile/${userId}`, query: { map_beacons: 'map_beacons' } }">
+                        <button class="bg-[#035CB2] text-white rounded-full w-8 h-8 flex items-center justify-center">
+                            <img src="/image-icons/plus.png" alt="create kid" class="w-4 h-4">
+                        </button>
+                    </NuxtLink>
                 </div>
+
+                <!-- Kids list -->
+                <div class="p-4 overflow-y-auto space-y-3" style="max-height: calc(70vh - 80px)">
+                    <template v-if="kids.length">
+                        <KidCard v-for="kid in kids.slice(0, 4)" :key="kid.id" :userId="userId" :id="kid.id"
+                            :name="kid.name" :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
+                            :lastLat="kid.lastLat" :lastLng="kid.lastLng" :zoneId="kid.lastZoneId"
+                            :lastOfflineAt="kid.lastOfflineAt" state="kidDetail" />
+                    </template>
+                    <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
+                </div>
+
             </div>
 
-            <!-- Kid's detail Section -->
-            <div v-if="showKidDetail" class="fixed bottom-0 w-full z-50">
-                <!-- sheet container -->
-                <div ref="sheetRef"
-                    class=" w-full bg-white rounded-t-2xl shadow-lg transition-transform duration-200 ease-out"
-                    :style="{ transform: `translateY(${translateY}px)`, height: '90vh', maxHeight: '130vh' }"
+
+            <!-- Kid's Detail Section -->
+            <div v-if="showKidDetail" class="absolute bottom-0 w-full z-50">
+                <div ref="sheetRef" class="w-full bg-white rounded-t-2xl transition-transform duration-200 ease-out"
+                    :style="{ transform: `translateY(${translateY}px)`, maxHeight: '100vh', height: 'auto' }"
                     @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
 
                     <!-- drag handle -->
                     <div class="h-3"></div>
-                    <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2 "></div>
+                    <div class="w-30 h-2 bg-gray-300 rounded-full mx-auto mb-2"></div>
 
                     <!-- header -->
                     <div class="flex items-center justify-between px-6">
                         <div class="">
                             <div class="flex items-center gap-2">
                                 <h2 class="text-2xl font-bold text-blue-800"> {{ kid.name }} </h2>
-
                                 <div class="w-3 h-3 rounded-full"
-                                    :class="kid?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'">
-                                </div>
-
-
+                                    :class="kid?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'"></div>
                                 <div class="-ml-1 text-md"
                                     :class="kid?.status === 'online' ? 'text-green-600' : 'text-gray-600'">
                                     {{ kid?.status === 'online' ? 'Now' : 'Out' }}
                                 </div>
                             </div>
-                            <p>With you</p>
+                            <p>{{ distance }}</p>
                         </div>
 
                         <NuxtLink :to="`/map_beacons/${userId}/${0}`">
-                            <button class=" text-white rounded-full w-8 h-8 flex items-center justify-center"
+                            <button class="text-white rounded-full w-8 h-8 flex items-center justify-center"
                                 @click="closeDetail">
-                                <img src="/image-icons/cancel.png" alt="create kid" class="w-full h-full">
+                                <img src="/image-icons/cancel.png" alt="cancel" class="w-full h-full">
                             </button>
                         </NuxtLink>
                     </div>
 
-                    <div class="p-6">
+                    <!-- content -->
+                    <div class="px-6 pt-3 overflow-y-auto" style="max-height: calc(80vh - 100px)">
                         <p class="text-gray-500">Beacon ID</p>
-                        <p> {{ kid.beaconId }} </p>
+                        <p>{{ kid.beaconId }}</p>
 
                         <div class="h-2"></div>
 
                         <p class="text-gray-500">Remark</p>
-                        <p> {{ kid.remark }} </p>
-                    </div>
+                        <p>{{ kid.remark }}</p>
 
-                    <div class="flex flex-col mt-4 px-4">
-                        <div class="flex justify-between">
-                            <p class="text-blue-800 text-xl font-bold">Place History</p>
-                            <div class=" text-blue-500 text-md underline" @click="router.push({
-                                path: `/kids/kid_profile/${userId}/${kidId}`,
-                                query: {
-                                    map_beacons: 'map_beacons'
-                                }
-                            })">
-                                See All
+                        <div class="flex flex-col mt-2">
+                            <div class="flex justify-between">
+                                <p class="text-blue-800 text-xl font-bold">Place History</p>
+                                <div class="text-blue-500 text-md underline" @click="router.push({
+                                    path: `/kids/kid_profile/${userId}/${kidId}`,
+                                    query: { map_beacons: 'map_beacons' }
+                                })">
+                                    See All
+                                </div>
+                            </div>
+
+                            <div v-if="Histories.length === 0" class="flex justify-center text-gray-500 mt-5">
+                                <p>No place history</p>
+                            </div>
+                            <div v-else class="max-h-64 overflow-y-auto space-y-4 mt-2">
+                                <HistoryCard v-for="history in Histories.slice(0, 3)" :key="history.id"
+                                    :placeType="history.type" :date="history.date" :state="history.event" />
                             </div>
                         </div>
-                        <div v-if="Histories.length === 0" class="flex justify-center text-gray-500 mt-5">
-                            <p>No place history</p>
+
+                        <div class="flex justify-between gap-3 mt-3">
+                            <button @click="confirmDeleteKid"
+                                class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal">
+                                Delete
+                            </button>
+
+                            <button @click="() => router.push({
+                                path: `/kids/kid_edit_profile/${userId}/${kidId}`,
+                                query: { map_beacons: 'map_beacons' }
+                            })" class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal">
+                                Edit Profile
+                            </button>
                         </div>
 
-                        <div v-else class="max-h-69 overflow-y-auto space-y-4 space-x-1.5 mt-2">
-                            <HistoryCard v-for="history in Histories.slice(0, 4)" :key="history.id"
-                                :placeType="history.type" :date="history.date" :state="history.event"
-                                class="min-w-[200px] shrink-0" />
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between gap-3 mt-6 px-4">
-                        <button @click="confirmDeleteKid"
-                            class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal">
-                            Delete
-                        </button>
-
-                        <button @click="() => router.push({
-                            path: `/kids/kid_edit_profile/${userId}/${kidId}`,
-                            query: {
-                                map_beacons: 'map_beacons'
-                            }
-                        })" class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal ">
-                            Edit Profile
-                        </button>
-                    </div>
-
-                    <div class="h-40">
-
+                        <div class="h-5"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Place's detail Section -->
-            <div v-if="showPlaceDetail && !showKidDetail" class="fixed bottom-0 w-full z-50">
-                <!-- sheet container -->
-                <div class='bg-white p-5 rounded-t-3xl shadow-lg'>
-
-                    <!-- แถวชื่อ + ปุ่ม -->
+            <!-- Place's Detail Section -->
+            <div v-if="showPlaceDetail && !showKidDetail" class="fixed bottom-0 w-full z-50"> <!-- sheet container -->
+                <div class='bg-white p-5 rounded-t-3xl shadow-lg'> <!-- แถวชื่อ + ปุ่ม -->
                     <div class="flex items-center justify-between gap-4">
-                        <p class="font-bold text-2xl text-[#035CB2] break-words flex-1 min-w-0">
-                            {{ userPlace.name }}
+                        <p class="font-bold text-2xl text-[#035CB2] break-words flex-1 min-w-0"> {{ userPlace.name }}
                         </p>
+                        <NuxtLink :to="`/map_beacons/${userId}/${0}`"> <button
+                                class=" text-white rounded-full w-8 h-8 flex items-center justify-center"
+                                @click="closeDetail"> <img src="/image-icons/cancel.png" alt="create kid"
+                                    class="w-full h-full"> </button> </NuxtLink>
 
-                        <NuxtLink :to="`/map_beacons/${userId}/${0}`">
-                            <button class=" text-white rounded-full w-8 h-8 flex items-center justify-center"
-                                @click="closeDetail">
-                                <img src="/image-icons/cancel.png" alt="create kid" class="w-full h-full">
-                            </button>
-                        </NuxtLink>
-                    </div>
-
-                    <!-- แถว address เต็มแนวนอน -->
+                    </div> <!-- แถว address เต็มแนวนอน -->
                     <p class="mt-3 font-semibold text-gray-600">Address</p>
                     <div class="w-fit text-sm">
-                        <p class="break-words w-full mt-2 line-clamp-3">
-                            {{ userPlace.address }}
-                        </p>
+                        <p class="break-words w-full mt-2 line-clamp-3"> {{ userPlace.address }} </p>
                     </div>
 
                     <div class="mt-2">
                         <p class="font-semibold text-gray-600">Place type</p>
-                        <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm">
-                            {{ userPlace.type }}
-                        </div>
+                        <div class="mt-1 px-4 py-1 bg-[#92DBFF] w-fit rounded-full text-sm"> {{ userPlace.type }} </div>
                     </div>
 
                     <div class="mt-2">
@@ -811,35 +853,19 @@ function onDragEnd() {
                         <p>{{ userPlace.remark }}</p>
                     </div>
 
-                    <div class="flex justify-between gap-3 mt-6">
-                        <button @click="confirmDeletePlace"
-                            class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal">
-                            Delete
+                    <div class="flex justify-between gap-3 mt-6"> <button @click="confirmDeletePlace"
+                            class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal"> Delete
                         </button>
 
-                        <button @click="() => router.push({
-                            path: `/places/add_place/${userId}/${placeId}`,
-                            query: {
-                                name: userPlace.name,
-                                address: userPlace.address,
-                                type: userPlace.type,
-                                remark: userPlace.remark,
-                                lat: userPlace.latitude,
-                                lng: userPlace.longitude,
-                                status: true,
-                                map_beacons: 'map_beacons'
-                            }
-                        })" class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal">
-                            Edit place
-                        </button>
-
+                        <button
+                            @click="() => router.push({ path: `/places/add_place / ${userId} / ${placeId}`, query: { name: userPlace.name, address: userPlace.address, type: userPlace.type, remark: userPlace.remark, lat: userPlace.latitude, lng: userPlace.longitude, status: true, map_beacons: 'map_beacons' } })"
+                            class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal"> Edit place </button>
                     </div>
 
-                    <div class="h-40">
-
-                    </div>
+                    <div class="h-20"> </div>
                 </div>
             </div>
+
         </div>
 
         <transition name="fade" enter-active-class="transition ease-out duration-55"

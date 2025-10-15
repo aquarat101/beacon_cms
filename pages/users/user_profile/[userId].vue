@@ -117,9 +117,10 @@ onMounted(async () => {
             </div>
             <div class="min-h-60 max-h-120 overflow-y-auto space-y-3 space-x-1.5">
                 <template v-if="kids.length">
-                    <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id" :name="kid.name"
-                        :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
-                        class="min-w-[200px] shrink-0" />
+                    <KidCard v-for="kid in kids" :key="kid.id" :userId="userId" :id="kid.id"
+                        :name="kid.name" :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
+                        :lastLat="kid.lastLat" :lastLng="kid.lastLng" :zoneId="kid.lastZoneId"
+                        :lastOfflineAt="kid.lastOfflineAt" state="-" />
                 </template>
                 <p v-else class="mt-2 text-gray-500 text-center">No kids data</p>
             </div>

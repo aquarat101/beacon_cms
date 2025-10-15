@@ -33,7 +33,7 @@ async function fetchKid() {
         const data = await res.json()
         kid.value = data
         beaconId.value = kid.value.beaconId
-        fetchZoneHits()
+        fetchZoneEvents()
     } catch (error) {
         console.error(error)
     } finally {
@@ -41,7 +41,7 @@ async function fetchKid() {
     }
 }
 
-async function fetchZoneHits() {
+async function fetchZoneEvents() {
     if (!beaconId.value) {
         Histories.value = []
         loadingHistories.value = false
@@ -49,49 +49,68 @@ async function fetchZoneHits() {
     }
 
     try {
-        const res = await fetch(`${config.apiDomain}/beacons/getZoneHits/${beaconId.value}/${userId}`)
-        const json = await res.json()
+        const [eventsRes, placesRes] = await Promise.all([
+            fetch(`${config.apiDomain}/beacons/getZoneEvents/${beaconId.value}/${userId}`),
+            fetch(`${config.apiDomain}/places/get/${userId}`)
+        ])
 
-        // เรียงใหม่ก่อนเก่าตาม timestamp._seconds
-        const sortedData = (json.data || []).sort((a, b) => {
-            const timeA = a.timestamp?._seconds || 0
-            const timeB = b.timestamp?._seconds || 0
-            return timeB - timeA // ใหม่ก่อน
+        const eventsJson = await eventsRes.json()
+        const placesJson = await placesRes.json()
+
+        const events = eventsJson.data || []
+        const places = placesJson || []
+
+        // 🔹 สร้าง map ของ placeId → type
+        const placeTypeMap = {}
+        places.forEach(p => {
+            if (p.id || p.placeId) {
+                placeTypeMap[p.id || p.placeId] = p.type || 'other'
+            }
         })
 
-        Histories.value = sortedData.map((item, index) => {
-            let placeType = item.type || '-'
-            let dateStr = '-'
-            if (item.timestamp?._seconds) {
-                const date = new Date(item.timestamp._seconds * 1000)
-                dateStr = date.toLocaleString('th-TH', {
+        // 🔹 แปลงข้อมูลให้อยู่ในรูปพร้อมแสดง
+        Histories.value = events.map((item, index) => {
+            const date = item.timestamp?._seconds
+                ? new Date(item.timestamp._seconds * 1000)
+                : null
+            const dateStr = date
+                ? date.toLocaleString('th-TH', {
                     day: '2-digit', month: '2-digit', year: '2-digit',
                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                 })
+                : '-'
+
+            const placeType = placeTypeMap[item.zoneId] || 'other'
+            console.log("EVENT TYPE : ", item.eventType)
+            const eventLabel = item.eventType === 'hit' ? 'inside' :
+                item.eventType === 'exit' ? 'outside' : 'Nowhere'
+
+            return {
+                id: index + 1,
+                place: item.zoneName || '-',
+                type: placeType || 'Other',
+                event: eventLabel,
+                date: dateStr
             }
-            return { id: index + 1, place: placeType, date: dateStr }
         })
 
+        console.log("Histories value : ", Histories.value)
+
+        // 🔹 อัปเดตข้อมูลล่าสุดใน kid
         if (Histories.value.length > 0) {
+            const first = events[0]
+            const latestPlaceType = placeTypeMap[first.zoneId] || 'other'
+            type.value = latestPlaceType
             kid.value.updated = Histories.value[0].date
-            const first = sortedData[0]
-            type.value = first.type || '-'
-            if (first.timestamp?._seconds) {
-                const date = new Date(first.timestamp._seconds * 1000)
-                time.value = date.toLocaleString('th-TH', {
-                    day: '2-digit', month: '2-digit', year: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                })
-            } else {
-                time.value = '-'
-            }
         }
+
     } catch (error) {
-        console.error(error)
+        console.error('Fetch zone events error:', error)
     } finally {
         loadingHistories.value = false
     }
 }
+
 
 async function deleteKid() {
     console.log(kidId)
@@ -138,6 +157,7 @@ function goBack() {
 
 onMounted(() => {
     fetchKid()
+    fetchZoneEvents()
 })
 </script>
 
@@ -211,7 +231,7 @@ onMounted(() => {
                         class="w-26 h-26 bg-white rounded-full border-4 object-cover"
                         :class="kid?.status === 'online' ? 'border-green-500' : 'border-gray-400'" />
 
-                    <div class="absolute top-55 px-3 pb-1 rounded-full text-sm text-white"
+                    <div class="absolute top-55 px-4 p-1 rounded-full text-sm text-white"
                         :class="kid?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'">
                         {{ kid?.status === 'online' ? 'Online' : 'Offline' }}
                     </div>
@@ -245,9 +265,9 @@ onMounted(() => {
                         No place history
                     </div>
 
-                    <div v-else class="max-h-69 overflow-y-auto space-y-4 space-x-1.5 mt-2">
-                        <HistoryCard v-for="history in Histories" :key="history.id" :place="history.place"
-                            :date="history.date" class="min-w-[200px] shrink-0" />
+                    <div v-else class="max-h-64 overflow-y-auto space-y-4 mt-2">
+                        <HistoryCard v-for="history in Histories" :key="history.id"
+                            :placeType="history.type" :date="history.date" :state="history.event" />
                     </div>
                 </div>
             </div>

@@ -115,7 +115,7 @@ function confirmAvatar() {
 }
 
 function searchBeacon() {
-    
+
 }
 
 function scanQRCode() {
@@ -164,6 +164,8 @@ onMounted(() => {
                 <div class="relative w-24 h-24 cursor-pointer" @click="showAvatarPopup = true">
                     <img :src="form.avatar || avatars[0]" alt="Avatar"
                         class="w-full h-full bg-white rounded-full object-cover border-2 border-[#035CB2]" />
+                    <img src="/image-icons/plus_blue.png" alt="plus_blue"
+                        class="absolute bottom-1 right-1 w-7 h-7 bg-white rounded-full">
                 </div>
             </div>
         </div>
