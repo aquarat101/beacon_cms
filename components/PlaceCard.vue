@@ -55,7 +55,7 @@ const iconSrc = computed(() => {
             <img :src="iconSrc" :class="['p-2 w-12 h-12 rounded-full mr-3' , type === 'Home' ? 'bg-[#035CB2]' : type === 'School' ? 'bg-[#0099FF]' : type === 'Work' ? 'bg-[#92DBFF]' : 'bg-[#C3EBFF]']" />
     
             <div class="flex-1">
-                <p class="flex justify-start ml-2 text-lg text-gray-800">
+                <p class="flex justify-start ml-2 text-xl text-gray-800">
                     {{ name }}
                 </p>
             </div>

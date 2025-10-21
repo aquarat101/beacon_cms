@@ -37,7 +37,6 @@ const loadingPage = ref(true)
 const isUpdating = ref(false)
 const isDeleting = ref(false)
 const showDeleteModal = ref(false)
-const completed = ref(false)
 
 const selectedPosition = ref(null)
 
@@ -344,12 +343,7 @@ async function deletePlace() {
         if (!res.ok) throw new Error('Failed to delete place')
 
         // alert('Place deleted successfully')
-        completed.value = true
-        setTimeout(() => {
-            completed.value = false
-            router.push(`/places/my_place/${userId}`)
-        }, 800)
-        // router.push(`/places/my_place/${userId}`)
+        router.push(`/places/my_place/${userId}`)
     } catch (error) {
         console.error(error)
         alert('Error deleting place')
@@ -484,14 +478,6 @@ onMounted(async () => {
             </div>
         </transition>
 
-        <!-- Popup Completed -->
-        <div v-if="completed" class="fixed inset-0 bg-gray-400 bg-opacity-40 flex items-center justify-center z-50">
-            <div class="bg-white rounded-2xl shadow-lg px-8 py-6 flex flex-col items-center space-y-4">
-                <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-lg font-semibold text-[#20854f]">Completed!!</p>
-            </div>
-        </div>
-
         <transition name="fade" enter-active-class="transition ease-out duration-55"
             enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100"
             leave-active-class="transition ease-in duration-55" leave-from-class="opacity-100 scale-100"
@@ -613,11 +599,10 @@ onMounted(async () => {
                         class="flex justify-center w-full bg-white text-[#0198FF] border border-[#0198FF] py-3 rounded-2xl text-lg hover:bg-[#0198FF] hover:text-white transition">
                         Back
                     </button>
-                    
-                    <button type="button" @click="updatePlace"
+                    <!-- <button type="button" @click="updatePlace"
                         class="flex justify-center w-full bg-[#0198FF] text-white py-3 rounded-2xl text-lg hover:bg-[#0198FF] transition">
                         Save
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>
