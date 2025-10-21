@@ -794,7 +794,7 @@ function onDragEnd() {
                 </div>
 
                 <!-- Kids list -->
-                <div class="p-4 overflow-y-auto space-y-3" style="max-height: calc(70vh - 80px)">
+                <div class="p-4 overflow-y-auto space-y-3 min-h-72" style="max-height: calc(70vh - 80px)">
                     <template v-if="kids.length">
                         <KidCard v-for="kid in kids.slice(0, 4)" :key="kid.id" :userId="userId" :id="kid.id"
                             :name="kid.name" :status="kid.status" :updated="kid.updated" :avatarUrl="kid.avatarUrl"
