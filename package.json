@@ -11,6 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@line/liff": "^2.27.1",
     "@nuxt/icon": "^1.15.0",
     "@tailwindcss/vite": "^4.1.11",
