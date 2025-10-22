@@ -966,7 +966,6 @@ function onDragEnd() {
                             </button>
                         </div>
 
-                        <div class="h-5"></div>
                     </div>
                 </div>
             </div>
@@ -998,7 +997,7 @@ function onDragEnd() {
                         <p>{{ userPlace.remark }}</p>
                     </div>
 
-                    <div class="flex justify-between gap-3 mt-6"> <button @click="confirmDeletePlace"
+                    <div class="flex justify-between gap-3 mt-4"> <button @click="confirmDeletePlace"
                             class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal"> Delete
                         </button>
 
@@ -1007,7 +1006,6 @@ function onDragEnd() {
                             class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal"> Edit place </button>
                     </div>
 
-                    <div class="h-20"> </div>
                 </div>
             </div>
 
@@ -1068,7 +1066,7 @@ function onDragEnd() {
         </transition>
 
         <!-- Floating bottom tab -->
-        <div class="fixed bottom-0 bg-gradient-to-t from-white to-transparent z-100 w-full h-40">
+        <div v-if="!showKidDetail && !showPlaceDetail" class="fixed bottom-0 bg-gradient-to-t from-white to-transparent z-100 w-full h-40">
             <div
                 class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-200 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
                 <!-- Map Tab -->
