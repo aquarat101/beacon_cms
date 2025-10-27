@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import KidCard from '~/components/KidCard.vue'
 import HistoryCard from '~/components/HistoryCard.vue'
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const route = useRoute()
 const router = useRouter()
@@ -57,8 +58,10 @@ const completed = ref(false)
 const selectedPosition = ref(null)
 
 const panToIcon = ref(route.query.panToIcon) || "false"
-const lat = Number(route.query.lat)
-const lng = Number(route.query.lng)
+const lat = route.query.lat
+const lng = route.query.lng
+console.log("lat : ", lat)
+console.log("lng : ", lng)
 const kidName = route.query.kidName
 const kidAvatar = route.query.kidAvatar
 const placeName = route.query.placeName
@@ -495,48 +498,126 @@ function closeDetail() {
     selectedPlace.value = null
 }
 
-// After map is initialized
+// ใน setup() หรือ onMounted
+window.__handleKidClick = (data) => {
+    console.log("HandleKidClick : ", data)
+    console.log("handle lat : ", typeof (data.lastLat))
+    console.log("handle lng : ", typeof (data.lastLng))
+
+    router.push({
+        path: `/map_beacons/${userId}/${data.kidId}`,
+        query: {
+            lastLat: data.lastLat,
+            lastLng: data.lastLng,
+            openDetail: "openKidDetail",
+            panToIcon: "true",
+            lat: data.lastLat,
+            lng: data.lastLng,
+            kidName: data.kidName,
+            kidAvatar: data.kidAvatar
+        },
+    });
+};
+
+
 function addKidMarkers() {
     if (!map.value || !kids.value.length) {
         console.log("FAIL")
         return
     }
 
+    // เก็บ Marker ทั้งหมด
+    const markers = [];
+
+    // รวม kids ที่ lat,lng ใกล้กัน (< 0.00005) ~ 5-5.5m | 10m -> 0.00009
+    const grouped = {};
     kids.value.forEach(kid => {
-        if (!kid.lastLat || !kid.lastLng) return
-        const marker = new google.maps.Marker({
-            position: { lat: Number(kid.lastLat), lng: Number(kid.lastLng) },
-            map: map.value,
-            title: kid.name,
-            zIndex: 100,
-            icon: {
-                url: kid.avatarUrl || '/image-avatars/1.png', // avatar icon
-                scaledSize: new google.maps.Size(40, 40),
-            },
-        })
+        if (!kid.lastLat || !kid.lastLng) return;
+        const key = `${Number(kid.lastLat).toFixed(5)}_${Number(kid.lastLng).toFixed(5)}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(kid);
+    });
 
-        marker.addListener('click', () => {
-            marker.setMap(null)
+    Object.values(grouped).forEach(group => {
+        const lat = Number(group[0].lastLat);
+        const lng = Number(group[0].lastLng);
+        if (!isFinite(lat) || !isFinite(lng)) return;
 
-            router.push({
-                path: `/map_beacons/${userId}/${kid.id}`,
-                query: {
-                    lastLat: kid.lastLat,
-                    lastLng: kid.lastLng,
-                    openDetail: "openKidDetail",
-                    panToIcon: "true",
-                    lat: marker.getPosition().lat(),
-                    lng: marker.getPosition().lng(),
-                    kidName: kid.name,
-                    kidAvatar: kid.avatarUrl
+        const position = { lat, lng };
+
+        if (group.length === 1) {
+            const kid = group[0];
+            const marker = new google.maps.Marker({
+                position,
+                map: map.value,
+                title: kid.name,
+                zIndex: 100,
+                icon: {
+                    url: kid.avatarUrl || '/image-avatars/1.png',
+                    scaledSize: new google.maps.Size(40, 40),
                 },
             });
-        });
-    })
+
+            marker.addListener('click', () => {
+                const pos = marker.getPosition() || position;
+                marker.setMap(null);
+
+                router.push({
+                    path: `/map_beacons/${userId}/${kid.id}`,
+                    query: {
+                        lastLat: kid.lastLat,
+                        lastLng: kid.lastLng,
+                        openDetail: "openKidDetail",
+                        panToIcon: "true",
+                        lat: pos.lat(),
+                        lng: pos.lng(),
+                        kidName: kid.name,
+                        kidAvatar: kid.avatarUrl
+                    },
+                });
+            });
+
+            markers.push(marker);
+
+        } else {
+            // Marker กลุ่ม
+            const marker = new google.maps.Marker({
+                position,
+                map: map.value,
+                title: `${group.length} kids here`,
+                zIndex: 100,
+            });
+
+            const content = group.map(k => {
+                const dataStr = encodeURIComponent(JSON.stringify({
+                    kidId: k.id,
+                    lastLat: k.lastLat,
+                    lastLng: k.lastLng,
+                    kidName: k.name,
+                    kidAvatar: k.avatarUrl
+                }));
+
+                return `
+                <div style="display:flex; align-items:center; margin-bottom:4px; cursor:pointer;"
+                    onclick="window.__handleKidClick(JSON.parse(decodeURIComponent('${dataStr}')))">
+                    <img src="${k.avatarUrl || '/image-avatars/1.png'}" width="40" height="40" style="border-radius:50%; margin-right:6px;">
+                    <span>${k.name}</span>
+                </div>
+                `;
+            }).join('');
+
+            const infoWindow = new google.maps.InfoWindow({ content });
+            marker.addListener('click', () => infoWindow.open(map.value, marker));
+            markers.push(marker);
+        }
+    });
+
+    // สร้าง Marker Clusterer
+    new MarkerClusterer({ map: map.value, markers });
 }
 
+
 function addPlaceMarker(place) {
-    console.log(place)
     if (!map.value || !place) return;
 
     // กำหนดสี background และ Base64 ของ icon ตาม type
@@ -641,6 +722,7 @@ onMounted(async () => {
 
         if (panToIcon.value === "true") {
             const position = new google.maps.LatLng(lat, lng)
+            console.log(position)
 
             if (kidName && kidAvatar) {
                 const iconBg = kidAvatar.replace('/image-avatars/', '/image-bgs/').replace('.png', '_bg.png')
@@ -884,7 +966,6 @@ function onDragEnd() {
                             </button>
                         </div>
 
-                        <div class="h-5"></div>
                     </div>
                 </div>
             </div>
@@ -916,7 +997,7 @@ function onDragEnd() {
                         <p>{{ userPlace.remark }}</p>
                     </div>
 
-                    <div class="flex justify-between gap-3 mt-6"> <button @click="confirmDeletePlace"
+                    <div class="flex justify-between gap-3 mt-4"> <button @click="confirmDeletePlace"
                             class="w-1/3 px-4 py-2 rounded-lg border-2 border-red-400 text-red-500 font-normal"> Delete
                         </button>
 
@@ -925,7 +1006,6 @@ function onDragEnd() {
                             class="w-2/3 px-4 py-2 rounded-lg bg-blue-500 text-white font-normal"> Edit place </button>
                     </div>
 
-                    <div class="h-20"> </div>
                 </div>
             </div>
 
@@ -986,7 +1066,7 @@ function onDragEnd() {
         </transition>
 
         <!-- Floating bottom tab -->
-        <div class="fixed bottom-0 bg-gradient-to-t from-white to-transparent z-100 w-full h-40">
+        <div v-if="!showKidDetail && !showPlaceDetail" class="fixed bottom-0 bg-gradient-to-t from-white to-transparent z-100 w-full h-40">
             <div
                 class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-200 backdrop-blur-md shadow-lg rounded-full flex justify-between items-center px-2 py-2 w-80 border border-blue-200 z-50">
                 <!-- Map Tab -->
