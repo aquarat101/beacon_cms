@@ -890,7 +890,7 @@ function onDragEnd() {
 
 
             <!-- Kid's Detail Section -->
-            <div v-if="showKidDetail" class="absolute bottom-0 w-full z-50">
+            <div v-if="showKidDetail" class="absolute bottom-0 left-0 w-full z-50">
                 <div ref="sheetRef" class="w-full bg-white rounded-t-2xl transition-transform duration-200 ease-out"
                     :style="{ transform: `translateY(${translateY}px)`, maxHeight: '100vh', height: 'auto' }"
                     @touchstart="onDragStart" @touchmove.prevent="onDrag" @touchend="onDragEnd">
@@ -971,7 +971,7 @@ function onDragEnd() {
             </div>
 
             <!-- Place's Detail Section -->
-            <div v-if="showPlaceDetail && !showKidDetail" class="fixed bottom-0 w-full z-50"> <!-- sheet container -->
+            <div v-if="showPlaceDetail && !showKidDetail" class="fixed bottom-0 left-0 w-full z-50"> <!-- sheet container -->
                 <div class='bg-white p-5 rounded-t-3xl shadow-lg'> <!-- แถวชื่อ + ปุ่ม -->
                     <div class="flex items-center justify-between gap-4">
                         <p class="font-bold text-2xl text-[#035CB2] break-words flex-1 min-w-0"> {{ userPlace.name }}
